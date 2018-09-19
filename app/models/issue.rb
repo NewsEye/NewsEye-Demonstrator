@@ -20,7 +20,7 @@ class Issue < ActiveFedora::Base
   property :nb_pages, predicate: ::RDF::Vocab::DC11.format, multiple: false do |index|
     index.as :stored_searchable
   end
-  property :text_content, predicate: ::RDF::Vocab::CNT.chars, multiple: false do |index|
+  property :all_text, predicate: ::RDF::Vocab::CNT.ContentAsText, multiple: false do |index|
     index.as :stored_searchable
   end
   property :thumbnail_url, predicate: ::RDF::Vocab::DC11.relation, multiple: false do |index|

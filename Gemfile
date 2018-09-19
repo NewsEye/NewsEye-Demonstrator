@@ -12,6 +12,7 @@ gem 'blacklight-gallery'
 gem 'hydra-works'
 gem 'europeana-api'
 gem 'riiif'
+gem 'pg'
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'

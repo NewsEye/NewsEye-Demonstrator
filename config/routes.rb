@@ -37,8 +37,8 @@ Rails.application.routes.draw do
   end
 
   mount Blacklight::Engine => '/'
-  
-  mount Riiif::Engine => '/image-service', as: 'riiif'
+
+  mount Riiif::Engine => '/iiif', as: 'riiif'
 
   root to: "catalog#index"
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html

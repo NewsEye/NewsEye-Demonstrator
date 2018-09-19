@@ -46,26 +46,44 @@ for item in search[:items] do
   np.language = md_language[0]
   #np.description = md_description
   np.nb_pages = 4
-# np.text_content = issue_text
 
   i = 1
   continue = true
   while continue
     begin
-      ocr = 'https://digi.kansalliskirjasto.fi/sanomalehti/binding/%s/page-%i.xml' % [id, i]
-      Nokogiri::XML(open(ocr).read)
-      image_full = 'https://digi.kansalliskirjasto.fi/sanomalehti/binding/%s/image/%i' % [id, i]
-      image_thumbnail = 'https://digi.kansalliskirjasto.fi/sanomalehti/binding/%s/thumbnail/%i' % [id, i]
+      ocr_file = open('https://digi.kansalliskirjasto.fi/sanomalehti/binding/%s/page-%i.xml' % [id, i], 'r')
+      ocr = Nokogiri::XML(open(ocr_file).read, 'UTF-8')
       puts 'adding page %{num}' % [num: i]
+      ocr_text = ''
+      for line in ocr.xpath('//TextLine')
+        for word in line.xpath('./String')
+          ocr_text += word['CONTENT'] + ' '
+        end
+        ocr_text.strip!
+        ocr_text += "\n"
+      end
+      ocr_text.strip!
+      image_full = open('https://digi.kansalliskirjasto.fi/sanomalehti/binding/%s/image/%i' % [id, i], 'r')
+      image_thumbnail = open('https://digi.kansalliskirjasto.fi/sanomalehti/binding/%s/thumbnail/%i' % [id, i], 'r')
       ifs = PageFileSet.new
       ifs.id = '%{id}_ifs_%{num}' % [id: id, num: i]
       ifs.page_number = i
-      Hydra::Works::AddExternalFileToFileSet.call(ifs, ocr, :extracted_text)
-      Hydra::Works::AddExternalFileToFileSet.call(ifs, image_full, :original_file)
-      Hydra::Works::AddExternalFileToFileSet.call(ifs, image_thumbnail, :thumbnail)
+      # Hydra::Works::AddFileToFileSet.call(ifs, image_full, :image_full)
+      # Hydra::Works::AddFileToFileSet.call(ifs, image_thumbnail, :thumbnail)
+      # begin
+      #   Hydra::Works::AddFileToFileSet.call(ifs, ocr, :alto)
+      # rescue Exception => e
+      #   puts e
+      # end
+
+      Hydra::Works::UploadFileToFileSet.call(ifs, image_full)
+      # Hydra::Works::AddFileToFileSet.call(ifs, image_thumbnail, :thumbnail)
+      # Hydra::Works::AddFileToFileSet.call(ifs, ocr_text, :extracted_text)
+      ifs.build_extracted_text
+      ifs.extracted_text.content = ocr_text
       ifs.save
       np.members << ifs
-      np.thumbnail_url = image_thumbnail if i == 1
+      np.thumbnail_url = 'https://digi.kansalliskirjasto.fi/sanomalehti/binding/%s/thumbnail/%i' % [id, i] if i == 1
       np.save
       puts 'thumb' if i == 1
       i += 1
@@ -74,6 +92,7 @@ for item in search[:items] do
     end
   end
   np.nb_pages = i
+  np.all_text = np.members.each.to_a.map{|x| x.extracted_text.content.force_encoding('UTF-8')}.join("\n")
   np.save
   coll.members << np unless coll.members.include? np
 end

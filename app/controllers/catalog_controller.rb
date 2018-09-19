@@ -95,6 +95,8 @@ class CatalogController < ApplicationController
     config.add_index_field solr_name('published_vern', :stored_searchable, type: :string), label: 'Published'
     config.add_index_field solr_name('lc_callnum', :stored_searchable, type: :string), label: 'Call number'
 
+    config.add_index_field solr_name('text_content', :stored_searchable, type: :string), label: 'OCR text'
+
     # solr fields to be displayed in the show (single result) view
     #   The ordering of the field names is the order of the display
     config.add_show_field solr_name('title', :stored_searchable, type: :string), label: 'Title'
