@@ -95,7 +95,11 @@ class CatalogController < ApplicationController
     config.add_index_field solr_name('published_vern', :stored_searchable, type: :string), label: 'Published'
     config.add_index_field solr_name('lc_callnum', :stored_searchable, type: :string), label: 'Call number'
 
-    config.add_index_field solr_name('text_content', :stored_searchable, type: :string), label: 'OCR text'
+    config.add_index_field solr_name('publisher', :stored_searchable, type: :string), label: 'Publisher'
+    config.add_index_field solr_name('date_created', :stored_searchable, type: :string), label: 'Date created'
+    config.add_index_field solr_name('nb_pages', :stored_searchable, type: :integer), label: 'Number of pages'
+
+    #config.add_index_field solr_name('text_content', :stored_searchable, type: :string), label: 'OCR text'
 
     # solr fields to be displayed in the show (single result) view
     #   The ordering of the field names is the order of the display
@@ -113,6 +117,11 @@ class CatalogController < ApplicationController
     config.add_show_field solr_name('published_vern', :stored_searchable, type: :string), label: 'Published'
     config.add_show_field solr_name('lc_callnum', :stored_searchable, type: :string), label: 'Call number'
     config.add_show_field solr_name('isbn', :stored_searchable, type: :string), label: 'ISBN'
+
+    config.add_show_field solr_name('original_uri', :stored_searchable, type: :string), label: 'Original URI'
+    config.add_show_field solr_name('publisher', :stored_searchable, type: :string), label: 'Publisher'
+    config.add_show_field solr_name('date_created', :stored_searchable, type: :string), label: 'Date created'
+    config.add_show_field solr_name('nb_pages', :stored_searchable, type: :integer), label: 'Number of pages'
 
     # "fielded" search configuration. Used by pulldown among other places.
     # For supported keys in hash, see rdoc for Blacklight::SearchFields

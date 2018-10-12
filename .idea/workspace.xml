@@ -2,25 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c5f8feb0-b2e4-44c8-8b19-96ed2e68ee20" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/app/assets/stylesheets/utils.scss" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/test.rb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config/initializers/derivatives.rb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/hydra/works/models/concerns/file_set/contained_files.rb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.generators" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.generators" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.rakeTasks" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.rakeTasks" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/newseye_samvera.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/newseye_samvera.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/views/catalog/_home.html.erb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Gemfile" beforeDir="false" afterPath="$PROJECT_DIR$/Gemfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Gemfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Gemfile.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/assets/stylesheets/application.css" beforeDir="false" afterPath="$PROJECT_DIR$/app/assets/stylesheets/application.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/assets/images/blacklight/logo.png" beforeDir="false" afterPath="$PROJECT_DIR$/app/assets/images/blacklight/logo.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/assets/stylesheets/utils.scss" beforeDir="false" afterPath="$PROJECT_DIR$/app/assets/stylesheets/utils.scss" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/controllers/catalog_controller.rb" beforeDir="false" afterPath="$PROJECT_DIR$/app/controllers/catalog_controller.rb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/models/issue.rb" beforeDir="false" afterPath="$PROJECT_DIR$/app/models/issue.rb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/models/page_file_set.rb" beforeDir="false" afterPath="$PROJECT_DIR$/app/models/page_file_set.rb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/test_import_fedora.rb" beforeDir="false" afterPath="$PROJECT_DIR$/bin/test_import_fedora.rb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/database.yml" beforeDir="false" afterPath="$PROJECT_DIR$/config/database.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/initializers/riiif.rb" beforeDir="false" afterPath="$PROJECT_DIR$/config/initializers/riiif.rb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/routes.rb" beforeDir="false" afterPath="$PROJECT_DIR$/config/routes.rb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/schema.rb" beforeDir="false" afterPath="$PROJECT_DIR$/db/schema.rb" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.bundle/" />
     <ignored path="$PROJECT_DIR$/components/" />
@@ -67,20 +54,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="test_import_fedora.rb" pinned="false" current-in-tab="false">
+      <file leaf-file-name="test_import_fedora.rb" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/bin/test_import_fedora.rb">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1410">
-              <caret line="94" column="13" selection-start-line="94" selection-start-column="13" selection-end-line="94" selection-end-column="13" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Gemfile" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Gemfile">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="14" column="7" selection-start-line="14" selection-start-column="7" selection-end-line="14" selection-end-column="7" />
+            <state relative-caret-position="399">
+              <caret line="73" column="62" lean-forward="true" selection-start-line="73" selection-start-column="62" selection-end-line="73" selection-end-column="62" />
             </state>
           </provider>
         </entry>
@@ -88,47 +66,38 @@
       <file leaf-file-name="issue.rb" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/models/issue.rb">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="330">
-              <caret line="22" column="20" selection-start-line="22" selection-start-column="20" selection-end-line="22" selection-end-column="20" />
+            <state relative-caret-position="435">
+              <caret line="29" column="43" selection-start-line="29" selection-start-column="43" selection-end-line="29" selection-end-column="43" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="catalog_controller.rb" pinned="false" current-in-tab="true">
+      <file leaf-file-name="catalog_controller.rb" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/controllers/catalog_controller.rb">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1417">
-              <caret line="39" column="10" selection-start-line="39" selection-start-column="10" selection-end-line="39" selection-end-column="10" />
+            <state relative-caret-position="465">
+              <caret line="75" column="77" selection-start-line="75" selection-start-column="77" selection-end-line="75" selection-end-column="77" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="test.rb" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/bin/test.rb">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="45">
-              <caret line="3" selection-start-line="3" selection-end-line="12" selection-end-column="13" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="contained_files.rb" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/lib/hydra/works/models/concerns/file_set/contained_files.rb">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="14" column="3" selection-start-line="14" selection-start-column="3" selection-end-line="14" selection-end-column="3" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="hydra_config.rb" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/config/initializers/hydra_config.rb">
+      <file leaf-file-name="_show_tools.html.erb" pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/.rbenv/versions/2.5.0/lib/ruby/gems/2.5.0/gems/blacklight-6.15.0/app/views/catalog/_show_tools.html.erb">
           <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
-      <file leaf-file-name="mime_types.rb" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/config/initializers/mime_types.rb">
+      <file leaf-file-name="newspaper.rb" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/models/newspaper.rb">
           <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file leaf-file-name="issue_file_set.rb" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/models/issue_file_set.rb">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="180">
+              <caret line="12" column="5" selection-start-line="12" selection-start-column="5" selection-end-line="12" selection-end-column="5" />
+            </state>
+          </provider>
         </entry>
       </file>
     </leaf>
@@ -155,6 +124,7 @@
       <find>hydr</find>
       <find>fits</find>
       <find>h</find>
+      <find>ispa</find>
     </findStrings>
     <dirStrings>
       <dir>$PROJECT_DIR$</dir>
@@ -181,11 +151,12 @@
         <option value="$PROJECT_DIR$/config/initializers/derivatives.rb" />
         <option value="$PROJECT_DIR$/lib/hydra/works/models/concerns/file_set/contained_files.rb" />
         <option value="$PROJECT_DIR$/bin/test.rb" />
-        <option value="$PROJECT_DIR$/app/models/issue.rb" />
         <option value="$PROJECT_DIR$/bin/test_import_fedora.rb" />
         <option value="$PROJECT_DIR$/app/assets/stylesheets/application.css" />
+        <option value="$PROJECT_DIR$/app/views/catalog/_home.html.erb" />
         <option value="$PROJECT_DIR$/app/assets/stylesheets/utils.scss" />
         <option value="$PROJECT_DIR$/app/controllers/catalog_controller.rb" />
+        <option value="$PROJECT_DIR$/app/models/issue.rb" />
       </list>
     </option>
   </component>
@@ -201,9 +172,10 @@
     </packageJsonPaths>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-3" />
-    <option name="width" value="1926" />
-    <option name="height" value="1052" />
+    <option name="x" value="1440" />
+    <option name="y" value="260" />
+    <option name="width" value="1436" />
+    <option name="height" value="789" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -228,11 +200,59 @@
               <item name="newseye_samvera" type="b2602c69:ProjectViewProjectNode" />
               <item name="newseye_samvera" type="462c0819:PsiDirectoryNode" />
               <item name="app" type="462c0819:PsiDirectoryNode" />
+              <item name="controllers" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="newseye_samvera" type="b2602c69:ProjectViewProjectNode" />
+              <item name="newseye_samvera" type="462c0819:PsiDirectoryNode" />
+              <item name="app" type="462c0819:PsiDirectoryNode" />
+              <item name="helpers" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="newseye_samvera" type="b2602c69:ProjectViewProjectNode" />
+              <item name="newseye_samvera" type="462c0819:PsiDirectoryNode" />
+              <item name="app" type="462c0819:PsiDirectoryNode" />
               <item name="models" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="newseye_samvera" type="b2602c69:ProjectViewProjectNode" />
+              <item name="newseye_samvera" type="462c0819:PsiDirectoryNode" />
+              <item name="bin" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="newseye_samvera" type="b2602c69:ProjectViewProjectNode" />
               <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
+            </path>
+            <path>
+              <item name="newseye_samvera" type="b2602c69:ProjectViewProjectNode" />
+              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
+              <item name="blacklight (v6.15.0, rbenv: 2.5.0) [gem]" type="70bed36:NamedLibraryElementNode" />
+            </path>
+            <path>
+              <item name="newseye_samvera" type="b2602c69:ProjectViewProjectNode" />
+              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
+              <item name="blacklight (v6.15.0, rbenv: 2.5.0) [gem]" type="70bed36:NamedLibraryElementNode" />
+              <item name="app" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="newseye_samvera" type="b2602c69:ProjectViewProjectNode" />
+              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
+              <item name="blacklight (v6.15.0, rbenv: 2.5.0) [gem]" type="70bed36:NamedLibraryElementNode" />
+              <item name="app" type="462c0819:PsiDirectoryNode" />
+              <item name="views" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="newseye_samvera" type="b2602c69:ProjectViewProjectNode" />
+              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
+              <item name="blacklight (v6.15.0, rbenv: 2.5.0) [gem]" type="70bed36:NamedLibraryElementNode" />
+              <item name="app" type="462c0819:PsiDirectoryNode" />
+              <item name="views" type="462c0819:PsiDirectoryNode" />
+              <item name="catalog" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="newseye_samvera" type="b2602c69:ProjectViewProjectNode" />
+              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
+              <item name="twitter-typeahead-rails (v0.11.1.pre.corejavascript, rbenv: 2.5.0) [gem]" type="70bed36:NamedLibraryElementNode" />
             </path>
           </expand>
           <select />
@@ -249,12 +269,12 @@
     <property name="settings.editor.selected.configurable" value="org.jetbrains.plugins.ruby.settings.RubyActiveModuleSdkConfigurable" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/lib/hydra/works/models/concerns/file_set" />
-      <recent name="$PROJECT_DIR$/app/views/catalog" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/app/assets/images" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/app/views/catalog" />
+      <recent name="$PROJECT_DIR$/lib/hydra/works/models/concerns/file_set" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -464,26 +484,32 @@
       <workItem from="1536867315183" duration="599000" />
       <workItem from="1537022786154" duration="835000" />
       <workItem from="1537341780618" duration="2465000" />
+      <workItem from="1538059444553" duration="54000" />
+      <workItem from="1538395962147" duration="599000" />
+      <workItem from="1538405175446" duration="2540000" />
+      <workItem from="1539070283736" duration="1201000" />
+      <workItem from="1539159612746" duration="1215000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="41236000" />
+    <option name="totallyTimeSpent" value="46845000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-3" y="0" width="3206" height="1052" extended-state="6" />
+    <frame x="1917" y="0" width="1926" height="1083" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.78685045" visible="true" weight="0.15" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.7813142" visible="true" weight="0.15" />
       <window_info anchor="bottom" id="TODO" order="7" />
       <window_info anchor="bottom" id="Docker" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
-      <window_info anchor="right" id="Database" order="3" visible="true" weight="0.0821875" />
+      <window_info anchor="right" id="Database" order="3" visible="true" weight="0.08125" />
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="12" />
       <window_info anchor="bottom" id="Run" order="3" weight="0.31416836" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="11" />
-      <window_info id="Favorites" order="2" sideWeight="0.21314952" side_tool="true" visible="true" weight="0.15" />
+      <window_info id="Favorites" order="2" sideWeight="0.21868584" side_tool="true" visible="true" weight="0.15" />
       <window_info anchor="bottom" id="Debug" order="4" weight="0.399384" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="6" weight="0.4" />
@@ -520,22 +546,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$USER_HOME$/.rbenv/versions/2.5.0/lib/ruby/gems/2.5.0/gems/blacklight-6.15.0/app/views/catalog/_document_list.html.erb">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$USER_HOME$/.rbenv/versions/2.5.0/lib/ruby/gems/2.5.0/gems/blacklight-6.15.0/app/views/catalog/_index_default.html.erb">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$USER_HOME$/.rbenv/versions/2.5.0/lib/ruby/gems/2.5.0/gems/blacklight-6.15.0/app/helpers/layout_helper.rb">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$USER_HOME$/.rbenv/versions/2.5.0/lib/ruby/gems/2.5.0/gems/blacklight-6.15.0/app/controllers/concerns/blacklight/catalog.rb">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2197">
-          <caret line="1" column="19" selection-start-line="1" selection-start-column="19" selection-end-line="1" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/.rbenv/versions/2.5.0/lib/ruby/gems/2.5.0/gems/blacklight-6.15.0/app/controllers/catalog_controller.rb">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="30">
@@ -554,20 +564,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="180">
           <caret line="12" column="23" lean-forward="true" selection-start-line="12" selection-start-column="23" selection-end-line="12" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.rbenv/versions/2.5.0/lib/ruby/gems/2.5.0/gems/rdf-vocab-3.0.3/lib/rdf/vocab/dc11.rb">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="299">
-          <caret line="109" column="18" selection-start-line="109" selection-start-column="13" selection-end-line="109" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/helpers/application_helper.rb">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="1" lean-forward="true" selection-start-line="1" selection-end-line="1" />
         </state>
       </provider>
     </entry>
@@ -592,13 +588,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state>
           <caret selection-end-line="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/models/issue_file_set.rb">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="12" column="5" selection-start-line="12" selection-start-column="5" selection-end-line="12" selection-end-column="5" />
         </state>
       </provider>
     </entry>
@@ -691,13 +680,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/bin/test.rb">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="45">
-          <caret line="3" selection-start-line="3" selection-end-line="12" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/.rbenv/versions/2.5.0/lib/ruby/gems/2.5.0/gems/hydra-works-0.17.0/lib/hydra/works/characterization/schema/document_schema.rb">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -748,6 +730,20 @@
     <entry file="file://$PROJECT_DIR$/config/initializers/mime_types.rb">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
+    <entry file="file://$PROJECT_DIR$/Gemfile">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="210">
+          <caret line="14" column="7" selection-start-line="14" selection-start-column="7" selection-end-line="14" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/views/catalog/_home.html.erb">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="1" column="35" lean-forward="true" selection-start-line="1" selection-start-column="35" selection-end-line="1" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/app/assets/stylesheets/application.css">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="210">
@@ -760,36 +756,70 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/assets/stylesheets/utils.scss">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="9" column="17" selection-start-line="9" selection-start-column="17" selection-end-line="9" selection-end-column="17" />
+        <state relative-caret-position="210">
+          <caret line="14" column="1" lean-forward="true" selection-start-line="14" selection-start-column="1" selection-end-line="14" selection-end-column="1" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/bin/test_import_fedora.rb">
+    <entry file="file://$PROJECT_DIR$/bin/test.rb">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1410">
-          <caret line="94" column="13" selection-start-line="94" selection-start-column="13" selection-end-line="94" selection-end-column="13" />
+        <state relative-caret-position="45">
+          <caret line="3" selection-start-line="3" selection-end-line="12" selection-end-column="13" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Gemfile">
+    <entry file="file://$PROJECT_DIR$/app/models/newspaper.rb">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/helpers/application_helper.rb">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="1" lean-forward="true" selection-start-line="1" selection-end-line="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.rbenv/versions/2.5.0/lib/ruby/gems/2.5.0/gems/blacklight-6.15.0/app/views/catalog/_show_tools.html.erb">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/controllers/catalog_controller.rb">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="465">
+          <caret line="75" column="77" selection-start-line="75" selection-start-column="77" selection-end-line="75" selection-end-column="77" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/models/issue_file_set.rb">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="12" column="5" selection-start-line="12" selection-start-column="5" selection-end-line="12" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.rbenv/versions/2.5.0/lib/ruby/gems/2.5.0/gems/rdf-vocab-3.0.3/lib/rdf/vocab/dc11.rb">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="210">
-          <caret line="14" column="7" selection-start-line="14" selection-start-column="7" selection-end-line="14" selection-end-column="7" />
+          <caret line="14" column="16" selection-start-line="14" selection-start-column="16" selection-end-line="14" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.rbenv/versions/2.5.0/lib/ruby/gems/2.5.0/gems/rdf-vocab-3.0.3/lib/rdf/vocab/dc.rb">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="288">
+          <caret line="481" column="18" selection-start-line="481" selection-start-column="14" selection-end-line="481" selection-end-column="18" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/models/issue.rb">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="22" column="20" selection-start-line="22" selection-start-column="20" selection-end-line="22" selection-end-column="20" />
+        <state relative-caret-position="435">
+          <caret line="29" column="43" selection-start-line="29" selection-start-column="43" selection-end-line="29" selection-end-column="43" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/controllers/catalog_controller.rb">
+    <entry file="file://$PROJECT_DIR$/bin/test_import_fedora.rb">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1417">
-          <caret line="39" column="10" selection-start-line="39" selection-start-column="10" selection-end-line="39" selection-end-column="10" />
+        <state relative-caret-position="399">
+          <caret line="73" column="62" lean-forward="true" selection-start-line="73" selection-start-column="62" selection-end-line="73" selection-end-column="62" />
         </state>
       </provider>
     </entry>

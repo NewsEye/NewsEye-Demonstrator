@@ -26,4 +26,7 @@ class Issue < ActiveFedora::Base
   property :thumbnail_url, predicate: ::RDF::Vocab::DC11.relation, multiple: false do |index|
     index.as :stored_searchable
   end
+  property :newspaper_title, predicate: ::RDF::Vocab::DC.isPartOf, multiple: false do |index|
+    index.as :stored_searchable, :facetable
+  end
 end
