@@ -37,6 +37,8 @@ class CatalogController < ApplicationController
       -has_model_ssim:"ActiveFedora::Aggregation::Proxy"
       -has_model_ssim:"ActiveFedora::DirectContainer"
       -has_model_ssim:"PageFileSet"
+      -has_model_ssim:"Newspaper"
+      -has_model_ssim:"IssueFileSet"
       ''',
       qf: 'title_tesim author_tesim abstract_tesim all_text_tesim',
       qt: 'search',
