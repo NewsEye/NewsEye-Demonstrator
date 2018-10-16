@@ -5,10 +5,19 @@ class Newspaper < ActiveFedora::Base
   property :title, predicate: ::RDF::Vocab::DC.title, multiple: false do |index|
     index.as :stored_searchable
   end
-  property :author, predicate: ::RDF::Vocab::DC.creator, multiple: false do |index|
+  property :publisher, predicate: ::RDF::Vocab::DC.publisher, multiple: false do |index|
     index.as :stored_searchable
   end
-  property :abstract, predicate: ::RDF::Vocab::DC.abstract, multiple: false do |index|
+  property :language, predicate: ::RDF::Vocab::DC.language, multiple: false do |index|
+    index.as :stored_searchable
+  end
+  property :datefrom, predicate: ::RDF::Vocab::DC.date, multiple: false do |index|
+    index.as :stored_searchable
+  end
+  property :dateto, predicate: ::RDF::Vocab::DC.date, multiple: false do |index|
+    index.as :stored_searchable
+  end
+  property :location, predicate: ::RDF::Vocab::DC.spatial, multiple: false do |index|
     index.as :stored_searchable
   end
 end

@@ -13,6 +13,7 @@ gem 'hydra-works'
 gem 'europeana-api'
 gem 'riiif'
 gem 'pg'
+gem 'unidecoder'
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'

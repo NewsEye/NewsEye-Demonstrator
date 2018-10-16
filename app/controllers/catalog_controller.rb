@@ -19,7 +19,7 @@ class CatalogController < ApplicationController
     config.show.partials.insert(1, :openseadragon)
 
     # config.index.thumbnail_method= :render_thumbnail # see helpers
-    config.index.thumbnail_field = :thumbnail_url_tesim
+    config.index.thumbnail_field = :thumbnail_url_ssm
 
     ## Class for sending and receiving requests from a search index
     # config.repository_class = Blacklight::Solr::Repository
@@ -38,7 +38,7 @@ class CatalogController < ApplicationController
       -has_model_ssim:"ActiveFedora::DirectContainer"
       -has_model_ssim:"PageFileSet"
       ''',
-      qf: 'title_tesim author_tesim abstract_tesim',
+      qf: 'title_tesim author_tesim abstract_tesim all_text_tesim',
       qt: 'search',
       rows: 10
     }
