@@ -6,6 +6,8 @@
 
 /.idea
 
+/db/seeds_data
+
 # Ignore bundler config.
 /.bundle
 

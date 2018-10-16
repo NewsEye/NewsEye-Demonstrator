@@ -1,6 +1,6 @@
 puts "seeding..."
 
-json_data = JSON.parse(File.read('/home/axel/Nextcloud/NewsEye/newseye_samvera/test_data/data.json'))
+json_data = JSON.parse(File.read('seeds_data/data.json'))
 
 json_data.each do |newspaper|
   newspaper = newspaper.with_indifferent_access
