@@ -6,7 +6,7 @@ class Issue < ActiveFedora::Base
     index.as :stored_searchable
   end
   property :date_created, predicate: ::RDF::Vocab::DC.created, multiple: false do |index|
-    index.as :stored_searchable
+    index.as :dateable, :facetable
   end
   property :language, predicate: ::RDF::Vocab::DC11.language, multiple: false do |index|
     index.as :stored_searchable, :facetable

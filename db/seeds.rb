@@ -1,12 +1,12 @@
 puts "seeding..."
 
-json_data = JSON.parse(File.read('seeds_data/data.json'))
+json_data = JSON.parse(File.read(File.join(File.dirname(__FILE__), './seeds_data/data.json')))
 
 json_data.each do |newspaper|
   newspaper = newspaper.with_indifferent_access
   puts "adding newspaper %s" % newspaper[:title]
   np = Newspaper.new
-  np.id = newspaper[:title].to_ascii
+  np.id = newspaper[:title].to_ascii.sub(' ', '_')
   np.title = newspaper[:title]
   np.publisher = newspaper[:publisher]
   np.language = newspaper[:language]
@@ -33,11 +33,12 @@ json_data.each do |newspaper|
       pfs = PageFileSet.new
       pfs.id = issue.id + '_' + issue_page[:id]
       pfs.page_number = issue_page[:page_number]
-      ocr_file = open(issue_page[:ocr_path], 'r')
-      image_full = open(issue_page[:image_path], 'r')
+      ocr_file = open(Rails.root.to_s + issue_page[:ocr_path], 'r')
+      image_full = open(Rails.root.to_s + issue_page[:image_path], 'r')
       Hydra::Works::UploadFileToFileSet.call(pfs, image_full)
       Hydra::Works::AddFileToFileSet.call(pfs, ocr_file, :extracted_text)
       ocr = Nokogiri::XML(open(ocr_file).read, 'UTF-8')
+      ocr.remove_namespaces!
       page_ocr_text = ''
       ocr.xpath('//TextLine').each do |line|
         line.xpath('./String').each do |word|

@@ -98,7 +98,7 @@ class CatalogController < ApplicationController
     config.add_index_field solr_name('lc_callnum', :stored_searchable, type: :string), label: 'Call number'
 
     config.add_index_field solr_name('publisher', :stored_searchable, type: :string), label: 'Publisher'
-    config.add_index_field solr_name('date_created', :stored_searchable, type: :string), label: 'Date created'
+    config.add_index_field solr_name('date_created', :dateable, type: :string), label: 'Date created'
     config.add_index_field solr_name('nb_pages', :stored_searchable, type: :integer), label: 'Number of pages'
 
     #config.add_index_field solr_name('text_content', :stored_searchable, type: :string), label: 'OCR text'
