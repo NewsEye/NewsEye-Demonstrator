@@ -14,6 +14,7 @@ gem 'europeana-api'
 gem 'riiif'
 gem 'pg'
 gem 'unidecoder'
+gem 'pul_uv_rails'
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
