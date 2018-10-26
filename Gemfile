@@ -15,6 +15,7 @@ gem 'riiif'
 gem 'pg'
 gem 'unidecoder'
 gem 'pul_uv_rails'
+gem 'iiif_manifest'
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'

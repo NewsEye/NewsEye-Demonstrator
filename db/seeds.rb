@@ -33,10 +33,16 @@ json_data.each do |newspaper|
       pfs = PageFileSet.new
       pfs.id = issue.id + '_' + issue_page[:id]
       pfs.page_number = issue_page[:page_number]
-      ocr_file = open(Rails.root.to_s + issue_page[:ocr_path], 'r')
+
       image_full = open(Rails.root.to_s + issue_page[:image_path], 'r')
-      Hydra::Works::UploadFileToFileSet.call(pfs, image_full)
-      Hydra::Works::AddFileToFileSet.call(pfs, ocr_file, :extracted_text)
+      Hydra::Works::AddFileToFileSet.call(pfs, image_full, :original_file)
+      Hydra::Works::CharacterizationService.run pfs.original_file
+      pfs.height = pfs.original_file.height.first
+      pfs.width = pfs.original_file.width.first
+      pfs.mime_type = pfs.original_file.mime_type
+
+      ocr_file = open(Rails.root.to_s + issue_page[:ocr_path], 'r')
+      Hydra::Works::AddFileToFileSet.call(pfs, ocr_file, :alto_xml)
       ocr = Nokogiri::XML(open(ocr_file).read, 'UTF-8')
       ocr.remove_namespaces!
       page_ocr_text = ''
@@ -48,8 +54,7 @@ json_data.each do |newspaper|
         page_ocr_text += "\n"
       end
       page_ocr_text.strip!
-      pfs.build_extracted_text
-      pfs.extracted_text.content = page_ocr_text
+
       pfs.save
       issue.members << pfs
       issue_ocr_text += page_ocr_text

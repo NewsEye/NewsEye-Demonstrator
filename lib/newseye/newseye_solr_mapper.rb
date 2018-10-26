@@ -46,4 +46,8 @@ module NewseyeSolrMapper
   def self.int_searchable
     Solrizer::Descriptor.new(:integer, :stored, :indexed)
   end
+
+  def self.int_stored
+    Solrizer::Descriptor.new(:integer, :stored)
+  end
 end
