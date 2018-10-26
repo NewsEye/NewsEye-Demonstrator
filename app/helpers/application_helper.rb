@@ -1,11 +1,9 @@
 module ApplicationHelper
   def convert_date_to_locale options={}
-    puts options
-    options
+    I18n.localize Date.parse(options)
   end
 
   def convert_language_to_locale options={}
-    puts options
     case options
     when 'fr'
       t('newseye.language.fr')
