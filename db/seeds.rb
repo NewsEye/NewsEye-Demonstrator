@@ -31,7 +31,7 @@ json_data.each do |newspaper|
       puts "adding page %i out of %i" % [issue_page[:page_number], np_issue[:pages].length]
 
       pfs = PageFileSet.new
-      pfs.id = issue.id + '_' + issue_page[:id]
+      pfs.id = issue.id + '_' + issue_page[:id].split('_')[1..-1].join('_')
       pfs.page_number = issue_page[:page_number]
 
       image_full = open(Rails.root.to_s + issue_page[:image_path], 'r')
@@ -57,9 +57,14 @@ json_data.each do |newspaper|
 
       pfs.save
       issue.members << pfs
+      pfs.save
+      issue.save
       issue_ocr_text += page_ocr_text
     end
     issue.all_text = issue_ocr_text
     np.members << issue
+    issue.member_of_collections << np
+    issue.save
+    np.save
   end
 end

@@ -1,9 +1,9 @@
 module ApplicationHelper
-  def convert_date_to_locale options={}
+  def convert_date_to_locale(options={})
     I18n.localize Date.parse(options)
   end
 
-  def convert_language_to_locale options={}
+  def convert_language_to_locale(options={})
     case options
     when 'fr'
       t('newseye.language.fr')
@@ -14,5 +14,9 @@ module ApplicationHelper
     when 'de'
       t('newseye.language.de')
     end
+  end
+
+  def get_collection_title_from_id(options={})
+    Newspaper.find(options).title
   end
 end

@@ -7,11 +7,19 @@ class ApplicationController < ActionController::Base
 
   protect_from_forgery with: :exception
 
-  before_action :set_locale
+  before_action :set_locale, :set_base_domain
 
   private
   def set_locale
-    I18n.locale = params[:locale] || I18n.default_locale
-    Rails.application.routes.default_url_options[:locale]= I18n.locale
+    unless request.fullpath.start_with? '/iiif'
+      I18n.locale = params[:locale] || I18n.default_locale
+      Rails.application.routes.default_url_options[:locale]= I18n.locale
+    else
+      Rails.application.routes.default_url_options.delete(:locale)
+    end
+  end
+
+  def set_base_domain
+    pp request.host_with_port
   end
 end

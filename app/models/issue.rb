@@ -40,7 +40,7 @@ class Issue < ActiveFedora::Base
   end
 
   def manifest_url
-    "http://test.host/books/#{self.id}/manifest"
+    "http://test.host/books/#{self.id}/manifest.json"
   end
 
   def manifest_metadata

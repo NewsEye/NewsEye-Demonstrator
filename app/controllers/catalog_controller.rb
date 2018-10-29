@@ -69,14 +69,15 @@ class CatalogController < ApplicationController
     #
     # :show may be set to false if you don't want the facet to be drawn in the
     # facet bar
-    config.add_facet_field solr_name('object_type', :facetable), label: 'Format'
-    config.add_facet_field solr_name('pub_date', :facetable), label: 'Publication Year'
-    config.add_facet_field solr_name('subject_topic', :facetable), label: 'Topic', limit: 20
+    # config.add_facet_field solr_name('object_type', :facetable), label: 'Format'
+    # config.add_facet_field solr_name('pub_date', :facetable), label: 'Publication Year'
+    # config.add_facet_field solr_name('subject_topic', :facetable), label: 'Topic', limit: 20
+    # config.add_facet_field solr_name('lc1_letter', :facetable), label: 'Call Number'
+    # config.add_facet_field solr_name('subject_geo', :facetable), label: 'Region'
+    # config.add_facet_field solr_name('subject_era', :facetable), label: 'Era'
     config.add_facet_field solr_name('language', :facetable), helper_method: :convert_language_to_locale, label: 'Language', limit: true
-    config.add_facet_field solr_name('lc1_letter', :facetable), label: 'Call Number'
-    config.add_facet_field solr_name('subject_geo', :facetable), label: 'Region'
-    config.add_facet_field solr_name('subject_era', :facetable), label: 'Era'
     config.add_facet_field solr_name('date_created', :facetable), helper_method: :convert_date_to_locale, label: 'Date', date: true
+    config.add_facet_field 'member_of_collection_ids_ssim', helper_method: :get_collection_title_from_id, label: 'Newspaper'
 
     # Have BL send all facet field names to Solr, which has been the default
     # previously. Simply remove these lines if you'd rather use Solr request
