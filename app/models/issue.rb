@@ -32,7 +32,7 @@ class Issue < ActiveFedora::Base
   end
 
   def file_set_presenters
-    self.members
+    self.ordered_members.to_a.select(&:file_set?)
   end
 
   def description
@@ -40,7 +40,7 @@ class Issue < ActiveFedora::Base
   end
 
   def manifest_url
-    "http://test.host/books/#{self.id}/manifest.json"
+    "http://localhost:3000/iiif/#{self.id}/manifest.json"
   end
 
   def manifest_metadata

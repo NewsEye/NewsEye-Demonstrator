@@ -6,10 +6,10 @@
 <div id="document" class="document <%= render_document_class %>" itemscope  itemtype="<%= @document.itemtype %>">
   <div id="doc_<%= @document.id.to_s.parameterize %>">
     <%= render_document_partials @document, blacklight_config.view_config(:show).partials %>
-    <%#= PulUvRails::UniversalViewer.script_tag %>
-<!--    <div class="viewer-wrapper">-->
-<!--      <div class="uv viewer" data-uri="<%#= main_app.polymorphic_path [main_app, :manifest, presenter], { locale: nil } %>"></div>-->
-<!--    </div>-->
+    <%= PulUvRails::UniversalViewer.script_tag %>
+    <div class="viewer-wrapper">
+      <div class="uv viewer" data-uri="<%= url_for action: :manifest, controller: 'iiif', locale: nil %>"></div>
+    </div>
   </div>
 </div>
 

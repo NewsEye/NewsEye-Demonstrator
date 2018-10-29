@@ -30,7 +30,7 @@ class PageFileSet < ActiveFedora::Base
   private
 
   def endpoint
-    IIIFManifest::IIIFEndpoint.new("http://test.host/images/#{id}",
+    IIIFManifest::IIIFEndpoint.new("http://localhost:3000/iiif/#{self.id}",
                                    profile: "http://iiif.io/api/image/2/level2.json")
   end
 

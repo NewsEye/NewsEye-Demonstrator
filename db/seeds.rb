@@ -56,7 +56,7 @@ json_data.each do |newspaper|
       page_ocr_text.strip!
 
       pfs.save
-      issue.members << pfs
+      issue.ordered_members << pfs
       pfs.save
       issue.save
       issue_ocr_text += page_ocr_text
