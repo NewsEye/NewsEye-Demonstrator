@@ -76,7 +76,7 @@ class CatalogController < ApplicationController
     # config.add_facet_field solr_name('subject_geo', :facetable), label: 'Region'
     # config.add_facet_field solr_name('subject_era', :facetable), label: 'Era'
     config.add_facet_field solr_name('language', :facetable), helper_method: :convert_language_to_locale, label: 'Language', limit: true
-    config.add_facet_field solr_name('date_created', :facetable), helper_method: :convert_date_to_locale, label: 'Date', date: true
+    config.add_facet_field solr_name('date_created', :facetable), helper_method: :convert_date_to_locale_facet, label: 'Date', date: true
     config.add_facet_field 'member_of_collection_ids_ssim', helper_method: :get_collection_title_from_id, label: 'Newspaper'
 
     # Have BL send all facet field names to Solr, which has been the default
@@ -91,7 +91,7 @@ class CatalogController < ApplicationController
     #   The ordering of the field names is the order of the display
 
     config.add_index_field solr_name('title', :text_en_searchable_uniq), label: 'Title'
-    config.add_index_field solr_name('date_created', :date_searchable_uniq), label: 'Published date'
+    config.add_index_field solr_name('date_created', :date_searchable_uniq), helper_method: :convert_date_to_locale, label: 'Published date'
     config.add_index_field solr_name('publisher', :text_en_searchable_uniq), label: 'Publisher'
     config.add_index_field solr_name('nb_pages', :int_searchable), label: 'Number of pages'
 
@@ -126,7 +126,7 @@ class CatalogController < ApplicationController
 
     config.add_show_field solr_name('original_uri', :string_stored_uniq), label: 'Original URI'
     config.add_show_field solr_name('publisher', :text_en_searchable_uniq), label: 'Publisher'
-    config.add_show_field solr_name('date_created', :date_searchable_uniq), label: 'Date created'
+    config.add_show_field solr_name('date_created', :date_searchable_uniq), helper_method: :convert_date_to_locale, label: 'Date created'
     config.add_show_field solr_name('nb_pages', :int_searchable), label: 'Number of pages'
 
     # "fielded" search configuration. Used by pulldown among other places.

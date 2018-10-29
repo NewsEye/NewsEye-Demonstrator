@@ -1,6 +1,10 @@
 module ApplicationHelper
-  def convert_date_to_locale(options={})
+  def convert_date_to_locale_facet(options={})
     I18n.localize Date.parse(options)
+  end
+
+  def convert_date_to_locale(options={})
+    I18n.localize Date.parse(options[:value].first)
   end
 
   def convert_language_to_locale(options={})
