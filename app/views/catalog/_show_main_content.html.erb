@@ -8,8 +8,9 @@
     <%= render_document_partials @document, blacklight_config.view_config(:show).partials %>
     <%= PulUvRails::UniversalViewer.script_tag %>
     <div class="viewer-wrapper">
-      <div class="uv viewer" data-uri="<%= url_for action: :manifest, controller: 'iiif', locale: nil %>"></div>
+      <div class="uv viewer" data-uri="<%= url_for action: :manifest, controller: 'iiif', locale: nil %>" style="height: 500px;"></div>
     </div>
+    <%#= mirador_tag(height: '500px', options: {data: [{ manifestUri: url_for(only_path: false, action: :manifest, controller: 'iiif', locale: nil), location: "NewsEye"}]})%>
   </div>
 </div>
 

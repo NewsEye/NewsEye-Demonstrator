@@ -17,4 +17,6 @@
 //= require jquery
 //= require blacklight/blacklight
 
+//require mirador
+
 //= require_tree .

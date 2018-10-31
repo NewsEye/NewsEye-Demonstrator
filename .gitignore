@@ -5,7 +5,7 @@
 #   git config --global core.excludesfile '~/.gitignore_global'
 
 /.idea
-
+/public/*
 /db/seeds_data
 
 # Ignore bundler config.
