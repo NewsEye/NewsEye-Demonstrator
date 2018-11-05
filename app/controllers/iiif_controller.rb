@@ -2,8 +2,7 @@
 
 class IiifController < ApplicationController
   def manifest
-    render json: JSON.parse(IIIFManifest::ManifestFactory.new(Issue.find(params[:id])).to_h.to_json).with_indifferent_access
-    # render json: Issue.find(params[:id]).manifest(request.protocol+request.host_with_port)
+    render json: JSON.parse(Issue.find(params[:id]).manifest(request.protocol+request.host_with_port).to_json)
   end
 
   def annotation_list

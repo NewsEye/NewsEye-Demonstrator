@@ -44,32 +44,6 @@ class Issue < ActiveFedora::Base
     manifest.metadata << {'label': 'Title', 'value': self.title}
     manifest.metadata << {'label': 'Date created', 'value': self.date_created}
     manifest.metadata << {'label': 'Publisher', 'value': self.publisher}
-    manifest = JSON.parse(manifest.to_json)
-    manifest['sequences'][0]['rendering'] = []
     manifest
-  end
-
-  def work_presenters
-    []
-  end
-
-  def file_set_presenters
-    self.ordered_members.to_a.select(&:file_set?)
-  end
-
-  def description
-    'dummy description'
-  end
-
-  def manifest_url
-    "http://localhost:3000/iiif/#{self.id}/manifest.json"
-  end
-
-  def manifest_metadata
-    [
-        { "label" => "Title", "value" => self.title },
-        { "label" => "Date created", "value" => self.date_created },
-        { "label" => "Publisher", "value" => self.publisher }
-    ]
   end
 end
