@@ -18,6 +18,33 @@ class PageFileSet < ActiveFedora::Base
     index.as :string_searchable_uniq
   end
 
+  def canvas(host, issue_id)
+    canvas = IIIF::Presentation::Canvas.new()
+    canvas['@id'] = "#{host}/iiif/#{issue_id}/canvas/#{issue_id}_page_#{self.page_number}"
+    canvas.width = self.width.to_i
+    canvas.height = self.height.to_i
+    canvas.label = self.page_number.to_s
+    image_annotation = IIIF::Presentation::Annotation.new
+    #image_annotation['@id'] = "#{host}/iiif/#{issue_id}/annotation/page_#{self.page_number}_image"
+    img_res_params = {
+        service_id: "#{host}/iiif/#{issue_id}_page_#{self.page_number}",
+        #resource_id: "#{host}/iiif/#{issue_id}_page_#{self.page_number}/full/full/0/default.jpg",
+        profile: "https://iiif.io/api/image/2/level2.json",
+        width: self.width.to_i,
+        height: self.height.to_i
+    }
+    img_res = IIIF::Presentation::ImageResource.create_image_api_image_resource(img_res_params)
+    # img_res['@id'] = "#{host}/iiif/#{issue_id}_page_#{self.page_number}/full/full/0/default.jpg"
+    img_res['@id'] = "#{issue_id}_page_#{self.page_number}"
+    img_res.format = 'image/jpeg'
+    # img_res.width = self.width.to_i
+    # img_res.height = self.height.to_i
+    image_annotation.resource = img_res
+    image_annotation['on'] = canvas['@id']
+    canvas.images << image_annotation
+    canvas
+  end
+
   def display_image
     IIIFManifest::DisplayImage.new(id,
                                    width: self.width,

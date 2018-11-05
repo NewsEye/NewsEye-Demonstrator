@@ -7,7 +7,7 @@ class ApplicationController < ActionController::Base
 
   protect_from_forgery with: :exception
 
-  before_action :set_locale, :set_base_domain
+  before_action :set_locale
 
   private
   def set_locale
@@ -17,9 +17,5 @@ class ApplicationController < ActionController::Base
     else
       Rails.application.routes.default_url_options.delete(:locale)
     end
-  end
-
-  def set_base_domain
-    pp request.host_with_port
   end
 end

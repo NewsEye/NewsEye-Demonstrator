@@ -27,6 +27,28 @@ class Issue < ActiveFedora::Base
     index.as :string_stored_uniq
   end
 
+  def manifest(host)
+    seed = {
+        '@id' => "#{host}/iiif/#{self.id}/manifest.json",
+        'label' => "Issue #{self.id} manifest"
+    }
+    manifest = IIIF::Presentation::Manifest.new(seed)
+    manifest.description = "This is a description."
+    sequence = IIIF::Presentation::Sequence.new
+    sequence['@id'] = "#{host}/iiif/#{self.id}/sequence/normal"
+    sequence['rendering'] = []
+    self.ordered_members.to_a.select(&:file_set?).each do |pfs|
+      sequence.canvases << pfs.canvas(host, self.id)
+    end
+    manifest.sequences << sequence
+    manifest.metadata << {'label': 'Title', 'value': self.title}
+    manifest.metadata << {'label': 'Date created', 'value': self.date_created}
+    manifest.metadata << {'label': 'Publisher', 'value': self.publisher}
+    manifest = JSON.parse(manifest.to_json)
+    manifest['sequences'][0]['rendering'] = []
+    manifest
+  end
+
   def work_presenters
     []
   end

@@ -17,6 +17,7 @@ gem 'unidecoder'
 gem 'pul_uv_rails'
 # gem 'mirador_rails'
 gem 'iiif_manifest'
+gem 'iiif-presentation'
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
