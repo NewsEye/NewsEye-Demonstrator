@@ -20,7 +20,7 @@ class PageFileSet < ActiveFedora::Base
 
   def canvas(host, issue_id)
     canvas = IIIF::Presentation::Canvas.new()
-    canvas['@id'] = "#{host}/iiif/#{issue_id}/canvas/#{issue_id}_page_#{self.page_number}"
+    canvas['@id'] = "#{host}/iiif/#{issue_id}/canvas/page_#{self.page_number}"
     canvas.width = self.width.to_i
     canvas.height = self.height.to_i
     canvas.label = self.page_number.to_s
@@ -32,14 +32,16 @@ class PageFileSet < ActiveFedora::Base
         height: self.height.to_i
     }
     img_res = IIIF::Presentation::ImageResource.create_image_api_image_resource(img_res_params)
-    img_res['@id'] = "#{host}/iiif/#{issue_id}_page_#{self.page_number}/full/full/0/default.jpg"
-    # img_res['@id'] = "#{issue_id}_page_#{self.page_number}"
+    # img_res['@id'] = "#{host}/iiif/#{issue_id}_page_#{self.page_number}/full/full/0/default.jpg"
+    img_res['@id'] = "#{issue_id}_page_#{self.page_number}"
     img_res.format = 'image/jpeg'
-    # img_res.width = self.width.to_i
-    # img_res.height = self.height.to_i
     image_annotation.resource = img_res
     image_annotation['on'] = canvas['@id']
     canvas.images << image_annotation
+
+    anno_list = IIIF::Presentation::AnnotationList.new
+    anno_list['@id'] = "#{host}/iiif/#{issue_id}/list/page_#{self.page_number}_ocr"
+    canvas.other_content << anno_list
     canvas
   end
 

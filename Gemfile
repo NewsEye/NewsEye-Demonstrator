@@ -15,8 +15,8 @@ gem 'riiif'
 gem 'pg'
 gem 'unidecoder'
 gem 'pul_uv_rails'
-# gem 'mirador_rails'
-gem 'iiif_manifest'
+gem 'mirador_rails'
+# gem 'iiif_manifest'
 gem 'iiif-presentation'
 
 

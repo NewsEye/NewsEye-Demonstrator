@@ -20,7 +20,7 @@ class IiifController < ApplicationController
                     "format": "text/plain",
                     "chars": "this is a test"
                 },
-                "on": "http://localhost:3000/iiif/"+params[:id]+"/manifest.json/canvas/Le_Figaro_12148-bpt6k276749p_page_1#xywh=100,100,1000,1000"
+                "on": "http://localhost:3000/iiif/"+params[:id]+"/canvas/page_1#xywh=100,100,1000,1000"
             }
         ]
       }

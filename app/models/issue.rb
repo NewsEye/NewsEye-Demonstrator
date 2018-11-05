@@ -36,7 +36,6 @@ class Issue < ActiveFedora::Base
     manifest.description = "This is a description."
     sequence = IIIF::Presentation::Sequence.new
     sequence['@id'] = "#{host}/iiif/#{self.id}/sequence/normal"
-    sequence['rendering'] = []
     self.ordered_members.to_a.select(&:file_set?).each do |pfs|
       sequence.canvases << pfs.canvas(host, self.id)
     end
