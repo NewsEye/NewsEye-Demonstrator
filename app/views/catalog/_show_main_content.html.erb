@@ -12,15 +12,34 @@
 <!--    </div>-->
 
     <%= mirador_tag(
+            id: 'mirador_view',
             height: '500px',
+            position: 'relative',
+            display: 'block',
             options: {
-              data: [{ manifestUri: url_for(only_path: false, action: :manifest, controller: 'iiif', locale: nil), location: "NewsEye"}],
-              layout: '1x1',
-              'mainMenuSettings.buttons.layout': false,
-              'mainMenuSettings.buttons.bookmark': false,
-              windowObjects: [
-                  loadedManifest: url_for(only_path: false, action: :manifest, controller: 'iiif', locale: nil)
-              ]
+                data: [
+                    { manifestUri: url_for(only_path: false, action: :manifest, controller: 'iiif', locale: nil), location: "NewsEye"}
+                ],
+                layout: '1x1',
+                mainMenuSettings: {
+                    show: false
+                },
+                windowObjects: [
+                    {
+                        loadedManifest: url_for(only_path: false, action: :manifest, controller: 'iiif', locale: nil),
+                        availableViews: %w(ThumbnailsView ImageView BookView),
+                        viewType: 'ImageView',
+                        bottomPanel: false
+                    }
+                ],
+                sidePanelOptions: {
+                    tocTabAvailable: true,
+                    layersTabAvailable: true,
+                    searchTabAvailable: true
+                },
+                sidePanelVisible: false,
+                overlay: false,
+                # annotationEndpoint: {name: "Local Storage", module: "LocalStorageEndpoint"}
             }
         )%>
   </div>

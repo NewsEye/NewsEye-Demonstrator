@@ -22,7 +22,12 @@ class IiifController < ApplicationController
                 },
                 "on": "http://localhost:3000/iiif/"+params[:id]+"/canvas/page_1#xywh=100,100,1000,1000"
             }
-        ]
+        ],
+        "within": {
+            "@id": "http://localhost:3000/iiif/"+params[:id]+"/layer/ocr",
+            "@type": "sc:Layer",
+            "label": "OCR Layer"
+        }
       }
   end
 

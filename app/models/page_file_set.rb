@@ -41,8 +41,13 @@ class PageFileSet < ActiveFedora::Base
 
     anno_list = IIIF::Presentation::AnnotationList.new
     anno_list['@id'] = "#{host}/iiif/#{issue_id}/list/page_#{self.page_number}_ocr"
+    # anno_list['@context'] = "http://iiif.io/api/presentation/2/context.json"
     canvas.other_content << anno_list
     canvas
+  end
+
+  def annotation_list(host, issue_id)
+
   end
 
 end

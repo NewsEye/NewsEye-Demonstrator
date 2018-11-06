@@ -19,7 +19,7 @@ class CatalogController < ApplicationController
     config.show.partials.insert(1, :openseadragon)
 
     # config.index.thumbnail_method= :render_thumbnail # see helpers
-    config.index.thumbnail_field = :thumbnail_url_ssm
+    config.index.thumbnail_field = :thumbnail_url_ss
 
     ## Class for sending and receiving requests from a search index
     # config.repository_class = Blacklight::Solr::Repository
@@ -39,6 +39,7 @@ class CatalogController < ApplicationController
       -has_model_ssim:"PageFileSet"
       -has_model_ssim:"Newspaper"
       -has_model_ssim:"IssueFileSet"
+      -has_model_ssim:"ActiveFedora::Aggregation::ListSource"
       ''',
       qf: 'title_tesi all_text_tesi',
       qt: 'search',
