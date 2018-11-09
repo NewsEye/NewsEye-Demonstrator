@@ -5,41 +5,27 @@ class IiifController < ApplicationController
     render json: JSON.parse(Issue.find(params[:id]).manifest(request.protocol+request.host_with_port).to_json)
   end
 
-  def annotation_list
-    render json: {
-        "@context": "http://iiif.io/api/presentation/2/context.json",
-        "@id": "http://localhost:3000/iiif/"+params[:id]+"/list/"+params[:name],
-        "@type": "sc:AnnotationList",
+  def manifest_with_annotations
+    render json: JSON.parse(Issue.find(params[:id]).manifest(request.protocol+request.host_with_port, with_annotations=true).to_json)
+  end
 
-        "resources": [
-            {
-                "@type": "oa:Annotation",
-                "motivation": "sc:painting",
-                "resource":{
-                    "@type": "cnt:ContentAsText",
-                    "format": "text/plain",
-                    "chars": "this is a test"
-                },
-                "on": "http://localhost:3000/iiif/"+params[:id]+"/canvas/page_1#xywh=100,100,1000,1000"
-            }
-        ],
-        "within": {
-            "@id": "http://localhost:3000/iiif/"+params[:id]+"/layer/ocr",
-            "@type": "sc:Layer",
-            "label": "OCR Layer"
-        }
-      }
+  def annotation_list
+    pfs_id = params[:id] + '_page_' + params[:name].split('_')[1]
+    render json: JSON.parse(PageFileSet.find(pfs_id).annotation_list(request.protocol+request.host_with_port, params[:name].split('_')[2..-1].join('_')))
   end
 
   def layer
-    render json: {
-          "@context": "http://iiif.io/api/presentation/2/context.json",
-          "@id": "http://example.org/iiif/book1/layer/transcription",
-          "@type": "sc:Layer",
-          "label": "Diplomatic Transcription",
-          "otherContent": [
-              "http://example.org/iiif/book1/list/l1"
-          ]
-        }
+    l = {}
+    l['@context'] = 'http://iiif.io/api/presentation/2/context.json'
+    l['@id'] = "#{request.protocol+request.host_with_port}/iiif/#{params[:id]}/layer/#{params[:name]}"
+    l['@type'] = 'sc:Layer'
+    l['label'] = params[:id] + ' ' + params[:name]
+    l['otherContent'] = []
+    nb_page = Issue.find(params[:id]).nb_pages
+    for i in 1..nb_page
+      l['otherContent'] << "#{request.protocol+request.host_with_port}/iiif/#{params[:id]}/list/page_#{i}_#{params[:name]}"
+    end
+
+    render json: l
   end
 end

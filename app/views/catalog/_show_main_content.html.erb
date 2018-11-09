@@ -5,43 +5,119 @@
 
 <div id="document" class="document <%= render_document_class %>" itemscope  itemtype="<%= @document.itemtype %>">
   <div id="doc_<%= @document.id.to_s.parameterize %>">
-    <%= render_document_partials @document, blacklight_config.view_config(:show).partials %>
+    <%#= render_document_partials @document, blacklight_config.view_config(:show).partials %>
     <%#= PulUvRails::UniversalViewer.script_tag %>
 <!--    <div class="viewer-wrapper">-->
 <!--      <div class="uv viewer" data-uri="<%#= url_for action: :manifest, controller: 'iiif', locale: nil %>" style="height: 500px;"></div>-->
 <!--    </div>-->
 
-    <%= mirador_tag(
-            id: 'mirador_view',
-            height: '500px',
-            position: 'relative',
-            display: 'block',
-            options: {
-                data: [
-                    { manifestUri: url_for(only_path: false, action: :manifest, controller: 'iiif', locale: nil), location: "NewsEye"}
-                ],
-                layout: '1x1',
-                mainMenuSettings: {
-                    show: false
-                },
-                windowObjects: [
-                    {
-                        loadedManifest: url_for(only_path: false, action: :manifest, controller: 'iiif', locale: nil),
-                        availableViews: %w(ThumbnailsView ImageView BookView),
-                        viewType: 'ImageView',
-                        bottomPanel: false
-                    }
-                ],
+    <div id="annotationLayerControls">
+      <div class="form-group">
+        <label for="select_layer">Select list:</label>
+        <select class="form-control" id="select_layer">
+          <option value="no" selected="selected">No layer</option>
+          <option value="word">Word-level</option>
+          <option value="line">Line-level</option>
+          <option value="block">Block-level</option>
+        </select>
+      </div>
+    </div>
+        <% options = {
+            language: params[:locale],
+            data: [
+                {
+                    manifestUri: url_for(only_path: false, action: :manifest, controller: 'iiif', locale: nil),
+                    location: "NewsEye"
+                }
+            ],
+            layout: '1x1',
+            openManifestsPage: false,
+
+
+            mainMenuSettings: {
+                show: false
+            },
+            availableAnnotationDrawingTools: ['Rectangle', 'Ellipse'],
+            availableAnnotationStylePickers: [],
+            #['StrokeColor','FillColor','StrokeType'],
+            sidePanelVisible: false,
+            windowSettings: {
+                availableViews: ['ThumbnailsView', 'ImageView', 'ScrollView'],
+                viewType: 'ImageView',
+                bottomPanel: true,
+                bottomPanelVisible: true,
+                sidePanel: true,
                 sidePanelOptions: {
+                    toc: true,
+                    annotations: false,
                     tocTabAvailable: true,
-                    layersTabAvailable: true,
-                    searchTabAvailable: true
+                    layersTabAvailable: false,
+                    searchTabAvailable: false,
+                    annotationTabAvailable: false
                 },
-                sidePanelVisible: false,
-                overlay: false,
-                # annotationEndpoint: {name: "Local Storage", module: "LocalStorageEndpoint"}
+                sidePanelVisible: true,
+                overlay: true,
+                canvasControls: {
+                    annotations: {
+                        annotationLayer: true,
+                        annotationCreation: true,
+                        annotationState: 'off',
+                        annotationRefresh: true,
+                    },
+                    imageManipulation: {
+                        manipulationLayer: true,
+                        controls: {
+                            rotate: true,
+                            brightness: true,
+                            contrast: true,
+                            saturate: true,
+                            grayscale: true,
+                            invert: true,
+                            mirror: false
+                        }
+                    }
+                },
+                fullScreen: true,
+                displayLayout: false,
+                # layoutOptions: {
+                #     newObject: true,
+                #     close: true,
+                #     slotRight: true,
+                #     slotLeft: true,
+                #     slotAbove: true,
+                #     slotBelow: true,
+                # }
+            },
+            windowObjects: [
+                {
+                    loadedManifest: url_for(only_path: false, action: :manifest, controller: 'iiif', locale: nil)
+                }
+            ],
+            annotationEndpoint: {
+                name: 'Simple Annotation Store Endpoint',
+                module: 'SimpleASEndpoint',
+                options: {
+                    url: 'http://localhost:8888/annotation',
+                }
             }
+        } %>
+    <% config = {
+          id: 'mirador_view',
+          #'buildPath': '/asiugygsets/',
+          i18nPath: '',
+          imagesPath: ''
+          }.merge(options)
+      %>
+
+        <%# mirador_tag(
+          id: 'mirador_view',
+          height: '500px',
+          position: 'relative',
+          display: 'block',
+          options: options
         )%>
+    <div id="mirador_view" style="height: 500px; width: 100%; position: relative; display: block;"></div>
+    <script type="text/javascript">  $(function() { window.mirador_instance = Mirador(<%= config.to_json.html_safe %>); }); </script>
   </div>
 </div>
 
