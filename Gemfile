@@ -19,6 +19,7 @@ gem 'mirador_rails'
 # gem 'iiif_manifest'
 gem 'iiif-presentation'
 gem 'charlock_holmes'
+gem 'httparty'
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'

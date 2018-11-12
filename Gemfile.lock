@@ -141,6 +141,8 @@ GEM
     hamster (3.0.0)
       concurrent-ruby (~> 1.0)
     http_logger (0.5.1)
+    httparty (0.16.2)
+      multi_xml (>= 0.5.2)
     hydra-access-controls (10.5.1)
       active-fedora (>= 10.0.0, < 12)
       activesupport (>= 4, < 6)
@@ -239,6 +241,7 @@ GEM
       openseadragon
       tinymce-rails
     multi_json (1.13.1)
+    multi_xml (0.6.0)
     multipart-post (2.0.0)
     nio4r (2.3.1)
     nokogiri (1.8.4)
@@ -412,6 +415,7 @@ DEPENDENCIES
   devise-guests (~> 0.6)
   europeana-api
   fcrepo_wrapper
+  httparty
   hydra-head
   hydra-works
   iiif-presentation

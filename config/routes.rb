@@ -44,9 +44,10 @@ Rails.application.routes.draw do
   get '/iiif/:id/list/:name', to: 'iiif#annotation_list'
   get '/iiif/:id/layer/:name', to: 'iiif#layer'
 
+  get '/annotations/search', to: 'annotations#search'
 
 
-  #mount MiradorRails::Engine, at: MiradorRails::Engine.locales_mount_path
+  mount MiradorRails::Engine, at: MiradorRails::Engine.locales_mount_path
 
   root to: "catalog#index"
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
