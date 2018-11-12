@@ -14,12 +14,17 @@ gem 'europeana-api'
 gem 'riiif'
 gem 'pg'
 gem 'unidecoder'
-gem 'pul_uv_rails'
-gem 'mirador_rails'
+# gem 'pul_uv_rails'
 # gem 'iiif_manifest'
 gem 'iiif-presentation'
 gem 'charlock_holmes'
 gem 'httparty'
+
+# mirador dependencies
+gem 'tinymce-rails'
+gem 'font-awesome-rails'
+gem 'material_icons'
+gem 'openseadragon'
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'

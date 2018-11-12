@@ -87,11 +87,11 @@
        config = {
           id: 'mirador_view',
           #'buildPath': '/asiugygsets/',
-          i18nPath: '',
+          i18nPath: '/locales',
           imagesPath: ''
           }.merge(options)
     %>
-    <div id="mirador_view" class="col-sm-6" style="height: 550px; width: 100%; position: relative; display: block;"></div>
+    <div id="mirador_view" style="height: 550px; width: 100%; position: relative; display: block;"></div>
     <script type="text/javascript">  $(function() { window.mirador_instance = Mirador(<%= config.to_json.html_safe %>); }); </script>
 
 
