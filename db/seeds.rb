@@ -26,7 +26,7 @@ json_data.each do |newspaper|
     issue.language = np_issue[:language]
     issue.nb_pages = np_issue[:nb_pages]
     # issue.thumbnail_url = np_issue[:thumbnail_url]
-    issue.thumbnail_url = "http://localhost:3000/iiif/Keski-Suomi_1047684_page_1/full/,200/0/default.jpg"
+    issue.thumbnail_url = "http://localhost:3000/iiif/#{issue.id}_page_1/full/,200/0/default.jpg"
     issue.save
     issue_ocr_text = ''
     np_issue[:pages].each do |issue_page|
@@ -82,7 +82,6 @@ json_data.each do |newspaper|
       annotation_file.close
       annotation_file = open(annotation_file.path, 'r')
       Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_block_level_annotation_list)
-      HTTParty.post('http://localhost:8888/populate.html', body: { uri: "http://localhost:3000/iiif/#{issue.id}/list/page_#{pfs.page_number}_ocr_block_level"})#, headers: { 'Content-Type' => 'application/json' } )
 
       ###### Finalize ######
 
@@ -91,6 +90,15 @@ json_data.each do |newspaper|
       pfs.save
       issue.save
       issue_ocr_text += page_ocr_text
+    end
+    puts "Sending annotations to server..."
+    issue.ordered_members.to_a.select(&:file_set?).each do |pfs|
+      %(word line block).each do |layer|
+        HTTParty.post('http://localhost:8888/annotation/populate',
+                      body: {
+                          uri: "http://localhost:3000/iiif/#{issue.id}/list/page_#{pfs.page_number}_ocr_#{layer}_level"
+                      })
+      end
     end
     issue.all_text = issue_ocr_text
     np.members << issue
