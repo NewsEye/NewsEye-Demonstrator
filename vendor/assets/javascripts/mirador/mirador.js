@@ -37162,15 +37162,18 @@ return /******/ (function(modules) { // webpackBootstrap
           text: ''
         },
         position: {
+          //target: $('#anno_content div')
           target: 'mouse',
-          my: 'bottom left',
+          my: 'top left',
           at: 'top right',
           adjust: {
             mouse: false,
             method: 'shift'
           },
-          container: params.container,
-          viewport: params.viewport
+            // container: $('#anno_content'),
+            // viewport: $('#anno_content div')
+            container: params.container,
+            viewport: params.viewport
         },
         style: {
           classes: 'qtip-bootstrap qtip-viewer',
@@ -38706,7 +38709,7 @@ return /******/ (function(modules) { // webpackBootstrap
         annotations: annotations,
         triggerEvent: event,
         shouldDisplayTooltip: function(api) {
-          //track whether the cursor is within the tooltip (with the specified tolerance) and disables show/hide/update functionality.
+          //track whetheronHover the cursor is within the tooltip (with the specified tolerance) and disables show/hide/update functionality.
           if (api.elements.tooltip) {
             var cursorWithinTooltip = true;
             var leftSide = api.elements.tooltip.offset().left - _this.svgOverlay.hitOptions.tolerance;
@@ -41129,7 +41132,7 @@ return /******/ (function(modules) { // webpackBootstrap
     }, options);
     this.init();
   };
-
+//todo
   $.Rectangle.prototype = {
     init: function() {
       this.SEGMENT_POINTS_COUNT = 9;
@@ -41598,6 +41601,7 @@ $.SimpleASEndpoint = function (options) {
         },
         data: {
           uri: options.uri,
+            layer: options.layer,
           APIKey: _this.APIKey,
           media: 'image',
           limit: 10000
@@ -43156,7 +43160,9 @@ $.SimpleASEndpoint = function (options) {
           options.eventEmitter = _this.eventEmitter;
           _this.endpoint = new $[module](options);
         }
-        _this.endpoint.search({ "uri" : _this.canvasID});
+        var select_element  = document.getElementById('select_layer');
+        var select_value  = select_element.options[select_element.selectedIndex].value;
+        _this.endpoint.search({ "uri" : _this.canvasID+'_' + select_value});
 
         dfd.done(function(loaded) {
           _this.annotationsList = _this.annotationsList.concat(_this.endpoint.annotationsList);
