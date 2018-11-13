@@ -1,0 +1,34 @@
+<% doc_presenter = index_presenter(document) %> 
+<%# default partial to display solr document fields in catalog index view -%>
+<dl class="document-metadata dl-horizontal dl-invert col-md-8">
+  
+  <% index_fields(document).each do |field_name, field| -%>
+    <% if should_render_index_field? document, field %>
+	    <dt class="blacklight-<%= field_name.parameterize %>"><%= render_index_field_label document, field: field_name %></dt>
+	    <dd class="blacklight-<%= field_name.parameterize %>"><%= doc_presenter.field_value field_name %></dd>
+    <% end -%>
+  <% end -%>
+  <% if document.solr_response[:highlighting] %>
+    <% if document.solr_response[:highlighting][document[:id]] %>
+      <% if document.solr_response[:highlighting][document[:id]]['all_text_tesi'] %>
+        <div class="panel-group">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a href="#<%= document[:id] %>_extracts" data-toggle="collapse">See extracts</a>
+              </h4>
+            </div>
+
+            <div id="<%= document[:id] %>_extracts" class="panel-collapse collapse">
+              <ul class="list-group">
+                <% document.solr_response[:highlighting][document[:id]]['all_text_tesi'].each do |extract| %>
+                  <li class="list-group-item"><em>...<%= extract.gsub(/\n/,'<br/>').gsub('<br/><br/>','<br/>').html_safe %>...</em></li>
+                <% end %>
+              </ul>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  <% end %>
+</dl>

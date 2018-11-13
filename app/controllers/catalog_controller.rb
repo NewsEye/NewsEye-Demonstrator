@@ -42,6 +42,15 @@ class CatalogController < ApplicationController
       -has_model_ssim:"ActiveFedora::Aggregation::ListSource"
       ''',
       qf: 'title_tesi all_text_tesi',
+      hl: true,
+      'hl.fl': 'all_text_tesi',
+      'hl.snippets': 10,
+      'hl.fragsize': 200,
+      'f.all_text_tesi.hl.tag.pre': '<span style="background-color: red; color: white;">',
+      'f.all_text_tesi.hl.tag.post': '</span>',
+      'f.all_text_tesi.hl.simple.pre': '<span style="background-color: red; color: white;">',
+      'f.all_text_tesi.hl.simple.post': '</span>',
+      'f.all_text_tesi.hl.useFastVectorHighlighter': true,
       qt: 'search',
       rows: 10
     }
