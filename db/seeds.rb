@@ -65,19 +65,19 @@ json_data.each do |newspaper|
 
       ###### IIIF Annotation generation ######
 
-      annotation_file = Tempfile.new(%w(annotation_list_word_level .json), Rails.root.to_s + '/tmp', encoding: ('UTF-8'))
+      annotation_file = Tempfile.new(%w(annotation_list_word_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
       annotation_file.write(parse_alto_word(ocr, issue.id, pfs.page_number, encoding))
       annotation_file.close
       annotation_file = open(annotation_file.path, 'r')
       Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_word_level_annotation_list)
 
-      annotation_file = Tempfile.new(%w(annotation_list_line_level .json), Rails.root.to_s + '/tmp', encoding: ('UTF-8'))
+      annotation_file = Tempfile.new(%w(annotation_list_line_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
       annotation_file.write(parse_alto_line(ocr, issue.id, pfs.page_number, encoding))
       annotation_file.close
       annotation_file = open(annotation_file.path, 'r')
       Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_line_level_annotation_list)
 
-      annotation_file = Tempfile.new(%w(annotation_list_block_level .json), Rails.root.to_s + '/tmp', encoding: ('UTF-8'))
+      annotation_file = Tempfile.new(%w(annotation_list_block_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
       annotation_file.write(parse_alto_block(ocr, issue.id, pfs.page_number, encoding))
       annotation_file.close
       annotation_file = open(annotation_file.path, 'r')
@@ -93,7 +93,7 @@ json_data.each do |newspaper|
     end
     puts "Sending annotations to server..."
     issue.ordered_members.to_a.select(&:file_set?).each do |pfs|
-      %(word line block).each do |layer|
+      ['block'].each do |layer|
         HTTParty.post('http://localhost:8888/annotation/populate',
                       body: {
                           uri: "http://localhost:3000/iiif/#{issue.id}/list/page_#{pfs.page_number}_ocr_#{layer}_level"

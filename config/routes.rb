@@ -41,11 +41,13 @@ Rails.application.routes.draw do
   mount Riiif::Engine => '/iiif', as: 'riiif'
 
   get '/iiif/:id/manifest.json', to: 'iiif#manifest'
+  get '/iiif/:id/annotated_manifest.json', to: 'iiif#manifest_with_annotations'
   get '/iiif/:id/list/:name', to: 'iiif#annotation_list'
   get '/iiif/:id/layer/:name', to: 'iiif#layer'
 
   get '/annotations/search', to: 'annotations#search'
 
+  get '/locales/:id/translation.json', to: 'assets#locale'
 
   # mount MiradorRails::Engine, at: MiradorRails::Engine.locales_mount_path
 

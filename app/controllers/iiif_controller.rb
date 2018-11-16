@@ -2,7 +2,12 @@
 
 class IiifController < ApplicationController
   def manifest
-    render json: JSON.parse(Issue.find(params[:id]).manifest(request.protocol+request.host_with_port).to_json)
+    man = JSON.parse(Issue.find(params[:id]).manifest(request.protocol+request.host_with_port).to_json)
+    man['service'] = {}
+    man['service']['@context'] = "http://iiif.io/api/search/1/context.json"
+    man['service']['@id'] = "http://localhost:8888/search-api/#{params[:id]}/search"
+    man['service']['@profile'] = "http://iiif.io/api/search/1/search"
+    render json: man
   end
 
   def manifest_with_annotations
