@@ -5,17 +5,17 @@ class PageFileSet < ActiveFedora::Base
   property :page_number, predicate: ::RDF::Vocab::SCHEMA.pagination, multiple: false do |index|
     index.as :int_searchable
   end
-
   property :width, predicate: ::RDF::Vocab::MA.frameWidth, multiple: false do |index|
     index.as :int_stored
   end
-
   property :height, predicate: ::RDF::Vocab::MA.frameHeight, multiple: false do |index|
     index.as :int_stored
   end
-
   property :mime_type, predicate: ::RDF::Vocab::DC11.format, multiple: false do |index|
     index.as :string_searchable_uniq
+  end
+  property :iiif_url, predicate: ::RDF::Vocab::SCHEMA.image, multiple: false do |index|
+    index.as :string_stored_uniq
   end
 
   def canvas(host, issue_id, with_annotations)
@@ -25,8 +25,9 @@ class PageFileSet < ActiveFedora::Base
     canvas.height = self.height.to_i
     canvas.label = self.page_number.to_s
     image_annotation = IIIF::Presentation::Annotation.new
+    service = self.iiif_url == nil ? "#{host}/iiif/#{issue_id}_page_#{self.page_number}" : self.iiif_url
     img_res_params = {
-        service_id: "#{host}/iiif/#{issue_id}_page_#{self.page_number}",
+        service_id: service,
         profile: "http://iiif.io/api/image/2/level2.json",
         width: self.width.to_i,
         height: self.height.to_i

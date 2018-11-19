@@ -25,8 +25,6 @@ json_data.each do |newspaper|
     issue.date_created = np_issue[:date_created]
     issue.language = np_issue[:language]
     issue.nb_pages = np_issue[:nb_pages]
-    # issue.thumbnail_url = np_issue[:thumbnail_url]
-    issue.thumbnail_url = "http://localhost:3000/iiif/#{issue.id}_page_1/full/,200/0/default.jpg"
     issue.save
     issue_ocr_text = ''
     np_issue[:pages].each do |issue_page|
@@ -36,13 +34,27 @@ json_data.each do |newspaper|
       pfs.id = issue.id + '_' + issue_page[:id].split('_')[1..-1].join('_')
       pfs.page_number = issue_page[:page_number]
 
-      open(Rails.root.to_s + issue_page[:image_path], 'r') do |image_full|
-        Hydra::Works::AddFileToFileSet.call(pfs, image_full, :original_file)
+      if issue.original_uri.include? 'ark:/' # If there exists an iiif image service
+        pfs.iiif_url = (issue.original_uri + "/f#{pfs.page_number}").insert(issue.original_uri.index('ark:/'), 'iiif/')
+        info_json = JSON.load(open(pfs.iiif_url+'/info.json'))
+        pfs.height = info_json['height'].to_i
+        pfs.width = info_json['width'].to_i
+        pfs.mime_type = 'image/jpeg'
+        if issue_page[:page_number] == 1
+          issue.thumbnail_url = "#{pfs.iiif_url}/full/,200/0/default.jpg"
+        end
+      else # Else import image
+        open(Rails.root.to_s + issue_page[:image_path], 'r') do |image_full|
+          Hydra::Works::AddFileToFileSet.call(pfs, image_full, :original_file)
+        end
+        Hydra::Works::CharacterizationService.run pfs.original_file
+        pfs.height = pfs.original_file.height.first
+        pfs.width = pfs.original_file.width.first
+        pfs.mime_type = pfs.original_file.mime_type
+        if issue_page[:page_number] == 1
+          issue.thumbnail_url = "http://localhost:3000/iiif/#{issue.id}_page_1/full/,200/0/default.jpg"
+        end
       end
-      Hydra::Works::CharacterizationService.run pfs.original_file
-      pfs.height = pfs.original_file.height.first
-      pfs.width = pfs.original_file.width.first
-      pfs.mime_type = pfs.original_file.mime_type
 
       ###### Parse OCR and add full text property ######
 
