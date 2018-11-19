@@ -8,7 +8,9 @@ class CatalogController < ApplicationController
   #before_filter :enforce_show_permissions, :only=>:show
   # This applies appropriate access controls to all solr queries
   Hydra::SearchBuilder.default_processor_chain -= [:add_access_controls_to_solr_params]
-
+  # TODO feedback button
+  # TODO search history as a tree
+  # TODO named entities
   configure_blacklight do |config|
     config.view.gallery.partials = [:index_header, :index]
     config.view.masonry.partials = [:index]
@@ -205,6 +207,8 @@ class CatalogController < ApplicationController
     config.spell_max = 5
   end
 
-
+  def explore
+    puts 'ok'
+  end
 
 end

@@ -49,7 +49,7 @@ Rails.application.routes.draw do
 
   get '/locales/:id/translation.json', to: 'assets#locale'
 
-  # mount MiradorRails::Engine, at: MiradorRails::Engine.locales_mount_path
+  get '/explore', to: 'catalog#explore'
 
   root to: "catalog#index"
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
