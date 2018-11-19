@@ -41,7 +41,7 @@ module Blacklight
     end
 
     def navbar_container_classes
-      'container'
+      'container-fluid'
     end
   end
 end
