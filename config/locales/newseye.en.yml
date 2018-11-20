@@ -8,4 +8,6 @@ en:
   blacklight:
     search:
       fields:
-        language_ss: 'Language'
+        language_sim: 'Language'
+        member_of_collection_ids_ssim: 'Newspaper'
+        date_created_sim: 'Date'

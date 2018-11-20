@@ -3,7 +3,7 @@
     <%= render_nav_actions do |config, action|%>
       <li><%= action %></li>
     <% end %>
-    <li><%= link_to 'Explore', '/explore'%></li>
+    <li><%= link_to 'Explore', "/#{I18n.locale}/explore" %></li>
   </ul>
 
   <% if has_user_authentication_provider? %>
