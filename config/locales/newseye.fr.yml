@@ -5,3 +5,7 @@ fr:
       en: 'Anglais'
       fi: 'Finlandais'
       de: 'Allemand'
+  blacklight:
+    search:
+      fields:
+        language_sim: 'Langage'

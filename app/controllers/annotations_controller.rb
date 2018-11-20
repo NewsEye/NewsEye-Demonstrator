@@ -1,6 +1,7 @@
 # -*- encoding : utf-8 -*-
 
 class AnnotationsController < ApplicationController
+
   def search
     puts params[:layer]
     uri, sep, layer = params[:uri].rpartition('_')
@@ -14,4 +15,9 @@ class AnnotationsController < ApplicationController
       render json: response.body
     end
   end
+
+  def add_annotation
+    render json: {title: Rails.configuration.newseye_services['annotations_endpoint']}
+  end
+
 end

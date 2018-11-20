@@ -11,6 +11,8 @@ class CatalogController < ApplicationController
   # TODO feedback button
   # TODO search history as a tree
   # TODO named entities
+  # TODO add image part in "see extracts"
+  # TODO index annotations manually
   configure_blacklight do |config|
     config.view.gallery.partials = [:index_header, :index]
     config.view.masonry.partials = [:index]
@@ -85,7 +87,7 @@ class CatalogController < ApplicationController
     # config.add_facet_field solr_name('lc1_letter', :facetable), label: 'Call Number'
     # config.add_facet_field solr_name('subject_geo', :facetable), label: 'Region'
     # config.add_facet_field solr_name('subject_era', :facetable), label: 'Era'
-    config.add_facet_field solr_name('language', :facetable), helper_method: :convert_language_to_locale, label: 'Language', limit: true
+    config.add_facet_field solr_name('language', :facetable), helper_method: :convert_language_to_locale, limit: true
     config.add_facet_field solr_name('date_created', :facetable), helper_method: :convert_date_to_locale_facet, label: 'Date', date: true
     config.add_facet_field 'member_of_collection_ids_ssim', helper_method: :get_collection_title_from_id, label: 'Newspaper'
 
@@ -209,6 +211,11 @@ class CatalogController < ApplicationController
 
   def explore
     puts 'ok'
+  end
+
+  # this method allow you to change url parameters like utf8 or locale
+  def search_action_url options = {}
+    url_for(options.reverse_merge(action: 'index'))
   end
 
 end

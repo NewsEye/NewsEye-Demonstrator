@@ -5,3 +5,7 @@ en:
       en: 'English'
       fi: 'Finnish'
       de: 'German'
+  blacklight:
+    search:
+      fields:
+        language_ss: 'Language'

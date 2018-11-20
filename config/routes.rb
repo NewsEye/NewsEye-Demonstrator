@@ -46,6 +46,7 @@ Rails.application.routes.draw do
   get '/iiif/:id/layer/:name', to: 'iiif#layer'
 
   get '/annotations/search', to: 'annotations#search'
+  get '/annotations/add', to: 'annotations#add_annotation'
 
   get '/locales/:id/translation.json', to: 'assets#locale'
 
