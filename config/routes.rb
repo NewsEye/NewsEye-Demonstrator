@@ -39,7 +39,8 @@ Rails.application.routes.draw do
     mount Blacklight::Engine => '/'
 
     get '/annotations/search', to: 'annotations#search'
-    get '/annotations/add', to: 'annotations#add_annotation'
+
+    post '/annotations/add', to: 'annotations#add_annotation'
 
     get '/locales/:id/translation.json', to: 'assets#locale'
 

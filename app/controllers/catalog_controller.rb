@@ -9,6 +9,7 @@ class CatalogController < ApplicationController
   # This applies appropriate access controls to all solr queries
   Hydra::SearchBuilder.default_processor_chain -= [:add_access_controls_to_solr_params]
   # TODO feedback button
+  # TODO language button
   # TODO search history as a tree
   # TODO named entities
   # TODO add image part in "see extracts"

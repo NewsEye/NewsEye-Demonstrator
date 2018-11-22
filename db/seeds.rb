@@ -65,32 +65,26 @@ json_data.each do |newspaper|
         Nokogiri::XML(f, nil, encoding)
       end
       ocr.remove_namespaces!
-      page_ocr_text = ''
-      ocr.xpath('//TextLine').each do |line|
-        line.xpath('./String').each do |word|
-          page_ocr_text += word['CONTENT'] + ' '
-        end
-        page_ocr_text.strip!
-        page_ocr_text += "\n"
-      end
-      page_ocr_text.strip!
 
       ###### IIIF Annotation generation ######
 
+      scale_factor = pfs.height.to_f / ocr.xpath('//Page')[0]['HEIGHT'].to_f
+      ocr_full_text, block_annots, line_annots, word_annots = parse_alto_index(ocr, issue.id, pfs.page_number, scale_factor)
+
       annotation_file = Tempfile.new(%w(annotation_list_word_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
-      annotation_file.write(parse_alto_word(ocr, issue.id, pfs.page_number, encoding))
+      annotation_file.write(word_annots)
       annotation_file.close
       annotation_file = open(annotation_file.path, 'r')
       Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_word_level_annotation_list)
 
       annotation_file = Tempfile.new(%w(annotation_list_line_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
-      annotation_file.write(parse_alto_line(ocr, issue.id, pfs.page_number, encoding))
+      annotation_file.write(line_annots)
       annotation_file.close
       annotation_file = open(annotation_file.path, 'r')
       Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_line_level_annotation_list)
 
       annotation_file = Tempfile.new(%w(annotation_list_block_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
-      annotation_file.write(parse_alto_block(ocr, issue.id, pfs.page_number, encoding))
+      annotation_file.write(block_annots)
       annotation_file.close
       annotation_file = open(annotation_file.path, 'r')
       Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_block_level_annotation_list)
@@ -101,17 +95,9 @@ json_data.each do |newspaper|
       issue.ordered_members << pfs
       pfs.save
       issue.save
-      issue_ocr_text += page_ocr_text
+      issue_ocr_text += ocr_full_text
     end
-    puts "Sending annotations to server..."
-    issue.ordered_members.to_a.select(&:file_set?).each do |pfs|
-      ['block'].each do |layer|
-        HTTParty.post('http://localhost:8888/annotation/populate',
-                      body: {
-                          uri: "http://localhost:3000/iiif/#{issue.id}/list/page_#{pfs.page_number}_ocr_#{layer}_level"
-                      })
-      end
-    end
+    SolrService.commit
     issue.all_text = issue_ocr_text
     np.members << issue
     issue.member_of_collections << np
@@ -121,107 +107,133 @@ json_data.each do |newspaper|
 end
 
 BEGIN {
-  def parse_alto_word(doc, doc_id, page_num, encoding)
-    annotation_list = {}
-    annotation_list['@context'] = 'http://iiif.io/api/presentation/2/context.json'
-    annotation_list['@id'] = "<host>/iiif/#{doc_id}/list/page_#{page_num}_ocr_word_level"
-    annotation_list['@type'] = 'sc:AnnotationList'
-    annotation_list['resources'] = []
+  def parse_alto_index(doc, doc_id, page_num, scale_factor)
+    page_ocr_text = ''
+    block_annotation_list = {}
+    block_annotation_list['@context'] = 'http://iiif.io/api/presentation/2/context.json'
+    block_annotation_list['@id'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/list/page_#{page_num}_ocr_block_level"
+    block_annotation_list['@type'] = 'sc:AnnotationList'
+    block_annotation_list['resources'] = []
+    block_annotation_list['within'] = {}
+    block_annotation_list['within']['@id'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/layer/ocr_block_level"
+    block_annotation_list['within']['@type'] = 'sc:Layer'
+    block_annotation_list['within']['label'] = 'OCR Layer'
+    word_annotation_list = {}
+    word_annotation_list['@context'] = 'http://iiif.io/api/presentation/2/context.json'
+    word_annotation_list['@id'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/list/page_#{page_num}_ocr_word_level"
+    word_annotation_list['@type'] = 'sc:AnnotationList'
+    word_annotation_list['resources'] = []
+    word_annotation_list['within'] = {}
+    word_annotation_list['within']['@id'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/layer/ocr_word_level"
+    word_annotation_list['within']['@type'] = 'sc:Layer'
+    word_annotation_list['within']['label'] = 'OCR Layer'
+    line_annotation_list = {}
+    line_annotation_list['@context'] = 'http://iiif.io/api/presentation/2/context.json'
+    line_annotation_list['@id'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/list/page_#{page_num}_ocr_line_level"
+    line_annotation_list['@type'] = 'sc:AnnotationList'
+    line_annotation_list['resources'] = []
+    line_annotation_list['within'] = {}
+    line_annotation_list['within']['@id'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/layer/ocr_line_level"
+    line_annotation_list['within']['@type'] = 'sc:Layer'
+    line_annotation_list['within']['label'] = 'OCR Layer'
 
-    doc.xpath('//String').each do |str|
-      annot = {}
-      annot['@type'] = 'oa:Annotation'
-      annot['motivation'] = 'sc:painting'
-      annot['resource'] = {}
-      annot['resource']['@type'] = 'cnt:ContentAsText'
-      annot['resource']['format'] = 'text/plain'
-      annot['resource']['chars'] = str['CONTENT'].force_encoding(encoding).encode('UTF-8')
-      annot['metadata'] = {}
-      annot['metadata']['word_confidence'] = str['WC'].to_f
-      annot['on'] = "<host>/iiif/#{doc_id}/canvas/page_#{page_num}#xywh=#{str['HPOS']},#{str['VPOS']},#{str['WIDTH']},#{str['HEIGHT']}"
-      annotation_list['resources'] << annot
-    end
-
-    annotation_list['within'] = {}
-    annotation_list['within']['@id'] = "<host>/iiif/#{doc_id}/layer/ocr_word_level"
-    annotation_list['within']['@type'] = 'sc:Layer'
-    annotation_list['within']['label'] = 'OCR Layer'
-    annotation_list.to_json
-  end
-
-  def parse_alto_line(doc, doc_id, page_num, encoding)
-    annotation_list = {}
-    annotation_list['@context'] = 'http://iiif.io/api/presentation/2/context.json'
-    annotation_list['@id'] = "<host>/iiif/#{doc_id}/list/page_#{page_num}_ocr_line_level"
-    annotation_list['@type'] = 'sc:AnnotationList'
-    annotation_list['resources'] = []
-
-    doc.xpath('//TextLine').each do |line|
-      annot = {}
-      annot['@type'] = 'oa:Annotation'
-      annot['motivation'] = 'sc:painting'
-      annot['resource'] = {}
-      annot['resource']['@type'] = 'cnt:ContentAsText'
-      annot['resource']['format'] = 'text/plain'
-      text = []
-      confidence = 0
-      line.children.each do |str|
-        if str.name == 'String'
-          text << str['CONTENT'].force_encoding(encoding).encode('UTF-8')
-          confidence += str['WC'].to_f
+    nb_blocks = doc.xpath('//TextBlock').size
+    total_word_index = 0
+    total_line_index = 0
+    doc.xpath('//TextBlock').each_with_index do |block, block_index|
+      print "block #{block_index+1} out of #{nb_blocks}\r"
+      block_id = "#{doc_id}_#{page_num}_block_#{block_index}"
+      block_text = []
+      block_confidence = 0
+      nb_lines = block.children.select{|line| line.name == 'TextLine'}.size
+      block.children.select{|line| line.name == 'TextLine'}.each_with_index do |line, line_index|
+        line_index = total_line_index + line_index
+        line_id = "#{doc_id}_#{page_num}_line_#{line_index}"
+        line_text = []
+        line_confidence = 0
+        nb_words = line.children.select{|str| str.name == 'String'}.size
+        line.children.select{|str| str.name == 'String'}.each_with_index do |word, word_index|
+          word_index = total_word_index + word_index
+          word_id = "#{doc_id}_#{page_num}_word_#{word_index}"
+          str_content = word['CONTENT']#.force_encoding(encoding).encode('UTF-8')
+          page_ocr_text += word['CONTENT'] + ' '
+          word_annot = {}
+          word_annot['@type'] = 'oa:Annotation'
+          word_annot['motivation'] = 'sc:painting'
+          word_annot['resource'] = {}
+          word_annot['resource']['@type'] = 'cnt:ContentAsText'
+          word_annot['resource']['format'] = 'text/plain'
+          word_annot['resource']['chars'] = str_content
+          word_annot['metadata'] = {}
+          word_annot['metadata']['word_confidence'] = word['WC'].to_f
+          word_annot['on'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/canvas/page_#{page_num}#xywh=#{word['HPOS'].to_i*scale_factor},#{word['VPOS'].to_i*scale_factor},#{word['WIDTH'].to_i*scale_factor},#{word['HEIGHT'].to_i*scale_factor}"
+          word_annotation_list['resources'] << word_annot
+          word_data = {
+              id: word_id,
+              target: word_annot['on'][0..word_annot['on'].index('#')-1],
+              selector: word_annot['on'][word_annot['on'].index('#')..-1],
+              level: "word",
+              level_reading_order: word_index,
+              parent_line_id: line_id,
+              parent_block_id: block_id,
+              body: "<p>#{str_content}</p>"
+          }
+          SolrService.add word_data
+          line_text << str_content
+          line_confidence += word['WC'].to_f
+          block_text << str_content
+          block_confidence += word['WC'].to_f
         end
+        total_word_index += nb_words
+        page_ocr_text.strip!
+        page_ocr_text += "\n"
+        line_annot = {}
+        line_annot['@type'] = 'oa:Annotation'
+        line_annot['motivation'] = 'sc:painting'
+        line_annot['resource'] = {}
+        line_annot['resource']['@type'] = 'cnt:ContentAsText'
+        line_annot['resource']['format'] = 'text/plain'
+        line_annot['resource']['chars'] = line_text.join(' ')
+        line_annot['metadata'] = {}
+        line_annot['metadata']['word_confidence'] = line_text.size == 0 ? 0 : line_confidence / line_text.size
+        line_annot['on'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/canvas/page_#{page_num}#xywh=#{line['HPOS'].to_i*scale_factor},#{line['VPOS'].to_i*scale_factor},#{line['WIDTH'].to_i*scale_factor},#{line['HEIGHT'].to_i*scale_factor}"
+        line_annotation_list['resources'] << line_annot
+        line_data = {
+            id: line_id,
+            target: line_annot['on'][0..line_annot['on'].index('#')-1],
+            selector: line_annot['on'][line_annot['on'].index('#')..-1],
+            level: "line",
+            level_reading_order: line_index,
+            parent_block_id: block_id,
+            body: "<p>#{line_text.join(' ')}</p>"
+        }
+        SolrService.add line_data
       end
-      annot['resource']['chars'] = text.join(' ')
-      annot['metadata'] = {}
-      annot['metadata']['word_confidence'] = text.size == 0 ? 0 : confidence / text.size
-      annot['on'] = "<host>/iiif/#{doc_id}/canvas/page_#{page_num}#xywh=#{line['HPOS']},#{line['VPOS']},#{line['WIDTH']},#{line['HEIGHT']}"
-      annotation_list['resources'] << annot
+      total_line_index += nb_lines
+      page_ocr_text.strip!
+      block_annot = {}
+      block_annot['@type'] = 'oa:Annotation'
+      block_annot['motivation'] = 'sc:painting'
+      block_annot['resource'] = {}
+      block_annot['resource']['@type'] = 'cnt:ContentAsText'
+      block_annot['resource']['format'] = 'text/plain'
+      block_annot['resource']['chars'] = block_text.join(' ')
+      block_annot['metadata'] = {}
+      block_annot['metadata'] = {}
+      block_annot['metadata']['word_confidence'] = block_text.size == 0 ? 0 : block_confidence / block_text.size
+      block_annot['on'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/canvas/page_#{page_num}#xywh=#{block['HPOS'].to_i*scale_factor},#{block['VPOS'].to_i*scale_factor},#{block['WIDTH'].to_i*scale_factor},#{block['HEIGHT'].to_i*scale_factor}"
+      block_annotation_list['resources'] << block_annot
+
+      block_data = {
+          id: block_id,
+          target: block_annot['on'][0..block_annot['on'].index('#')-1],
+          selector: block_annot['on'][block_annot['on'].index('#')..-1],
+          level: "block",
+          level_reading_order: block_index,
+          body: "<p>#{block_text.join(' ')}</p>"
+      }
+      SolrService.add block_data
     end
-
-    annotation_list['within'] = {}
-    annotation_list['within']['@id'] = "<host>/iiif/#{doc_id}/layer/ocr_line_level"
-    annotation_list['within']['@type'] = 'sc:Layer'
-    annotation_list['within']['label'] = 'OCR Layer'
-    annotation_list.to_json
-  end
-
-  def parse_alto_block(doc, doc_id, page_num, encoding)
-    annotation_list = {}
-    annotation_list['@context'] = 'http://iiif.io/api/presentation/2/context.json'
-    annotation_list['@id'] = "<host>/iiif/#{doc_id}/list/page_#{page_num}_ocr_block_level"
-    annotation_list['@type'] = 'sc:AnnotationList'
-    annotation_list['resources'] = []
-
-    doc.xpath('//TextBlock').each do |block|
-      annot = {}
-      annot['@type'] = 'oa:Annotation'
-      annot['motivation'] = 'sc:painting'
-      annot['resource'] = {}
-      annot['resource']['@type'] = 'cnt:ContentAsText'
-      annot['resource']['format'] = 'text/plain'
-      text = []
-      confidence = 0
-      block.children.each do |line|
-        if line.name == 'TextLine'
-          line.children.each do |str|
-            if str.name == 'String'
-              text << str['CONTENT'].force_encoding(encoding).encode('UTF-8')
-              confidence += str['WC'].to_f
-            end
-          end
-        end
-      end
-      annot['resource']['chars'] = text.join(' ')
-      annot['metadata'] = {}
-      annot['metadata']['word_confidence'] = text.size == 0 ? 0 : confidence / text.size
-      annot['on'] = "<host>/iiif/#{doc_id}/canvas/page_#{page_num}#xywh=#{block['HPOS']},#{block['VPOS']},#{block['WIDTH']},#{block['HEIGHT']}"
-      annotation_list['resources'] << annot
-    end
-
-    annotation_list['within'] = {}
-    annotation_list['within']['@id'] = "<host>/iiif/#{doc_id}/layer/ocr_block_level"
-    annotation_list['within']['@type'] = 'sc:Layer'
-    annotation_list['within']['label'] = 'OCR Layer'
-    annotation_list.to_json
+    return page_ocr_text, block_annotation_list.to_json, line_annotation_list.to_json, word_annotation_list.to_json
   end
 }
