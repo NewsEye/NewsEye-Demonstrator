@@ -20,7 +20,7 @@ gem 'iiif-presentation'
 gem 'charlock_holmes'
 gem 'httparty'
 gem 'http_accept_language'
-
+gem 'neo4j', '~> 9.3.0'
 
 # mirador dependencies
 gem 'tinymce-rails'

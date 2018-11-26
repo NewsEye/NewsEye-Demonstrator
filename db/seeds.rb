@@ -16,7 +16,7 @@ json_data.each do |newspaper|
   np.location = newspaper[:location]
   np.save
   newspaper[:issues].each do |np_issue|
-    puts "adding issue %s" % np_issue[:id]
+    puts "\tadding issue %s" % np_issue[:id]
     issue = Issue.new
     issue.original_uri = np_issue[:original_uri]
     issue.id = np.id + '_' + np_issue[:id]
@@ -28,7 +28,7 @@ json_data.each do |newspaper|
     issue.save
     issue_ocr_text = ''
     np_issue[:pages].each do |issue_page|
-      puts "adding page %i out of %i" % [issue_page[:page_number], np_issue[:pages].length]
+      puts "\t\tadding page %i out of %i" % [issue_page[:page_number], np_issue[:pages].length]
 
       pfs = PageFileSet.new
       pfs.id = issue.id + '_' + issue_page[:id].split('_')[1..-1].join('_')
@@ -52,7 +52,7 @@ json_data.each do |newspaper|
         pfs.width = pfs.original_file.width.first
         pfs.mime_type = pfs.original_file.mime_type
         if issue_page[:page_number] == 1
-          issue.thumbnail_url = "http://localhost:3000/iiif/#{issue.id}_page_1/full/,200/0/default.jpg"
+          issue.thumbnail_url = "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}_page_1/full/,200/0/default.jpg"
         end
       end
 
@@ -107,11 +107,12 @@ json_data.each do |newspaper|
 end
 
 BEGIN {
-  def parse_alto_index(doc, doc_id, page_num, scale_factor)
+  def parse_alto_index(doc, doc_id, page_num, scale_factor, generate_neo4j=false)
+    # neo4j_page = ["CREATE (p#{page_num}:Page {label:\"#{doc_id}_#{page_num}\", target:\"#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/canvas/page_#{page_num}\"})"]
     page_ocr_text = ''
     block_annotation_list = {}
     block_annotation_list['@context'] = 'http://iiif.io/api/presentation/2/context.json'
-    block_annotation_list['@id'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/list/page_#{page_num}_ocr_block_level"
+    block_annotation_list['@id'] = "/iiif/#{doc_id}/list/page_#{page_num}_ocr_block_level"
     block_annotation_list['@type'] = 'sc:AnnotationList'
     block_annotation_list['resources'] = []
     block_annotation_list['within'] = {}
@@ -129,7 +130,7 @@ BEGIN {
     word_annotation_list['within']['label'] = 'OCR Layer'
     line_annotation_list = {}
     line_annotation_list['@context'] = 'http://iiif.io/api/presentation/2/context.json'
-    line_annotation_list['@id'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/list/page_#{page_num}_ocr_line_level"
+    line_annotation_list['@id']#{Rails.configuration.newseye_services['host']} = "#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/list/page_#{page_num}_ocr_line_level"
     line_annotation_list['@type'] = 'sc:AnnotationList'
     line_annotation_list['resources'] = []
     line_annotation_list['within'] = {}
@@ -138,24 +139,28 @@ BEGIN {
     line_annotation_list['within']['label'] = 'OCR Layer'
 
     nb_blocks = doc.xpath('//TextBlock').size
-    total_word_index = 0
-    total_line_index = 0
+    in_page_word_index = 0
+    in_page_line_index = 0
+    # neo4j_blocks = []
     doc.xpath('//TextBlock').each_with_index do |block, block_index|
-      print "block #{block_index+1} out of #{nb_blocks}\r"
+      print "\t\t\tblock #{block_index+1} out of #{nb_blocks}\r"
       block_id = "#{doc_id}_#{page_num}_block_#{block_index}"
       block_text = []
       block_confidence = 0
       nb_lines = block.children.select{|line| line.name == 'TextLine'}.size
-      block.children.select{|line| line.name == 'TextLine'}.each_with_index do |line, line_index|
-        line_index = total_line_index + line_index
+      # neo4j_lines = []
+      in_block_word_index = 0
+      block.children.select{|line| line.name == 'TextLine'}.each_with_index do |line, in_block_line_index|
+        line_index = in_page_line_index + in_block_line_index
         line_id = "#{doc_id}_#{page_num}_line_#{line_index}"
         line_text = []
         line_confidence = 0
         nb_words = line.children.select{|str| str.name == 'String'}.size
-        line.children.select{|str| str.name == 'String'}.each_with_index do |word, word_index|
-          word_index = total_word_index + word_index
+        # neo4j_words = []
+        line.children.select{|str| str.name == 'String'}.each_with_index do |word, in_line_word_index|
+          word_index = in_page_word_index + in_line_word_index
           word_id = "#{doc_id}_#{page_num}_word_#{word_index}"
-          str_content = word['CONTENT']#.force_encoding(encoding).encode('UTF-8')
+          str_content = word['CONTENT']
           page_ocr_text += word['CONTENT'] + ' '
           word_annot = {}
           word_annot['@type'] = 'oa:Annotation'
@@ -166,8 +171,21 @@ BEGIN {
           word_annot['resource']['chars'] = str_content
           word_annot['metadata'] = {}
           word_annot['metadata']['word_confidence'] = word['WC'].to_f
-          word_annot['on'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/canvas/page_#{page_num}#xywh=#{word['HPOS'].to_i*scale_factor},#{word['VPOS'].to_i*scale_factor},#{word['WIDTH'].to_i*scale_factor},#{word['HEIGHT'].to_i*scale_factor}"
+          word_selector = <<~HEREDOC.gsub(/^[\s\t]*|[\s\t]*\n/, '')
+            #xywh=
+            #{(word['HPOS'].to_i*scale_factor).to_i},
+            #{(word['VPOS'].to_i*scale_factor).to_i},
+            #{(word['WIDTH'].to_i*scale_factor).to_i},
+            #{(word['HEIGHT'].to_i*scale_factor).to_i}
+          HEREDOC
+          word_annot['on'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/canvas/page_#{page_num}#{word_selector}"
           word_annotation_list['resources'] << word_annot
+
+          # neo4j_words.push("CREATE (w#{word_index}:Word {id:\"#{word_id}\", content:\"#{str_content.gsub(/"/,'\\"')}\", selector:\"#{word_selector}\"})")
+          # neo4j_words.push("CREATE (w#{word_index})-[:IN_LINE {index:#{in_line_word_index}}]->(l#{line_index})")
+          # neo4j_words.push("CREATE (w#{word_index})-[:IN_BLOCK {index:#{in_block_word_index}}]->(b#{block_index})")
+          # neo4j_words.push("CREATE (w#{word_index})-[:IN_PAGE {index:#{in_page_word_index}}]->(p#{page_num})")
+
           word_data = {
               id: word_id,
               target: word_annot['on'][0..word_annot['on'].index('#')-1],
@@ -184,7 +202,8 @@ BEGIN {
           block_text << str_content
           block_confidence += word['WC'].to_f
         end
-        total_word_index += nb_words
+        in_page_word_index += nb_words
+        in_block_word_index += nb_words
         page_ocr_text.strip!
         page_ocr_text += "\n"
         line_annot = {}
@@ -196,8 +215,21 @@ BEGIN {
         line_annot['resource']['chars'] = line_text.join(' ')
         line_annot['metadata'] = {}
         line_annot['metadata']['word_confidence'] = line_text.size == 0 ? 0 : line_confidence / line_text.size
-        line_annot['on'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/canvas/page_#{page_num}#xywh=#{line['HPOS'].to_i*scale_factor},#{line['VPOS'].to_i*scale_factor},#{line['WIDTH'].to_i*scale_factor},#{line['HEIGHT'].to_i*scale_factor}"
+        line_selector = <<~HEREDOC.gsub(/^[\s\t]*|[\s\t]*\n/, '')
+          #xywh=
+          #{(line['HPOS'].to_i*scale_factor).to_i},
+          #{(line['VPOS'].to_i*scale_factor).to_i},
+          #{(line['WIDTH'].to_i*scale_factor).to_i},
+          #{(line['HEIGHT'].to_i*scale_factor).to_i}
+        HEREDOC
+        line_annot['on'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/canvas/page_#{page_num}#{line_selector}"
         line_annotation_list['resources'] << line_annot
+
+        # neo4j_lines.push("CREATE (l#{line_index}:Line {id:\"#{line_id}\", content:\"#{line_text.join(' ').gsub(/"/,'\\"')}\", selector:\"#{line_selector}\"})")
+        # neo4j_lines.push("CREATE (l#{line_index})-[:IN_BLOCK {index:#{in_block_line_index}}]->(b#{block_index})")
+        # neo4j_lines.push("CREATE (l#{line_index})-[:IN_PAGE {index:#{in_page_line_index}}]->(p#{page_num})")
+        # neo4j_lines.concat neo4j_words
+
         line_data = {
             id: line_id,
             target: line_annot['on'][0..line_annot['on'].index('#')-1],
@@ -209,7 +241,7 @@ BEGIN {
         }
         SolrService.add line_data
       end
-      total_line_index += nb_lines
+      in_page_line_index += nb_lines
       page_ocr_text.strip!
       block_annot = {}
       block_annot['@type'] = 'oa:Annotation'
@@ -221,8 +253,19 @@ BEGIN {
       block_annot['metadata'] = {}
       block_annot['metadata'] = {}
       block_annot['metadata']['word_confidence'] = block_text.size == 0 ? 0 : block_confidence / block_text.size
-      block_annot['on'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/canvas/page_#{page_num}#xywh=#{block['HPOS'].to_i*scale_factor},#{block['VPOS'].to_i*scale_factor},#{block['WIDTH'].to_i*scale_factor},#{block['HEIGHT'].to_i*scale_factor}"
+      block_selector = <<~HEREDOC.gsub(/^[\s\t]*|[\s\t]*\n/, '')
+        #xywh=
+        #{(block['HPOS'].to_i*scale_factor).to_i},
+        #{(block['VPOS'].to_i*scale_factor).to_i},
+        #{(block['WIDTH'].to_i*scale_factor).to_i},
+        #{(block['HEIGHT'].to_i*scale_factor).to_i}
+      HEREDOC
+      block_annot['on'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/canvas/page_#{page_num}#{block_selector}"
       block_annotation_list['resources'] << block_annot
+
+      # neo4j_blocks.push("CREATE (b#{block_index}:Block {id:\"#{block_id}\", content:\"#{block_text.join(' ').gsub(/"/,'\\"')}\", selector:\"#{block_selector}\"})")
+      # neo4j_blocks.push("CREATE (b#{block_index})-[:IN_PAGE {index:#{block_index}}]->(p#{page_num})")
+      # neo4j_blocks.concat neo4j_lines
 
       block_data = {
           id: block_id,
@@ -234,6 +277,8 @@ BEGIN {
       }
       SolrService.add block_data
     end
+    # neo4j_page.concat neo4j_blocks
+    # puts neo4j_page.join("\n")
     return page_ocr_text, block_annotation_list.to_json, line_annotation_list.to_json, word_annotation_list.to_json
   end
 }
