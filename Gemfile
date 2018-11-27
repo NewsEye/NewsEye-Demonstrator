@@ -14,13 +14,10 @@ gem 'europeana-api'
 gem 'riiif'
 gem 'pg'
 gem 'unidecoder'
-# gem 'pul_uv_rails'
-# gem 'iiif_manifest'
 gem 'iiif-presentation'
 gem 'charlock_holmes'
 gem 'httparty'
 gem 'http_accept_language'
-gem 'neo4j', '~> 9.3.0'
 
 # mirador dependencies
 gem 'tinymce-rails'

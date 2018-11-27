@@ -5,6 +5,7 @@ class AnnotationsController < ApplicationController
   def search
     uri, sep, layer = params[:uri].rpartition('_')
     if not %w(word line block).include? layer
+      puts layer
       render json: []
     else
       doc_id = uri[uri.index('iiif/')+5..uri.index('/canvas/')]

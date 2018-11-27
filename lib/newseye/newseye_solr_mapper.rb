@@ -15,6 +15,14 @@ module NewseyeSolrMapper
     Solrizer::Descriptor.new(:text_fi, :indexed, :stored, :multivalued)
   end
 
+  def self.text_se_searchable_uniq
+    Solrizer::Descriptor.new(:text_se, :indexed, :stored)
+  end
+
+  def self.text_se_searchable_multi
+    Solrizer::Descriptor.new(:text_se, :indexed, :stored, :multivalued)
+  end
+
   def self.text_fr_searchable_uniq
     Solrizer::Descriptor.new(:text_fr, :indexed, :stored)
   end
@@ -39,8 +47,16 @@ module NewseyeSolrMapper
     Solrizer::Descriptor.new(:string, :indexed, :stored)
   end
 
+  def self.string_searchable_multi
+    Solrizer::Descriptor.new(:string, :indexed, :stored, :multivalued)
+  end
+
   def self.string_stored_uniq
     Solrizer::Descriptor.new(:string, :stored)
+  end
+
+  def self.string_stored_multi
+    Solrizer::Descriptor.new(:string, :stored, :multivalued)
   end
 
   def self.int_searchable

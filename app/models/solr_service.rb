@@ -33,9 +33,18 @@ class SolrService
   def self.search(target, level)
     connect unless @@connection
     response = @@connection.get 'select', :params => {
-         q: "target:\"#{target}\" AND level:\"#{level}\"",
-         rows: 1000000,
-         wt: 'json'
+        q: "target:\"#{target}\" AND level:\"#{level}\"",
+        rows: 1000000,
+        wt: 'json'
+    }
+  end
+
+  def self.get_by_id(id)
+    connect unless @@connection
+    response = @@connection.get 'select', :params => {
+        q: "id:\"#{id}\"",
+        rows: 1,
+        wt: 'json'
     }
   end
 
