@@ -4,6 +4,7 @@ require 'blacklight/catalog'
 class CatalogController < ApplicationController
 
   include Hydra::Catalog
+
   # These before_filters apply the hydra access controls
   #before_filter :enforce_show_permissions, :only=>:show
   # This applies appropriate access controls to all solr queries
@@ -11,9 +12,10 @@ class CatalogController < ApplicationController
   # TODO feedback button
   # TODO language button
   # TODO search history as a tree
-  # TODO named entities
+  # TODO named entities + integrate thesis method using solr spellcheck ?
   # TODO add image part in "see extracts"
   # TODO index annotations manually
+  # TODO handle hyphenated words (information already in alto, to be checked)
   configure_blacklight do |config|
     config.view.gallery.partials = [:index_header, :index]
     config.view.masonry.partials = [:index]
@@ -37,29 +39,33 @@ class CatalogController < ApplicationController
 
     ## Default parameters to send to solr for all search-like requests. See also SearchBuilder#processed_parameters
     config.default_solr_params = {
-      fq: '''
-      -has_model_ssim:"ActiveFedora::IndirectContainer"
-      -has_model_ssim:"ActiveFedora::Aggregation::Proxy"
-      -has_model_ssim:"ActiveFedora::DirectContainer"
-      -has_model_ssim:"PageFileSet"
-      -has_model_ssim:"Newspaper"
-      -has_model_ssim:"IssueFileSet"
-      -has_model_ssim:"ActiveFedora::Aggregation::ListSource"
-      ''',
-      qf: 'all_text_tesi',
-      hl: true,
-      'hl.fl': 'all_text_tesi',
-      'hl.snippets': 10,
-      'hl.fragsize': 200,
-      'f.all_text_tesi.hl.simple.pre': '<span style="background-color: red; color: white;">',
-      'f.all_text_tesi.hl.simple.post': '</span>',
-      'f.all_text_tesi.hl.useFastVectorHighlighter': true,
+      qf: 'all_text_ten_si all_text_tfr_si all_text_tde_si all_text_tfi_si all_text_tse_si',
+      # hl: 'on',
+      # 'hl.method': 'unified',
+      # 'hl.fl': 'all_text_*',
+      # 'hl.snippets': 10,
+      # 'hl.fragsize': 200,
+      # 'hl.simple.pre': '<span style="background-color: red; color: white;">',
+      # 'hl.simple.post': '</span>',
+      # 'f.all_text_ten_si.hl.useFastVectorHighlighter': true,
+      # 'f.all_text_tfr_si.hl.simple.pre': '<span style="background-color: red; color: white;">',
+      # 'f.all_text_tfr_si.hl.simple.post': '</span>',
+      # 'f.all_text_tfr_si.hl.useFastVectorHighlighter': true,
+      # 'f.all_text_tde_si.hl.simple.pre': '<span style="background-color: red; color: white;">',
+      # 'f.all_text_tde_si.hl.simple.post': '</span>',
+      # 'f.all_text_tde_si.hl.useFastVectorHighlighter': true,
+      # 'f.all_text_tfi_si.hl.simple.pre': '<span style="background-color: red; color: white;">',
+      # 'f.all_text_tfi_si.hl.simple.post': '</span>',
+      # 'f.all_text_tfi_si.hl.useFastVectorHighlighter': true,
+      # 'f.all_text_tse_si.hl.simple.pre': '<span style="background-color: red; color: white;">',
+      # 'f.all_text_tse_si.hl.simple.post': '</span>',
+      # 'f.all_text_tse_si.hl.useFastVectorHighlighter': true,
       qt: 'search',
       rows: 10
     }
 
     # solr field configuration for search results/index views
-    config.index.title_field = 'title_tesi'
+    config.index.title_field = 'title_ssi'
     config.index.display_type_field = 'has_model_ssim'
 
 
@@ -88,8 +94,8 @@ class CatalogController < ApplicationController
     # config.add_facet_field solr_name('lc1_letter', :facetable), label: 'Call Number'
     # config.add_facet_field solr_name('subject_geo', :facetable), label: 'Region'
     # config.add_facet_field solr_name('subject_era', :facetable), label: 'Era'
-    config.add_facet_field solr_name('language', :facetable), helper_method: :convert_language_to_locale, limit: true
-    config.add_facet_field solr_name('date_created', :facetable), helper_method: :convert_date_to_locale_facet, label: 'Date', date: true
+    config.add_facet_field solr_name('language', :string_searchable_uniq), helper_method: :convert_language_to_locale, limit: true
+    config.add_facet_field solr_name('date_created', :date_searchable_uniq), helper_method: :convert_date_to_locale_facet, label: 'Date', date: true
     config.add_facet_field 'member_of_collection_ids_ssim', helper_method: :get_collection_title_from_id, label: 'Newspaper'
 
     # Have BL send all facet field names to Solr, which has been the default
@@ -103,7 +109,7 @@ class CatalogController < ApplicationController
     # solr fields to be displayed in the index (search results) view
     #   The ordering of the field names is the order of the display
 
-    config.add_index_field solr_name('title', :text_en_searchable_uniq), label: 'Title'
+    config.add_index_field solr_name('title', :string_searchable_uniq), label: 'Title'
     config.add_index_field solr_name('date_created', :date_searchable_uniq), helper_method: :convert_date_to_locale, label: 'Published date'
     config.add_index_field solr_name('publisher', :text_en_searchable_uniq), label: 'Publisher'
     config.add_index_field solr_name('nb_pages', :int_searchable), label: 'Number of pages'
@@ -138,7 +144,7 @@ class CatalogController < ApplicationController
     # config.add_show_field solr_name('isbn', :stored_searchable, type: :string), label: 'ISBN'
 
     config.add_show_field solr_name('original_uri', :string_stored_uniq), label: 'Original URI'
-    config.add_show_field solr_name('publisher', :text_en_searchable_uniq), label: 'Publisher'
+    config.add_show_field solr_name('publisher', :string_searchable_uniq), label: 'Publisher'
     config.add_show_field solr_name('date_created', :date_searchable_uniq), helper_method: :convert_date_to_locale, label: 'Date created'
     config.add_show_field solr_name('nb_pages', :int_searchable), label: 'Number of pages'
 
@@ -200,14 +206,33 @@ class CatalogController < ApplicationController
     # label in pulldown is followed by the name of the SOLR field to sort by and
     # whether the sort is ascending or descending (it must be asc or desc
     # except in the relevancy case).
-    config.add_sort_field 'score desc, pub_date_dtsi desc, title_tesi asc', label: 'relevance'
-    config.add_sort_field 'pub_date_dtsi desc, title_tesi asc', label: 'year'
-    config.add_sort_field 'author_tesi asc, title_tesi asc', label: 'author'
-    config.add_sort_field 'title_tesi asc, pub_date_dtsi desc', label: 'title'
+    config.add_sort_field 'score desc, date_created_dtsi desc', label: 'relevance'
+    # config.add_sort_field 'pub_date_dtsi desc', label: 'year'
+    # config.add_sort_field 'author_tesi asc', label: 'author'
+    # config.add_sort_field 'title_tesi asc', label: 'title'
 
     # If there are more than this many search results, no spelling ("did you
     # mean") suggestion is offered.
     config.spell_max = 5
+  end
+
+  def index
+    (@response, @document_list) = search_results(params)
+    pp @response
+    respond_to do |format|
+      format.html { store_preferred_view }
+      format.rss  { render :layout => false }
+      format.atom { render :layout => false }
+      format.json do
+        @presenter = Blacklight::JsonPresenter.new(@response,
+                                                   @document_list,
+                                                   facets_from_request,
+                                                   blacklight_config)
+      end
+      additional_response_formats(format)
+      document_export_formats(format)
+    end
+
   end
 
   def explore
