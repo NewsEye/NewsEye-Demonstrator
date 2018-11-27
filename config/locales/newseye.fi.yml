@@ -5,3 +5,9 @@ fi:
       en: 'Englanti'
       fi: 'Suomalainen'
       de: 'Saksa'
+  blacklight:
+    search:
+      fields:
+        language_ssi: 'Kieli'
+        member_of_collection_ids_ssim: 'Sanomalehti'
+        date_created_dtsi: 'Aika'

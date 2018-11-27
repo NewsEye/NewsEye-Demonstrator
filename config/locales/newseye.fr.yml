@@ -8,6 +8,6 @@ fr:
   blacklight:
     search:
       fields:
-        language_sim: 'Langue'
+        language_ssi: 'Langue'
         member_of_collection_ids_ssim: 'Journal'
-        date_created_sim: 'Date'
+        date_created_dtsi: 'Date'

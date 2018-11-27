@@ -8,6 +8,6 @@ en:
   blacklight:
     search:
       fields:
-        language_sim: 'Language'
+        language_ssi: 'Language'
         member_of_collection_ids_ssim: 'Newspaper'
-        date_created_sim: 'Date'
+        date_created_dtsi: 'Date'

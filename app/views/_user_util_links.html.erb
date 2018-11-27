@@ -22,6 +22,21 @@
         <%= link_to t('blacklight.header_links.login'), new_user_session_path %>
       </li>
       <% end %>
-      </ul>
+      <li id="locale_dropdown">
+        <button class="nav-link dropdown-toggle btn btn-middle-gray" type="button" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <%= I18n.locale.upcase %>
+        </button>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <% I18n.available_locales.each do |loc| %>
+            <%= link_to loc.upcase, root_path(locale: loc), class: "dropdown-item" unless loc == I18n.locale %>
+          <% end %>
+          <a class="dropdown-item" href="#"><%=  %></a>
+          <!--        <a class="dropdown-item" href="#">fr</a>-->
+          <!--        <a class="dropdown-item" href="#">es</a>-->
+          <!--        <a class="dropdown-item" href="#">pt</a>-->
+        </div>
+      </li>
+
+    </ul>
   <% end %>
 </div>
