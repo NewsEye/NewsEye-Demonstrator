@@ -4,6 +4,7 @@ require 'blacklight/catalog'
 class CatalogController < ApplicationController
 
   include Hydra::Catalog
+
   # These before_filters apply the hydra access controls
   #before_filter :enforce_show_permissions, :only=>:show
   # This applies appropriate access controls to all solr queries
@@ -38,35 +39,27 @@ class CatalogController < ApplicationController
 
     ## Default parameters to send to solr for all search-like requests. See also SearchBuilder#processed_parameters
     config.default_solr_params = {
-      fq: '''
-      -has_model_ssim:"ActiveFedora::IndirectContainer"
-      -has_model_ssim:"ActiveFedora::Aggregation::Proxy"
-      -has_model_ssim:"ActiveFedora::DirectContainer"
-      -has_model_ssim:"PageFileSet"
-      -has_model_ssim:"Newspaper"
-      -has_model_ssim:"IssueFileSet"
-      -has_model_ssim:"ActiveFedora::Aggregation::ListSource"
-      ''',
       qf: 'all_text_ten_si all_text_tfr_si all_text_tde_si all_text_tfi_si all_text_tse_si',
-      hl: true,
-      'hl.fl': 'all_text_*',
-      'hl.snippets': 10,
-      'hl.fragsize': 200,
-      'f.all_text_ten_si.hl.simple.pre': '<span style="background-color: red; color: white;">',
-      'f.all_text_ten_si.hl.simple.post': '</span>',
-      'f.all_text_ten_si.hl.useFastVectorHighlighter': true,
-      'f.all_text_tfr_si.hl.simple.pre': '<span style="background-color: red; color: white;">',
-      'f.all_text_tfr_si.hl.simple.post': '</span>',
-      'f.all_text_tfr_si.hl.useFastVectorHighlighter': true,
-      'f.all_text_tde_si.hl.simple.pre': '<span style="background-color: red; color: white;">',
-      'f.all_text_tde_si.hl.simple.post': '</span>',
-      'f.all_text_tde_si.hl.useFastVectorHighlighter': true,
-      'f.all_text_tfi_si.hl.simple.pre': '<span style="background-color: red; color: white;">',
-      'f.all_text_tfi_si.hl.simple.post': '</span>',
-      'f.all_text_tfi_si.hl.useFastVectorHighlighter': true,
-      'f.all_text_tse_si.hl.simple.pre': '<span style="background-color: red; color: white;">',
-      'f.all_text_tse_si.hl.simple.post': '</span>',
-      'f.all_text_tse_si.hl.useFastVectorHighlighter': true,
+      # hl: 'on',
+      # 'hl.method': 'unified',
+      # 'hl.fl': 'all_text_*',
+      # 'hl.snippets': 10,
+      # 'hl.fragsize': 200,
+      # 'hl.simple.pre': '<span style="background-color: red; color: white;">',
+      # 'hl.simple.post': '</span>',
+      # 'f.all_text_ten_si.hl.useFastVectorHighlighter': true,
+      # 'f.all_text_tfr_si.hl.simple.pre': '<span style="background-color: red; color: white;">',
+      # 'f.all_text_tfr_si.hl.simple.post': '</span>',
+      # 'f.all_text_tfr_si.hl.useFastVectorHighlighter': true,
+      # 'f.all_text_tde_si.hl.simple.pre': '<span style="background-color: red; color: white;">',
+      # 'f.all_text_tde_si.hl.simple.post': '</span>',
+      # 'f.all_text_tde_si.hl.useFastVectorHighlighter': true,
+      # 'f.all_text_tfi_si.hl.simple.pre': '<span style="background-color: red; color: white;">',
+      # 'f.all_text_tfi_si.hl.simple.post': '</span>',
+      # 'f.all_text_tfi_si.hl.useFastVectorHighlighter': true,
+      # 'f.all_text_tse_si.hl.simple.pre': '<span style="background-color: red; color: white;">',
+      # 'f.all_text_tse_si.hl.simple.post': '</span>',
+      # 'f.all_text_tse_si.hl.useFastVectorHighlighter': true,
       qt: 'search',
       rows: 10
     }
@@ -213,14 +206,33 @@ class CatalogController < ApplicationController
     # label in pulldown is followed by the name of the SOLR field to sort by and
     # whether the sort is ascending or descending (it must be asc or desc
     # except in the relevancy case).
-    config.add_sort_field 'score desc, pub_date_dtsi desc', label: 'relevance'
-    config.add_sort_field 'pub_date_dtsi desc', label: 'year'
-    config.add_sort_field 'author_tesi asc', label: 'author'
-    config.add_sort_field 'title_tesi asc', label: 'title'
+    config.add_sort_field 'score desc, date_created_dtsi desc', label: 'relevance'
+    # config.add_sort_field 'pub_date_dtsi desc', label: 'year'
+    # config.add_sort_field 'author_tesi asc', label: 'author'
+    # config.add_sort_field 'title_tesi asc', label: 'title'
 
     # If there are more than this many search results, no spelling ("did you
     # mean") suggestion is offered.
     config.spell_max = 5
+  end
+
+  def index
+    (@response, @document_list) = search_results(params)
+    pp @response
+    respond_to do |format|
+      format.html { store_preferred_view }
+      format.rss  { render :layout => false }
+      format.atom { render :layout => false }
+      format.json do
+        @presenter = Blacklight::JsonPresenter.new(@response,
+                                                   @document_list,
+                                                   facets_from_request,
+                                                   blacklight_config)
+      end
+      additional_response_formats(format)
+      document_export_formats(format)
+    end
+
   end
 
   def explore

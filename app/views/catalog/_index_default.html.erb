@@ -10,24 +10,26 @@
   <% end -%>
   <% if document.solr_response[:highlighting] %>
     <% if document.solr_response[:highlighting][document[:id]] %>
-      <% if document.solr_response[:highlighting][document[:id]]['all_text_tesi'] %>
-        <div class="panel-group">
-          <div class="panel panel-default">
-            <div class="panel-heading">
-              <h4 class="panel-title">
-                <a href="#<%= document[:id] %>_extracts" data-toggle="collapse">See extracts</a>
-              </h4>
-            </div>
+      <% document.solr_response[:highlighting][document[:id]].keys.each do |hl_field| %>
+        <% if document.solr_response[:highlighting][document[:id]][hl_field] %>
+          <div class="panel-group">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h4 class="panel-title">
+                  <a href="#<%= document[:id] %>_extracts" data-toggle="collapse">See extracts</a>
+                </h4>
+              </div>
 
-            <div id="<%= document[:id] %>_extracts" class="panel-collapse collapse">
-              <ul class="list-group">
-                <% document.solr_response[:highlighting][document[:id]]['all_text_tesi'].each do |extract| %>
-                  <li class="list-group-item"><em>...<%= extract.gsub(/\n/,'<br/>').gsub('<br/><br/>','<br/>').html_safe %>...</em></li>
-                <% end %>
-              </ul>
+              <div id="<%= document[:id] %>_extracts" class="panel-collapse collapse">
+                <ul class="list-group">
+                  <% document.solr_response[:highlighting][document[:id]][hl_field].each do |extract| %>
+                    <li class="list-group-item"><em>...<%= extract.gsub(/\n/,'<br/>').gsub('<br/><br/>','<br/>').html_safe %>...</em></li>
+                  <% end %>
+                </ul>
+              </div>
             </div>
           </div>
-        </div>
+        <% end %>
       <% end %>
     <% end %>
   <% end %>
