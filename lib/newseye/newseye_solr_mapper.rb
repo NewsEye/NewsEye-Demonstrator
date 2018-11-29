@@ -1,42 +1,42 @@
 module NewseyeSolrMapper
   def self.text_de_searchable_uniq
-    Solrizer::Descriptor.new(:text_de, :indexed, :stored)
+    Solrizer::Descriptor.new(:text_de, :indexed, :stored, :vectors)
   end
 
   def self.text_de_searchable_multi
-    Solrizer::Descriptor.new(:text_de, :indexed, :stored, :multivalued)
+    Solrizer::Descriptor.new(:text_de, :indexed, :stored, :multivalued, :vectors)
   end
 
   def self.text_fi_searchable_uniq
-    Solrizer::Descriptor.new(:text_fi, :indexed, :stored)
+    Solrizer::Descriptor.new(:text_fi, :indexed, :stored, :vectors)
   end
 
   def self.text_fi_searchable_multi
-    Solrizer::Descriptor.new(:text_fi, :indexed, :stored, :multivalued)
+    Solrizer::Descriptor.new(:text_fi, :indexed, :stored, :multivalued, :vectors)
   end
 
   def self.text_se_searchable_uniq
-    Solrizer::Descriptor.new(:text_se, :indexed, :stored)
+    Solrizer::Descriptor.new(:text_se, :indexed, :stored, :vectors)
   end
 
   def self.text_se_searchable_multi
-    Solrizer::Descriptor.new(:text_se, :indexed, :stored, :multivalued)
+    Solrizer::Descriptor.new(:text_se, :indexed, :stored, :multivalued, :vectors)
   end
 
   def self.text_fr_searchable_uniq
-    Solrizer::Descriptor.new(:text_fr, :indexed, :stored)
+    Solrizer::Descriptor.new(:text_fr, :indexed, :stored, :vectors)
   end
 
   def self.text_fr_searchable_multi
-    Solrizer::Descriptor.new(:text_fr, :indexed, :stored, :multivalued)
+    Solrizer::Descriptor.new(:text_fr, :indexed, :stored, :multivalued, :vectors)
   end
 
   def self.text_en_searchable_uniq
-    Solrizer::Descriptor.new(:text_en, :indexed, :stored)
+    Solrizer::Descriptor.new(:text_en, :indexed, :stored, :vectors)
   end
 
   def self.text_en_searchable_multi
-    Solrizer::Descriptor.new(:text_en, :indexed, :stored, :multivalued)
+    Solrizer::Descriptor.new(:text_en, :indexed, :stored, :multivalued, :vectors)
   end
 
   def self.date_searchable_uniq

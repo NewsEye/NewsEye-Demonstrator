@@ -28,12 +28,9 @@
         </button>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
           <% I18n.available_locales.each do |loc| %>
-            <%= link_to loc.upcase, root_path(locale: loc), class: "dropdown-item" unless loc == I18n.locale %>
+            <%= link_to loc.upcase, request.original_url.gsub("/#{I18n.locale}/", "/#{loc}/").gsub("locale=#{I18n.locale}", "locale=#{loc}"), class: "dropdown-item" unless loc == I18n.locale %>
           <% end %>
           <a class="dropdown-item" href="#"><%=  %></a>
-          <!--        <a class="dropdown-item" href="#">fr</a>-->
-          <!--        <a class="dropdown-item" href="#">es</a>-->
-          <!--        <a class="dropdown-item" href="#">pt</a>-->
         </div>
       </li>
 

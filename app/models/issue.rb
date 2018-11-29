@@ -82,15 +82,15 @@ class Issue < ActiveFedora::Base
     # puts "this line was reached by #{caller.join("\n")}"
     case self.language
       when 'en'
-        solr_doc.except! 'all_text_tde_si', 'all_text_tfr_si', 'all_text_tfi_si', 'all_text_tse_si'
+        solr_doc.except! 'all_text_tde_siv', 'all_text_tfr_siv', 'all_text_tfi_siv', 'all_text_tse_siv'
       when 'fr'
-        solr_doc.except! 'all_text_tde_si', 'all_text_ten_si', 'all_text_tfi_si', 'all_text_tse_si'
+        solr_doc.except! 'all_text_tde_siv', 'all_text_ten_siv', 'all_text_tfi_siv', 'all_text_tse_siv'
       when 'de'
-        solr_doc.except! 'all_text_ten_si', 'all_text_tfr_si', 'all_text_tfi_si', 'all_text_tse_si'
+        solr_doc.except! 'all_text_ten_siv', 'all_text_tfr_siv', 'all_text_tfi_siv', 'all_text_tse_siv'
       when 'fi'
-        solr_doc.except! 'all_text_tde_si', 'all_text_tfr_si', 'all_text_ten_si', 'all_text_tse_si'
+        solr_doc.except! 'all_text_tde_siv', 'all_text_tfr_siv', 'all_text_ten_siv', 'all_text_tse_siv'
       when 'se'
-        solr_doc.except! 'all_text_tde_si', 'all_text_tfr_si', 'all_text_tfi_si', 'all_text_ten_si'
+        solr_doc.except! 'all_text_tde_siv', 'all_text_tfr_siv', 'all_text_tfi_siv', 'all_text_ten_siv'
       end
     solr_doc
   end

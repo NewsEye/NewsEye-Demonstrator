@@ -10,7 +10,6 @@ class CatalogController < ApplicationController
   # This applies appropriate access controls to all solr queries
   Hydra::SearchBuilder.default_processor_chain -= [:add_access_controls_to_solr_params]
   # TODO feedback button
-  # TODO language button
   # TODO search history as a tree
   # TODO named entities + integrate thesis method using solr spellcheck ?
   # TODO add image part in "see extracts"
@@ -39,7 +38,7 @@ class CatalogController < ApplicationController
 
     ## Default parameters to send to solr for all search-like requests. See also SearchBuilder#processed_parameters
     config.default_solr_params = {
-      qf: 'all_text_ten_si all_text_tfr_si all_text_tde_si all_text_tfi_si all_text_tse_si',
+      qf: 'all_text_ten_siv all_text_tfr_siv all_text_tde_siv all_text_tfi_siv all_text_tse_siv',
       # hl: 'on',
       # 'hl.method': 'unified',
       # 'hl.fl': 'all_text_*',
@@ -218,7 +217,7 @@ class CatalogController < ApplicationController
 
   def index
     (@response, @document_list) = search_results(params)
-    pp @response
+    pp @response[:highlighting]
     respond_to do |format|
       format.html { store_preferred_view }
       format.rss  { render :layout => false }

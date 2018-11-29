@@ -71,6 +71,13 @@
     </autoSoftCommit>
   </updateHandler>
 
+
+
+
+
+  <searchComponent name="tvComponent" class="org.apache.solr.handler.component.TermVectorComponent"/>
+
+
   <!-- SearchHandler
 
        http://wiki.apache.org/solr/SearchHandler

@@ -19,6 +19,10 @@ module Solrizer
       has_field? :indexed
     end
 
+    def vectors
+      has_field? :vectors
+    end
+
     def has_field? f
       f.to_sym == :type or @fields.include? f.to_sym
     end
@@ -46,7 +50,7 @@ module Solrizer
     end
 
     def self.config
-      @config ||= OpenStruct.new :fields => [:type, :stored, :indexed, :multivalued],
+      @config ||= OpenStruct.new :fields => [:type, :stored, :indexed, :multivalued, :vectors],
                                  suffix_delimiter: '_',
                                  type_suffix: (lambda do |fields|
                                    type = fields.first
@@ -79,7 +83,8 @@ module Solrizer
                                  end),
                                  stored_suffix: 's',
                                  indexed_suffix: 'i',
-                                 multivalued_suffix: 'm'
+                                 multivalued_suffix: 'm',
+                                 vectors_suffix: 'v'
     end
 
     def config

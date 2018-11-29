@@ -1,3 +1,16 @@
+puts 'testing threads'
+threads = []
+nb_threads = 6
+
+10.times do |k|
+  threads << Thread.new do
+    Rails.application.reloader.wrap do
+      puts k
+    end
+  end
+end
+threads.each do |t| t.join end
+
 
 puts "seeding..."
 

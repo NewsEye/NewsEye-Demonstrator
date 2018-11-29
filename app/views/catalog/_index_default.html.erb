@@ -11,7 +11,7 @@
   <% if document.solr_response[:highlighting] %>
     <% if document.solr_response[:highlighting][document[:id]] %>
       <% document.solr_response[:highlighting][document[:id]].keys.each do |hl_field| %>
-        <% if document.solr_response[:highlighting][document[:id]][hl_field] %>
+        <% if not document.solr_response[:highlighting][document[:id]][hl_field].empty? %>
           <div class="panel-group">
             <div class="panel panel-default">
               <div class="panel-heading">

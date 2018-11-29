@@ -27,13 +27,12 @@ class SearchBuilder < Blacklight::SearchBuilder
 
   def add_highlight(solr_parameters)
     solr_parameters[:'hl'] = 'on'
-    #solr_parameters[:'hl.method'] = 'unified'
+    solr_parameters[:'hl.method'] = 'unified'
     solr_parameters[:'hl.fl'] = 'all_text_*'
     solr_parameters[:'hl.snippets'] = 10
     solr_parameters[:'hl.fragsize'] = 200
     solr_parameters[:'hl.simple.pre'] = '<span style="background-color: red; color: white;">'
     solr_parameters[:'hl.simple.post'] = '</span>'
-    puts solr_parameters
   end
 
 end
