@@ -76,11 +76,12 @@ json_data.each do |newspaper|
 
         ###### Parse OCR and add full text property ######
 
-        # encoding = CharlockHolmes::EncodingDetector.detect(File.read(Rails.root.to_s + issue_page[:ocr_path]))[:ruby_encoding]
+        encoding = CharlockHolmes::EncodingDetector.detect(File.read(Rails.root.to_s + issue_page[:ocr_path]))[:ruby_encoding]
         ocr_file = open(Rails.root.to_s + issue_page[:ocr_path], 'r')
         Hydra::Works::AddFileToFileSet.call(pfs, ocr_file, :alto_xml)
-        ocr_file.rewind
-        ocr = Nokogiri::XML(ocr_file) #, nil, encoding)
+        ocr = File.open(Rails.root.to_s + issue_page[:ocr_path]) do |f|
+          Nokogiri::XML(f, nil, encoding)
+        end
         ocr.remove_namespaces!
 
         ###### IIIF Annotation generation ######
@@ -88,23 +89,23 @@ json_data.each do |newspaper|
         scale_factor = pfs.height.to_f / ocr.xpath('//Page')[0]['HEIGHT'].to_f
         ocr_full_text, block_annots, line_annots, word_annots = parse_alto_index(ocr, issue.id, pfs.page_number, scale_factor)
 
-        annotation_file = Tempfile.create(%w(annotation_list_word_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
+        annotation_file = Tempfile.new(%w(annotation_list_word_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
         annotation_file.write(word_annots)
-        annotation_file.rewind
+        annotation_file.close
+        annotation_file = open(annotation_file.path, 'r')
         Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_word_level_annotation_list)
-        annotation_file.close
 
-        annotation_file = Tempfile.create(%w(annotation_list_line_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
+        annotation_file = Tempfile.new(%w(annotation_list_line_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
         annotation_file.write(line_annots)
-        annotation_file.rewind
+        annotation_file.close
+        annotation_file = open(annotation_file.path, 'r')
         Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_line_level_annotation_list)
-        annotation_file.close
 
-        annotation_file = Tempfile.create(%w(annotation_list_block_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
+        annotation_file = Tempfile.new(%w(annotation_list_block_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
         annotation_file.write(block_annots)
-        annotation_file.rewind
-        Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_block_level_annotation_list)
         annotation_file.close
+        annotation_file = open(annotation_file.path, 'r')
+        Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_block_level_annotation_list)
 
         ###### Finalize ######
 

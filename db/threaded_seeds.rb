@@ -45,7 +45,9 @@ json_data.each do |newspaper|
       issue.language = np_issue[:language]
       issue.save
       issue_ocr_text = ''
-      np_issue[:pages].each do |issue_page|
+
+      works_pfs = []
+      np_issue[:pages].each_with_index do |issue_page, page_idx|
         puts "  adding page %i out of %i" % [issue_page[:page_number], np_issue[:pages].length]
 
         pfs = PageFileSet.new
@@ -76,52 +78,76 @@ json_data.each do |newspaper|
 
         ###### Parse OCR and add full text property ######
 
-        # encoding = CharlockHolmes::EncodingDetector.detect(File.read(Rails.root.to_s + issue_page[:ocr_path]))[:ruby_encoding]
-        ocr_file = open(Rails.root.to_s + issue_page[:ocr_path], 'r')
-        Hydra::Works::AddFileToFileSet.call(pfs, ocr_file, :alto_xml)
-        ocr_file.rewind
-        ocr = Nokogiri::XML(ocr_file) #, nil, encoding)
+        encoding = CharlockHolmes::EncodingDetector.detect(File.read(Rails.root.to_s + issue_page[:ocr_path]))[:ruby_encoding]
+        # ocr_file = open(Rails.root.to_s + issue_page[:ocr_path], 'r')
+        ocr = open(Rails.root.to_s + issue_page[:ocr_path]) do |f|
+          Hydra::Works::AddFileToFileSet.call(pfs, f, :alto_xml)
+          f.rewind
+          Nokogiri::XML(f, nil, encoding)
+        end
         ocr.remove_namespaces!
 
         ###### IIIF Annotation generation ######
 
         scale_factor = pfs.height.to_f / ocr.xpath('//Page')[0]['HEIGHT'].to_f
-        ocr_full_text, block_annots, line_annots, word_annots = parse_alto_index(ocr, issue.id, pfs.page_number, scale_factor)
+        works_pfs.insert(page_idx, {workparams: [ocr, issue.id, pfs.page_number, scale_factor], pfs: pfs})
+      end
 
-        annotation_file = Tempfile.create(%w(annotation_list_word_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
+      works_pfs.each do |workh|
+        workh[:worker] = Thread.new do
+          Rails.application.reloader.wrap do
+            begin
+              (ocr, issue_id, pfs_page_number, scale_factor) = workh[:workparams]
+              begin
+                parse_alto_index(ocr, issue_id, pfs_page_number, scale_factor)
+              rescue Exception => e
+                puts "Error creating pagefileset"
+                puts e.inspect
+              end
+            rescue ThreadError => te
+              puts "error in thread #{i}"
+              puts te.inspect
+            end
+          end
+        end
+      end
+
+      works_pfs.each do |workh|
+        ocr_full_text, block_annots, line_annots, word_annots = workh[:worker].value
+
+        annotation_file = Tempfile.new(%w(annotation_list_word_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
         annotation_file.write(word_annots)
-        annotation_file.rewind
-        Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_word_level_annotation_list)
         annotation_file.close
+        annotation_file = open(annotation_file.path, 'r')
+        Hydra::Works::AddFileToFileSet.call(workh[:pfs], annotation_file, :ocr_word_level_annotation_list)
 
-        annotation_file = Tempfile.create(%w(annotation_list_line_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
+        annotation_file = Tempfile.new(%w(annotation_list_line_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
         annotation_file.write(line_annots)
-        annotation_file.rewind
-        Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_line_level_annotation_list)
         annotation_file.close
+        annotation_file = open(annotation_file.path, 'r')
+        Hydra::Works::AddFileToFileSet.call(workh[:pfs], annotation_file, :ocr_line_level_annotation_list)
 
-        annotation_file = Tempfile.create(%w(annotation_list_block_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
+        annotation_file = Tempfile.new(%w(annotation_list_block_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
         annotation_file.write(block_annots)
-        annotation_file.rewind
-        Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_block_level_annotation_list)
         annotation_file.close
+        annotation_file = open(annotation_file.path, 'r')
+        Hydra::Works::AddFileToFileSet.call(workh[:pfs], annotation_file, :ocr_block_level_annotation_list)
 
-        ###### Finalize ######
-
-        pfs.save
-        issue.ordered_members << pfs
-        pfs.save
+        workh[:pfs].save
+        issue.ordered_members << workh[:pfs]
+        workh[:pfs].save
         issue.save
         issue_ocr_text += ocr_full_text
       end
+
       issue.all_text = issue_ocr_text
       np.members << issue
       issue.member_of_collections << np
       issue.save
       np.save
-    end
-  end  # Issue is processed
-  SolrService.commit  # commit annotations
+      SolrService.commit  # commit annotations
+    end  # Issue is processed
+  end
 end
 
 BEGIN {

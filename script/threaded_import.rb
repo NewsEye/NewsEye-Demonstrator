@@ -1,6 +1,6 @@
 puts "seeding..."
 
-json_data = JSON.parse(File.read(File.join(File.dirname(__FILE__), './seeds_data/data.json')))
+json_data = JSON.parse(File.read(File.join(File.dirname(__FILE__), '../db/seeds_data/data.json')))
 
 json_data.each do |newspaper|
   newspaper = newspaper.with_indifferent_access
@@ -45,69 +45,40 @@ json_data.each do |newspaper|
       issue.language = np_issue[:language]
       issue.save
       issue_ocr_text = ''
+
+      nb_workers = 4
+      work_q = Queue.new
       np_issue[:pages].each do |issue_page|
-        puts "  adding page %i out of %i" % [issue_page[:page_number], np_issue[:pages].length]
-
-        pfs = PageFileSet.new
-        pfs.id = issue.id + '_' + issue_page[:id].split('_')[1..-1].join('_')
-        pfs.page_number = issue_page[:page_number]
-
-        if issue.original_uri.include? 'ark:/' # If there exists an iiif image service
-          pfs.iiif_url = (issue.original_uri + "/f#{pfs.page_number}").insert(issue.original_uri.index('ark:/'), 'iiif/')
-          info_json = JSON.load(open(pfs.iiif_url+'/info.json'))
-          pfs.height = info_json['height'].to_i
-          pfs.width = info_json['width'].to_i
-          pfs.mime_type = 'image/jpeg'
-          if issue_page[:page_number] == 1
-            issue.thumbnail_url = "#{pfs.iiif_url}/full/,200/0/default.jpg"
-          end
-        else # Else import image
-          open(Rails.root.to_s + issue_page[:image_path], 'r') do |image_full|
-            Hydra::Works::AddFileToFileSet.call(pfs, image_full, :original_file)
-          end
-          Hydra::Works::CharacterizationService.run pfs.original_file
-          pfs.height = pfs.original_file.height.first
-          pfs.width = pfs.original_file.width.first
-          pfs.mime_type = pfs.original_file.mime_type
-          if issue_page[:page_number] == 1
-            issue.thumbnail_url = "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}_page_1/full/,200/0/default.jpg"
+        work_q << [issue_page, issue]
+      end
+      master_reader, master_writer = IO.pipe
+      slave_writers = []
+      workers = (0...nb_workers).map do |i|
+        slave_reader, slave_writer = IO.pipe
+        slave_writers << slave_writer
+        Thread.new do
+          Rails.application.reloader.wrap do
+            begin
+              while work_q.size != 0
+                (issue_page, issue) = work_q.pop(true)
+                begin
+                  work(np_issue, issue_page, issue)
+                rescue Exception => e
+                  puts "Error creating pagefileset"
+                  puts e.inspect
+                end
+              end
+            rescue ThreadError => te
+              puts "error in thread #{i}"
+              puts te.inspect
+            end
           end
         end
-
-        ###### Parse OCR and add full text property ######
-
-        # encoding = CharlockHolmes::EncodingDetector.detect(File.read(Rails.root.to_s + issue_page[:ocr_path]))[:ruby_encoding]
-        ocr_file = open(Rails.root.to_s + issue_page[:ocr_path], 'r')
-        Hydra::Works::AddFileToFileSet.call(pfs, ocr_file, :alto_xml)
-        ocr_file.rewind
-        ocr = Nokogiri::XML(ocr_file) #, nil, encoding)
-        ocr.remove_namespaces!
-
-        ###### IIIF Annotation generation ######
-
-        scale_factor = pfs.height.to_f / ocr.xpath('//Page')[0]['HEIGHT'].to_f
-        ocr_full_text, block_annots, line_annots, word_annots = parse_alto_index(ocr, issue.id, pfs.page_number, scale_factor)
-
-        annotation_file = Tempfile.create(%w(annotation_list_word_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
-        annotation_file.write(word_annots)
-        annotation_file.rewind
-        Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_word_level_annotation_list)
-        annotation_file.close
-
-        annotation_file = Tempfile.create(%w(annotation_list_line_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
-        annotation_file.write(line_annots)
-        annotation_file.rewind
-        Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_line_level_annotation_list)
-        annotation_file.close
-
-        annotation_file = Tempfile.create(%w(annotation_list_block_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
-        annotation_file.write(block_annots)
-        annotation_file.rewind
-        Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_block_level_annotation_list)
-        annotation_file.close
-
-        ###### Finalize ######
-
+      end
+      workers.each do |worker|
+        worker.join
+        pfs = worker[:output_pfs]
+        ocr_full_text = worker[:output_fulltext]
         pfs.save
         issue.ordered_members << pfs
         pfs.save
@@ -119,12 +90,78 @@ json_data.each do |newspaper|
       issue.member_of_collections << np
       issue.save
       np.save
+      SolrService.commit  # commit annotations
     end
   end  # Issue is processed
-  SolrService.commit  # commit annotations
 end
 
 BEGIN {
+  def work(np_issue, issue_page, issue)
+    puts "  adding page %i out of %i" % [issue_page[:page_number], np_issue[:pages].length]
+
+    pfs = PageFileSet.new
+    pfs.id = issue.id + '_' + issue_page[:id].split('_')[1..-1].join('_')
+    pfs.page_number = issue_page[:page_number]
+
+    if issue.original_uri.include? 'ark:/' # If there exists an iiif image service
+      pfs.iiif_url = (issue.original_uri + "/f#{pfs.page_number}").insert(issue.original_uri.index('ark:/'), 'iiif/')
+      info_json = JSON.load(open(pfs.iiif_url+'/info.json'))
+      pfs.height = info_json['height'].to_i
+      pfs.width = info_json['width'].to_i
+      pfs.mime_type = 'image/jpeg'
+      if issue_page[:page_number] == 1
+        issue.thumbnail_url = "#{pfs.iiif_url}/full/,200/0/default.jpg"
+      end
+    else # Else import image
+      open(Rails.root.to_s + issue_page[:image_path], 'r') do |image_full|
+        Hydra::Works::AddFileToFileSet.call(pfs, image_full, :original_file)
+      end
+      Hydra::Works::CharacterizationService.run pfs.original_file
+      pfs.height = pfs.original_file.height.first
+      pfs.width = pfs.original_file.width.first
+      pfs.mime_type = pfs.original_file.mime_type
+      if issue_page[:page_number] == 1
+        issue.thumbnail_url = "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}_page_1/full/,200/0/default.jpg"
+      end
+    end
+
+    ###### Parse OCR and add full text property ######
+
+    encoding = CharlockHolmes::EncodingDetector.detect(File.read(Rails.root.to_s + issue_page[:ocr_path]))[:ruby_encoding]
+    ocr_file = open(Rails.root.to_s + issue_page[:ocr_path], 'r')
+    Hydra::Works::AddFileToFileSet.call(pfs, ocr_file, :alto_xml)
+    ocr = File.open(Rails.root.to_s + issue_page[:ocr_path]) do |f|
+      Nokogiri::XML(f, nil, encoding)
+    end
+    ocr.remove_namespaces!
+
+    ###### IIIF Annotation generation ######
+
+    scale_factor = pfs.height.to_f / ocr.xpath('//Page')[0]['HEIGHT'].to_f
+    ocr_full_text, block_annots, line_annots, word_annots = parse_alto_index(ocr, issue.id, pfs.page_number, scale_factor)
+
+    annotation_file = Tempfile.new(%w(annotation_list_word_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
+    annotation_file.write(word_annots)
+    annotation_file.close
+    annotation_file = open(annotation_file.path, 'r')
+    Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_word_level_annotation_list)
+
+    annotation_file = Tempfile.new(%w(annotation_list_line_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
+    annotation_file.write(line_annots)
+    annotation_file.close
+    annotation_file = open(annotation_file.path, 'r')
+    Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_line_level_annotation_list)
+
+    annotation_file = Tempfile.new(%w(annotation_list_block_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
+    annotation_file.write(block_annots)
+    annotation_file.close
+    annotation_file = open(annotation_file.path, 'r')
+    Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_block_level_annotation_list)
+
+    Thread.current[:output_pfs] = pfs
+    Thread.current[:output_fulltext] = ocr_full_text
+  end
+
   def parse_alto_index(doc, doc_id, page_num, scale_factor, generate_neo4j=false)
     # neo4j_page = ["CREATE (p#{page_num}:Page {label:\"#{doc_id}_#{page_num}\", target:\"#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/canvas/page_#{page_num}\"})"]
     page_ocr_text = ''
