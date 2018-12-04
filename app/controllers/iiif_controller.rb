@@ -16,7 +16,14 @@ class IiifController < ApplicationController
 
   def annotation_list
     pfs_id = params[:id] + '_page_' + params[:name].split('_')[1]
-    render json: JSON.parse(PageFileSet.find(pfs_id).annotation_list(request.protocol+request.host_with_port, params[:name].split('_')[2..-1].join('_')))
+    case params[:name].split('_')[2..-1].join('_')
+    when 'ocr_word_level'
+      render json: JSON.parse(PageFileSet.find(pfs_id).ocr_word_level_annotation_list.content)
+    when 'ocr_line_level'
+      render json: JSON.parse(PageFileSet.find(pfs_id).ocr_line_level_annotation_list.content)
+    when 'ocr_block_level'
+      render json: JSON.parse(PageFileSet.find(pfs_id).ocr_block_level_annotation_list.content)
+    end
   end
 
   def layer

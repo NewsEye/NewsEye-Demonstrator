@@ -20,7 +20,7 @@ json_data.each do |newspaper|
     np.location = newspaper[:location]
     np.save
   end
-  newspaper[:issues].each do |np_issue|
+  newspaper[:issues][0...1].each do |np_issue|
     issueid = np.id + '_' + np_issue[:id]
     should_process = false
     if Issue.exists?(issueid)
@@ -66,6 +66,7 @@ json_data.each do |newspaper|
             Hydra::Works::AddFileToFileSet.call(pfs, image_full, :original_file)
           end
           Hydra::Works::CharacterizationService.run pfs.original_file
+          pfs.iiif_url = "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}_page_#{pfs.page_number}"
           pfs.height = pfs.original_file.height.first
           pfs.width = pfs.original_file.width.first
           pfs.mime_type = pfs.original_file.mime_type
@@ -86,32 +87,39 @@ json_data.each do |newspaper|
         ###### IIIF Annotation generation ######
 
         scale_factor = pfs.height.to_f / ocr.xpath('//Page')[0]['HEIGHT'].to_f
-        ocr_full_text, block_annots, line_annots, word_annots = parse_alto_index(ocr, issue.id, pfs.page_number, scale_factor)
+        solr_hierarchy, ocr_full_text, block_annots, line_annots, word_annots = parse_alto_index(ocr, issue.id, pfs.page_number, scale_factor)
 
-        annotation_file = Tempfile.create(%w(annotation_list_word_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
+        annotation_file = Tempfile.new(%w(annotation_list_word_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
         annotation_file.write(word_annots)
-        annotation_file.rewind
+        annotation_file.close
+        annotation_file = open(annotation_file.path, 'r')
         Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_word_level_annotation_list)
         annotation_file.close
 
-        annotation_file = Tempfile.create(%w(annotation_list_line_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
+        annotation_file = Tempfile.new(%w(annotation_list_line_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
         annotation_file.write(line_annots)
-        annotation_file.rewind
+        annotation_file.close
+        annotation_file = open(annotation_file.path, 'r')
         Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_line_level_annotation_list)
         annotation_file.close
 
-        annotation_file = Tempfile.create(%w(annotation_list_block_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
+        annotation_file = Tempfile.new(%w(annotation_list_block_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
         annotation_file.write(block_annots)
-        annotation_file.rewind
+        annotation_file.close
+        annotation_file = open(annotation_file.path, 'r')
         Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_block_level_annotation_list)
         annotation_file.close
 
         ###### Finalize ######
 
-        pfs.save
+        # pfs.save
+
+        pfs.to_solr_annots = true
+        pfs.annot_hierarchy = solr_hierarchy
         issue.ordered_members << pfs
         pfs.save
-        issue.save
+        ActiveFedora::SolrService.instance.conn.delete_by_query("id:#{pfs.id} -level:[* TO *]")
+        # issue.save
         issue_ocr_text += ocr_full_text
       end
       issue.all_text = issue_ocr_text
@@ -121,12 +129,12 @@ json_data.each do |newspaper|
       np.save
     end
   end  # Issue is processed
-  SolrService.commit  # commit annotations
+  # SolrService.commit  # commit annotations
 end
 
 BEGIN {
   def parse_alto_index(doc, doc_id, page_num, scale_factor, generate_neo4j=false)
-    # neo4j_page = ["CREATE (p#{page_num}:Page {label:\"#{doc_id}_#{page_num}\", target:\"#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/canvas/page_#{page_num}\"})"]
+    solr_hierarchy = []
     page_ocr_text = ''
     block_annotation_list = {}
     block_annotation_list['@context'] = 'http://iiif.io/api/presentation/2/context.json'
@@ -162,6 +170,8 @@ BEGIN {
     # neo4j_blocks = []
     doc.xpath('//TextBlock').each_with_index do |block, block_index|
       print "  block #{block_index+1} out of #{nb_blocks}\r"
+      solr_block = {}
+      solr_block['_childDocuments_'] = []
       block_id = "#{doc_id}_#{page_num}_block_#{block_index}"
       block_text = []
       block_confidence = 0
@@ -169,6 +179,8 @@ BEGIN {
       # neo4j_lines = []
       in_block_word_index = 0
       block.children.select{|line| line.name == 'TextLine'}.each_with_index do |line, in_block_line_index|
+        solr_line = {}
+        solr_line['_childDocuments_'] = []
         line_index = in_page_line_index + in_block_line_index
         line_id = "#{doc_id}_#{page_num}_line_#{line_index}"
         line_text = []
@@ -204,17 +216,17 @@ BEGIN {
           # neo4j_words.push("CREATE (w#{word_index})-[:IN_BLOCK {index:#{in_block_word_index}}]->(b#{block_index})")
           # neo4j_words.push("CREATE (w#{word_index})-[:IN_PAGE {index:#{in_page_word_index}}]->(p#{page_num})")
 
-          word_data = {
+          solr_word = {
               id: word_id,
-              target: word_annot['on'][0..word_annot['on'].index('#')-1],
               selector: word_annot['on'][word_annot['on'].index('#')..-1],
-              level: "word",
+              level: "4.pages.blocks.lines.words",
               level_reading_order: word_index,
-              parent_line_id: line_id,
-              parent_block_id: block_id,
-              body: "<p>#{str_content}</p>"
+              text: str_content,
+              confidence: word_annot['metadata']['word_confidence']
           }
-          SolrService.add word_data
+          solr_word.stringify_keys!
+          solr_line['_childDocuments_'] << solr_word
+          # SolrService.add word_data
           line_text << str_content
           line_confidence += word['WC'].to_f
           block_text << str_content
@@ -248,16 +260,14 @@ BEGIN {
         # neo4j_lines.push("CREATE (l#{line_index})-[:IN_PAGE {index:#{in_page_line_index}}]->(p#{page_num})")
         # neo4j_lines.concat neo4j_words
 
-        line_data = {
-            id: line_id,
-            target: line_annot['on'][0..line_annot['on'].index('#')-1],
-            selector: line_annot['on'][line_annot['on'].index('#')..-1],
-            level: "line",
-            level_reading_order: line_index,
-            parent_block_id: block_id,
-            body: "<p>#{line_text.join(' ')}</p>"
-        }
-        SolrService.add line_data
+        solr_line['id'] = line_id
+        solr_line['selector'] = line_annot['on'][line_annot['on'].index('#')..-1]
+        solr_line['level'] = "3.pages.blocks.lines"
+        solr_line['level_reading_order'] = line_index
+        solr_line['text'] = line_text.join(' ')
+        solr_line['confidence'] = line_annot['metadata']['word_confidence']
+        solr_block['_childDocuments_'] << solr_line
+        # SolrService.add line_data
       end
       in_page_line_index += nb_lines
       page_ocr_text.strip!
@@ -285,18 +295,17 @@ BEGIN {
       # neo4j_blocks.push("CREATE (b#{block_index})-[:IN_PAGE {index:#{block_index}}]->(p#{page_num})")
       # neo4j_blocks.concat neo4j_lines
 
-      block_data = {
-          id: block_id,
-          target: block_annot['on'][0..block_annot['on'].index('#')-1],
-          selector: block_annot['on'][block_annot['on'].index('#')..-1],
-          level: "block",
-          level_reading_order: block_index,
-          body: "<p>#{block_text.join(' ')}</p>"
-      }
-      SolrService.add block_data
+      solr_block['id'] = block_id
+      solr_block['selector'] = block_annot['on'][block_annot['on'].index('#')..-1]
+      solr_block['level'] = "2.pages.blocks"
+      solr_block['level_reading_order'] = block_index
+      solr_block['text'] = block_text.join(' ')
+      solr_block['confidence'] = block_annot['metadata']['word_confidence']
+      # SolrService.add block_data
+      solr_hierarchy << solr_block
     end
     # neo4j_page.concat neo4j_blocks
     # puts neo4j_page.join("\n")
-    return page_ocr_text, block_annotation_list.to_json, line_annotation_list.to_json, word_annotation_list.to_json
+    return solr_hierarchy, page_ocr_text, block_annotation_list.to_json, line_annotation_list.to_json, word_annotation_list.to_json
   end
 }

@@ -19,7 +19,7 @@ module Solrizer
       has_field? :indexed
     end
 
-    def vectors
+    def vectors?
       has_field? :vectors
     end
 

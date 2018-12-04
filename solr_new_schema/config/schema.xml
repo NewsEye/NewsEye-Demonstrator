@@ -238,12 +238,17 @@
     or Solr won't start. _version_ and update log are required for SolrCloud
     --> 
     <field name="_version_" type="long" indexed="true" stored="true"/>
-   
+    <field name="_root_" type="string" stored="false" indexed="true"/>
     <field name="id" type="string" stored="true" indexed="true" multiValued="false" required="true"/>
     <field name="timestamp" type="date" indexed="true" stored="true" default="NOW" multiValued="false"/>
     
     <field name="lat" type="tdouble" stored="true" indexed="true" multiValued="false"/>
     <field name="lng" type="tdouble" stored="true" indexed="true" multiValued="false"/>
+
+    <field name="level" type="string" multiValued="false" indexed="true" stored="true"/>
+    <field name="level_reading_order" type="int" multiValued="false" indexed="true" stored="true"/>
+    <field name="confidence" type="double" multiValued="false" indexed="true" stored="true"/>
+    <field name="selector" type="string" multiValued="false" indexed="true" stored="true"/>
 
     <!-- NOTE:  not all possible Solr field types are represented in the dynamic fields -->
 

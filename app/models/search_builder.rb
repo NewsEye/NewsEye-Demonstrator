@@ -18,10 +18,14 @@ class SearchBuilder < Blacklight::SearchBuilder
         PageFileSet
         Newspaper
         IssueFileSet
+
     )
     to_exclude.each do |model|
       params << "-has_model_ssim:\"#{model}\""
     end
+    params << "-level:2.pages.blocks"
+    params << "-level:3.pages.blocks.lines"
+    params << "-level:4.pages.blocks.lines.words"
     solr_parameters[:fq] << "(#{params.join(' AND ')})"
   end
 

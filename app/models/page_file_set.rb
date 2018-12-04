@@ -2,6 +2,13 @@ class PageFileSet < ActiveFedora::Base
 
   include Hydra::Works::FileSetBehavior
 
+  attr_accessor :to_solr_annots, :annot_hierarchy
+
+  def initialize
+    super
+    self.to_solr_annots = false
+  end
+
   property :page_number, predicate: ::RDF::Vocab::SCHEMA.pagination, multiple: false do |index|
     index.as :int_searchable
   end
@@ -25,7 +32,7 @@ class PageFileSet < ActiveFedora::Base
     canvas.height = self.height.to_i
     canvas.label = self.page_number.to_s
     image_annotation = IIIF::Presentation::Annotation.new
-    service = self.iiif_url == nil ? "#{host}/iiif/#{issue_id}_page_#{self.page_number}" : self.iiif_url
+    service = self.iiif_url #== nil ? "#{host}/iiif/#{issue_id}_page_#{self.page_number}" : self.iiif_url
     img_res_params = {
         service_id: service,
         profile: "http://iiif.io/api/image/2/level2.json",
@@ -49,15 +56,38 @@ class PageFileSet < ActiveFedora::Base
     canvas
   end
 
-  def annotation_list(host, name)
-    case name
-    when 'ocr_word_level'
-      self.ocr_word_level_annotation_list.content.gsub "\\u003chost\\u003e", host
-    when 'ocr_line_level'
-      self.ocr_line_level_annotation_list.content.gsub "\\u003chost\\u003e", host
-    when 'ocr_block_level'
-      self.ocr_block_level_annotation_list.content.gsub "\\u003chost\\u003e", host
+  def to_solr
+    solr_doc = super
+    if self.to_solr_annots
+      solr_doc['level'] = '1.pages'
+      solr_doc['_childDocuments_'] = []
+      language = Issue.find(self.id[0...self.id.rindex('_page_')]).language
+      self.annot_hierarchy.each do |block|
+        block["text_t#{language}_siv"] = block.delete('text')
+        block['_childDocuments_'].each do |line|
+          line["text_t#{language}_siv"] = line.delete('text')
+          line['_childDocuments_'].each do |word|
+            word["text_t#{language}_siv"] = word.delete('text')
+          end
+        end
+        solr_doc['_childDocuments_'] << block
+      end
+      # solr_doc['_childDocuments_'] = {set: solr_doc['_childDocuments_']}
+
+      # JSON.parse(self.ocr_block_level_annotation_list.content)['resources'].each_with_index do |annot, block_index|
+      #   block_doc = {}
+      #   block_id = "#{self.id}_block_#{block_index}"
+      #   block_doc['id'] = block_id
+      #   block_doc['level'] = '2.pages.blocks'
+      #   block_doc['level_reading_order'] = block_index
+      #   block_doc["text_t#{language}_siv"] = annot['resource']['chars']
+      #   block_doc['confidence'] = annot['metadata']['word_confidence']
+      #   block_doc['_childDocuments_'] = []
+      #
+      #   solr_doc['_childDocuments_'] << block_doc
+      # end
     end
+    solr_doc
   end
 
 end

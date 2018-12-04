@@ -3,7 +3,12 @@ Riiif::Image.file_resolver = Riiif::HTTPFileResolver.new
 
 # This tells RIIIF how to resolve the identifier to a URI in Fedora
 Riiif::Image.file_resolver.id_to_uri = lambda do |id|
-  PageFileSet.find(id).original_file.uri.to_s
+  pfs = PageFileSet.find(id)
+  if pfs.original_file
+    pfs.original_file.uri.to_s
+  else
+    pfs.iiif_url
+  end
   # ActiveFedora::Base.id_to_uri(CGI.unescape(id)).tap do |url|
   #   logger.info "Riiif resolved #{id} to #{url}"
   # end

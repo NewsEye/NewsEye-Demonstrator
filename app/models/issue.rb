@@ -28,30 +28,6 @@ class Issue < ActiveFedora::Base
   end
   property :all_text, predicate: ::RDF::Vocab::CNT.ContentAsText, multiple: false do |index|
     index.as :text_en_searchable_uniq, :text_fr_searchable_uniq, :text_de_searchable_uniq, :text_fi_searchable_uniq, :text_se_searchable_uniq
-    # puts "######################"
-    # puts self
-    # if self.methods.include?(:language)
-    #   case self.language
-    #   when 'en'
-    #     index.type :text_en
-    #     index.as :text_en_searchable_uniq
-    #   when 'fr'
-    #     index.type :text_fr
-    #     index.as :text_fr_searchable_uniq
-    #   when 'de'
-    #     index.type :text_de
-    #     index.as :text_de_searchable_uniq
-    #   when 'fi'
-    #     puts 'ok fi'
-    #     index.type :text_fi
-    #     index.as :text_fi_searchable_uniq
-    #   when 'se'
-    #     index.type :text_se
-    #     index.as :text_se_searchable_uniq
-    #   end
-    # else
-    #   puts 'no method language ###################################################""'
-    # end
   end
   property :thumbnail_url, predicate: ::RDF::Vocab::DC11.relation, multiple: false do |index|
     index.type :string
@@ -79,10 +55,7 @@ class Issue < ActiveFedora::Base
 
   def to_solr
     solr_doc = super
-    # puts "this line was reached by #{caller.join("\n")}"
     case self.language
-      when 'en'
-        solr_doc.except! 'all_text_tde_siv', 'all_text_tfr_siv', 'all_text_tfi_siv', 'all_text_tse_siv'
       when 'fr'
         solr_doc.except! 'all_text_tde_siv', 'all_text_ten_siv', 'all_text_tfi_siv', 'all_text_tse_siv'
       when 'de'
@@ -91,7 +64,9 @@ class Issue < ActiveFedora::Base
         solr_doc.except! 'all_text_tde_siv', 'all_text_tfr_siv', 'all_text_ten_siv', 'all_text_tse_siv'
       when 'se'
         solr_doc.except! 'all_text_tde_siv', 'all_text_tfr_siv', 'all_text_tfi_siv', 'all_text_ten_siv'
-      end
+    else
+      solr_doc.except! 'all_text_tde_siv', 'all_text_tfr_siv', 'all_text_tfi_siv', 'all_text_tse_siv' # keep english
+    end
     solr_doc
   end
 
