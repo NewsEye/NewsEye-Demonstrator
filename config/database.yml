@@ -1,6 +1,7 @@
 default: &default
   adapter: postgresql
-  host: localhost
+  host: 127.0.0.1
+  port: 5433
   encoding: utf8
   pool: 5
   user: postgres
@@ -16,8 +17,8 @@ development:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: test
+  database: newseye_test
 
 production:
   <<: *default
-  database: production
+  database: newseye_production

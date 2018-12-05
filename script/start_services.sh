@@ -2,4 +2,4 @@
 
 docker start newseye_solr
 docker start newseye_fcrepo
-# docker start newseye_sas_solr
+docker start newseye_postgres

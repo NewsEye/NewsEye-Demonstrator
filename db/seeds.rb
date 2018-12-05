@@ -113,9 +113,9 @@ json_data.each do |newspaper|
         ###### Finalize ######
         pfs.to_solr_annots = true
         pfs.annot_hierarchy = solr_hierarchy
-        puts "######### seeds.rb"
-        puts pfs.annot_hierarchy.first
-        puts "######### seeds.rb"
+        # puts "######### seeds.rb"
+        # puts pfs.annot_hierarchy.first
+        # puts "######### seeds.rb"
         # pfs.save
         ActiveFedora::SolrService.instance.conn.delete_by_query("id:#{pfs.id} -level:[* TO *]") # delete duplicates without level field
         issue.ordered_members << pfs # this saves pfs

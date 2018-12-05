@@ -13,7 +13,6 @@ class CatalogController < ApplicationController
   # TODO search history as a tree
   # TODO named entities + integrate thesis method using solr spellcheck ?
   # TODO add image part in "see extracts"
-  # TODO index annotations manually
   # TODO handle hyphenated words (information already in alto, to be checked)
   # TODO add position to hl : https://issues.apache.org/jira/browse/SOLR-4722
   configure_blacklight do |config|
