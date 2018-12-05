@@ -1,0 +1,29 @@
+/*
+* === Header ===
+*/
+
+.navbar-inverse {
+  background-color: dodgerblue;
+}
+
+.navbar-right a {
+  color: #2E2F30;
+}
+
+.navbar-inverse .navbar-nav > li > a {
+  color: #000000;
+}
+
+.container-fluid {
+  margin-left: 5%;
+  margin-right: 5%;
+}
+
+li#locale_dropdown{
+  position: relative;
+  display: block;
+}
+
+li#locale_dropdown button{
+  margin: 10px;
+}

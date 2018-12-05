@@ -1,0 +1,39 @@
+<div class="navbar-right">
+  <ul class="nav navbar-nav">
+    <%= render_nav_actions do |config, action|%>
+      <li><%= action %></li>
+    <% end %>
+    <li><%= link_to 'Explore', "/#{I18n.locale}/explore" %></li>
+  </ul>
+
+  <% if has_user_authentication_provider? %>
+    <ul class="nav navbar-nav">
+      <% if current_user %>
+      <li>
+        <%= link_to t('blacklight.header_links.logout'), destroy_user_session_path %>
+      </li>
+      <% unless current_user.to_s.blank? -%>
+      <li>
+        <%= link_to current_user, edit_user_registration_path %>
+      </li>
+      <% end %>
+      <% else %>
+      <li>
+        <%= link_to t('blacklight.header_links.login'), new_user_session_path %>
+      </li>
+      <% end %>
+      <li id="locale_dropdown">
+        <button class="nav-link dropdown-toggle btn btn-middle-gray" type="button" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <%= I18n.locale.upcase %>
+        </button>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <% I18n.available_locales.each do |loc| %>
+            <%= link_to loc.upcase, request.original_url.sub("/#{I18n.locale}", "/#{loc}").gsub("locale=#{I18n.locale}", "locale=#{loc}"), class: "dropdown-item" unless loc == I18n.locale %>
+          <% end %>
+          <a class="dropdown-item" href="#"><%=  %></a>
+        </div>
+      </li>
+
+    </ul>
+  <% end %>
+</div>

@@ -1,0 +1,13 @@
+en:
+  newseye:
+    language:
+      fr: 'French'
+      en: 'English'
+      fi: 'Finnish'
+      de: 'German'
+  blacklight:
+    search:
+      fields:
+        language_ssi: 'Language'
+        member_of_collection_ids_ssim: 'Newspaper'
+        date_created_dtsi: 'Date'

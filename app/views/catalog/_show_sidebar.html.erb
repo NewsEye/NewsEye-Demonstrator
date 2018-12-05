@@ -1,0 +1,74 @@
+<%#= render :partial => 'show_tools' %>
+  
+<%# unless @document.more_like_this.empty? %>
+<!--  <div class="panel panel-default">-->
+<!--    <div class="panel-heading">More Like This</div>-->
+<!--    <div class="panel-body">-->
+      <%#= render :collection => @document.more_like_this, :partial => 'show_more_like_this', :as => :document %>
+<!--    </div>-->
+<!--  </div>-->
+<%# end %>
+
+<div class="panel panel-default">
+  <div class="panel-body">
+    <div id="annotationLayerControls">
+      <div class="form-group">
+        <form accept-charset="UTF-8" action="/annotations/search" method="get">
+          <label for="select_layer">Select list:</label>
+          <select class="form-control" id="select_layer" name="layer">
+            <option value="no" selected="selected">No layer</option>
+            <option value="word">Word-level</option>
+            <option value="line">Line-level</option>
+            <option value="block">Block-level</option>
+          </select>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="anno_content" class="panel panel-default">
+  <div class="panel-body">
+  </div>
+</div>
+
+<script type="text/javascript">
+    $( document ).on('turbolinks:load', function() {
+        document.getElementById('select_layer').addEventListener('change', function(event){select_layer_changed(event);}, false);
+    });
+
+    function select_layer_changed(event) {
+        let mirador_window = mirador_instance.viewer.workspace.windows[0];
+        let annotation_endpoint = mirador_window.endpoint;
+        let select_element = document.getElementById('select_layer');
+        let current_canvas_id = mirador_window.focusModules.ImageView.canvasID;
+        let layer_value = select_element.options[select_element.selectedIndex].value;
+        switch (layer_value) {
+            case 'no':
+                annotation_endpoint.annotationsList = []
+                mirador_instance.eventEmitter.publish('ANNOTATIONS_LIST_UPDATED', {
+                    'windowId': mirador_window.id,
+                    'annotationsList': annotation_endpoint.annotationsList
+                });
+                if (mirador_window.focusModules.ImageView.annotationState === 'on') {
+                    $('.mirador-osd-annotations-layer').click();
+                }
+                break;
+            default:
+                mirador_window.endpoint.search({'uri': current_canvas_id + '_' + layer_value}, function (data) {
+                    jQuery.each(data, function (index, value) {
+                        value.endpoint = annotation_endpoint
+                    });
+                    annotation_endpoint.annotationsList = data;
+                    mirador_instance.eventEmitter.publish('ANNOTATIONS_LIST_UPDATED', {
+                        'windowId': mirador_window.id,
+                        'annotationsList': annotation_endpoint.annotationsList
+                    });
+                });
+                if (mirador_window.focusModules.ImageView.annotationState === 'off') {
+                    $('.mirador-osd-annotations-layer').click();
+                }
+                break;
+        }
+    }
+</script>

@@ -5,6 +5,9 @@
 #   git config --global core.excludesfile '~/.gitignore_global'
 
 /.idea
+/public/*
+/db/seeds_data
+/tools
 
 # Ignore bundler config.
 /.bundle
@@ -23,3 +26,5 @@
 /yarn-error.log
 
 .byebug_history
+
+/tools

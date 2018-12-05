@@ -1,3 +1,3 @@
-Hydra::Derivatives.ffmpeg_path = '/usr/bin/ffmpeg'
-Hydra::Derivatives.fits_path = '/opt/fits-1.0.5/fits.sh'
-Hydra::Derivatives.libreoffice_path = '/opt/libreoffice5.1/program/soffice'
+# Hydra::Derivatives.ffmpeg_path = '/usr/bin/ffmpeg'
+Hydra::Derivatives.fits_path = Rails.root.to_s+'/tools/fits/fits.sh'
+# Hydra::Derivatives.libreoffice_path = '/opt/libreoffice5.1/program/soffice'
