@@ -4,7 +4,6 @@ class AnnotationsController < ApplicationController
 
   def search
     uri, sep, layer = params[:uri].rpartition('_')
-    puts uri
     if not %w(word line block).include? layer
       puts layer
       render json: []
@@ -31,12 +30,6 @@ class AnnotationsController < ApplicationController
                 '*'
               end
       flarg = "*, [child parentFilter=level:1.* childFilter=level:#{level} limit=1000000]"
-      # TODO check that solr doesnt contains multiple docs with same id...
-      puts "###"
-      puts "id:#{doc_id}_page_#{page_num}"
-      puts flarg
-      puts ActiveFedora::SolrService.query("id:#{doc_id}_page_#{page_num}", {fl: flarg}).size
-      puts "###"
       ActiveFedora::SolrService.query("id:#{doc_id}_page_#{page_num}", {fl: flarg}).first['_childDocuments_'].each do |annot|
         block_annot = {}
         block_annot['@type'] = 'oa:Annotation'
@@ -44,7 +37,7 @@ class AnnotationsController < ApplicationController
         block_annot['resource'] = {}
         block_annot['resource']['@type'] = 'cnt:ContentAsText'
         block_annot['resource']['format'] = 'text/plain'
-        block_annot['resource']['chars'] = annot['text']
+        block_annot['resource']['chars'] =  annot[annot.find{|k, hash| k.start_with?('text_')}[0]]
         block_annot['metadata'] = {}
         block_annot['metadata'] = {}
         # block_annot['metadata']['word_confidence'] = block_text.size == 0 ? 0 : block_confidence / block_text.size

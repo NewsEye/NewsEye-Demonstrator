@@ -7,6 +7,7 @@ class PageFileSet < ActiveFedora::Base
   def initialize
     super
     self.to_solr_annots = false
+    self.annot_hierarchy = []
   end
 
   property :page_number, predicate: ::RDF::Vocab::SCHEMA.pagination, multiple: false do |index|
@@ -62,6 +63,10 @@ class PageFileSet < ActiveFedora::Base
       solr_doc['level'] = '1.pages'
       solr_doc['_childDocuments_'] = []
       language = Issue.find(self.id[0...self.id.rindex('_page_')]).language
+      puts "###### to_solr"
+      puts self.annot_hierarchy.first
+      puts caller
+      puts "###### to_solr"
       self.annot_hierarchy.each do |block|
         block["text_t#{language}_siv"] = block.delete('text')
         block['_childDocuments_'].each do |line|
@@ -72,20 +77,6 @@ class PageFileSet < ActiveFedora::Base
         end
         solr_doc['_childDocuments_'] << block
       end
-      # solr_doc['_childDocuments_'] = {set: solr_doc['_childDocuments_']}
-
-      # JSON.parse(self.ocr_block_level_annotation_list.content)['resources'].each_with_index do |annot, block_index|
-      #   block_doc = {}
-      #   block_id = "#{self.id}_block_#{block_index}"
-      #   block_doc['id'] = block_id
-      #   block_doc['level'] = '2.pages.blocks'
-      #   block_doc['level_reading_order'] = block_index
-      #   block_doc["text_t#{language}_siv"] = annot['resource']['chars']
-      #   block_doc['confidence'] = annot['metadata']['word_confidence']
-      #   block_doc['_childDocuments_'] = []
-      #
-      #   solr_doc['_childDocuments_'] << block_doc
-      # end
     end
     solr_doc
   end

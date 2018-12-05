@@ -111,15 +111,14 @@ json_data.each do |newspaper|
         annotation_file.close
 
         ###### Finalize ######
-
-        # pfs.save
-
         pfs.to_solr_annots = true
         pfs.annot_hierarchy = solr_hierarchy
-        issue.ordered_members << pfs
-        pfs.save
-        ActiveFedora::SolrService.instance.conn.delete_by_query("id:#{pfs.id} -level:[* TO *]")
-        # issue.save
+        puts "######### seeds.rb"
+        puts pfs.annot_hierarchy.first
+        puts "######### seeds.rb"
+        # pfs.save
+        ActiveFedora::SolrService.instance.conn.delete_by_query("id:#{pfs.id} -level:[* TO *]") # delete duplicates without level field
+        issue.ordered_members << pfs # this saves pfs
         issue_ocr_text += ocr_full_text
       end
       issue.all_text = issue_ocr_text
