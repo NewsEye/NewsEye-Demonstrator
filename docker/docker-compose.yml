@@ -9,9 +9,8 @@ services:
       - fcrepo
     build: ..
     ports:
-      - 3000:3000
+      - 4000:3000
     volumes:
-      - ./log/website.log:/app/log/development.log
       - ./dependencies/seeds_data:/app/db/seeds_data
       - ./dependencies/fits:/app/tools/fits
       - ./dependencies/gems:/app/vendor/cache
@@ -33,18 +32,17 @@ services:
       - hydra-development
       - /imported_config
     ports:
-      - 8983:8983
+      - 9983:8983
     volumes:
       - ../solr/config:/imported_config
       - ./docker_data_solr:/opt/solr/server/solr/mycores
-      - ./log/solr.log:/opt/solr/server/logs/solr.log
     env_file:
       - ./.env
 
   fcrepo:
     image: lyrasis/fcrepo:4.7.4
     ports:
-      - 8984:8080
+      - 9984:8080
     volumes:
       - ./docker_data_fcrepo:/opt/data
     env_file:

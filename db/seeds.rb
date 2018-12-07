@@ -137,7 +137,7 @@ BEGIN {
     page_ocr_text = ''
     block_annotation_list = {}
     block_annotation_list['@context'] = 'http://iiif.io/api/presentation/2/context.json'
-    block_annotation_list['@id'] = "/iiif/#{doc_id}/list/page_#{page_num}_ocr_block_level"
+    block_annotation_list['@id'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/list/page_#{page_num}_ocr_block_level"
     block_annotation_list['@type'] = 'sc:AnnotationList'
     block_annotation_list['resources'] = []
     block_annotation_list['within'] = {}
@@ -155,7 +155,7 @@ BEGIN {
     word_annotation_list['within']['label'] = 'OCR Layer'
     line_annotation_list = {}
     line_annotation_list['@context'] = 'http://iiif.io/api/presentation/2/context.json'
-    line_annotation_list['@id']#{Rails.configuration.newseye_services['host']} = "#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/list/page_#{page_num}_ocr_line_level"
+    line_annotation_list['@id'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/list/page_#{page_num}_ocr_line_level"
     line_annotation_list['@type'] = 'sc:AnnotationList'
     line_annotation_list['resources'] = []
     line_annotation_list['within'] = {}

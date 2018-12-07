@@ -5,13 +5,15 @@ if [[ $EUID -ne 0 ]]; then
   echo "You must be root to allow data folder permission fix" 2>&1
   exit 1
 else
-    mkdir $PWD/dependencies
-    wget https://ao.univ-lr.fr/index.php/s/ZNNPWFnPLSG6trz/download -O dependencies/dependencies.zip
-    cd dependencies
-    unzip dependencies.zip
-    rm dependencies.zip
+    if [ ! -d "$PWD/dependencies" ]; then
+        mkdir $PWD/dependencies
+        wget --no-check-certificate https://nextcloud.lr17.fr/index.php/s/KnK7mBhVjDk7jd3/download -O dependencies/dependencies.zip
+        cd dependencies
+        unzip dependencies.zip
+        rm dependencies.zip
+        cd ..
+    fi
 
-    cd ..
     mkdir $PWD/docker_data_solr
     chown -R 8983:root $PWD/docker_data_solr
     chmod -R gu+rwx $PWD/docker_data_solr
@@ -24,7 +26,7 @@ else
     chown -R 999:root $PWD/docker_data_postgres
     chmod -R gu+rwx $PWD/docker_data_postgres
 
-    docker-compose up -d
+    docker-compose up -d --build
 
     docker-compose exec --user "$(id -u):$(id -g)" website rails db:migrate
     docker-compose exec --user "$(id -u):$(id -g)" website rails db:seed
