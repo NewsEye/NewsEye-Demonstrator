@@ -27,9 +27,8 @@
 
 .byebug_history
 
-/tools/mirador
-
 /docker/docker_data_postgres
 /docker/docker_data_fcrepo
 /docker/docker_data_solr
 /docker/log
+/docker/dependencies

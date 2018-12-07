@@ -1,4 +1,4 @@
 tmp/*
 log/*
-docker
-tools/mirador
+docker/*
+tools/*
