@@ -20,7 +20,7 @@ json_data.each do |newspaper|
     np.location = newspaper[:location]
     np.save
   end
-  newspaper[:issues][0...1].each do |np_issue|
+  newspaper[:issues].each do |np_issue|
     issueid = np.id + '_' + np_issue[:id]
     should_process = false
     if Issue.exists?(issueid)

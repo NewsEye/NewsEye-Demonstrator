@@ -5,7 +5,7 @@
 #   git config --global core.excludesfile '~/.gitignore_global'
 
 /.idea
-/public/*
+/public/assets/*
 /db/seeds_data
 /tools
 
@@ -27,4 +27,8 @@
 
 .byebug_history
 
-/tools
+/docker/docker_data_postgres
+/docker/docker_data_fcrepo
+/docker/docker_data_solr
+/docker/log
+/docker/dependencies
