@@ -32,3 +32,5 @@
 /docker/docker_data_solr
 /docker/log
 /docker/dependencies
+
+/vendor/cache
