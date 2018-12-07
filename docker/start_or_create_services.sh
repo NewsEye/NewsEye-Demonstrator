@@ -6,7 +6,7 @@ if [[ $EUID -ne 0 ]]; then
   exit 1
 else
     mkdir $PWD/dependencies
-    wget https://ao.univ-lr.fr/index.php/s/e4oeaD6PW95BwGd/download -O dependencies/dependencies.zip
+    wget https://ao.univ-lr.fr/index.php/s/ZNNPWFnPLSG6trz/download -O dependencies/dependencies.zip
     cd dependencies
     unzip dependencies.zip
     rm dependencies.zip
