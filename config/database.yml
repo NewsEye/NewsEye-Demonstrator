@@ -1,6 +1,6 @@
 default: &default
   adapter: postgresql
-  host: postgres
+  host: localhost
   port: 5432
   encoding: utf8
   pool: 5
