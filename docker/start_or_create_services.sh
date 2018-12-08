@@ -26,6 +26,12 @@ else
     chown -R 999:root $PWD/docker_data_postgres
     chmod -R gu+rwx $PWD/docker_data_postgres
 
+    # replace config to work with docker
+    sed -i 's/localhost:8984/fcrepo:8984/g' config/fedora.yml
+    sed -i 's/localhost:8983/solr:8983/g' config/solr.yml
+    sed -i 's/host: localhost/host: postgres/g' config/database.yml
+    sed -i 's/ocalhost:8983/solr:8983/g' config/blacklight.yml
+
     docker-compose up -d --build
 
     docker-compose exec --user "$(id -u):$(id -g)" website rails db:migrate
