@@ -3,7 +3,7 @@ require 'json'
 require 'nokogiri'
 require 'open-uri'
 
-current_np = "la_presse"
+current_np = "la_fronde"
 logger = Logger.new MultiIO.new(STDOUT, File.new("/home/axel/Nextcloud/NewsEye/data/import_#{current_np}.log", 'a'))
 failed_path = "/home/axel/Nextcloud/NewsEye/data/failed_#{current_np}.txt"
 

@@ -33,4 +33,6 @@
 /docker/log
 /docker/dependencies
 
+/lib/GeoLite2-City.mmdb
+
 /vendor/cache

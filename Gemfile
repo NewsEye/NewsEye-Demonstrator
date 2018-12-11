@@ -22,6 +22,9 @@ gem 'iiif-presentation'
 gem 'charlock_holmes'
 # gem 'charlock_holmes_bundle_icu'
 
+gem 'ahoy_matey'
+gem 'maxminddb'
+
 gem 'httparty'
 gem 'http_accept_language'
 
