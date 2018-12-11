@@ -1,0 +1,51 @@
+version: '2'
+
+services:
+
+  website:
+    depends_on:
+      - postgres
+      - solr
+      - fcrepo
+    build: ..
+    ports:
+      - 4000:3000
+    volumes:
+      - ./dependencies/seeds_data:/app/db/seeds_data
+      - ./dependencies/fits:/app/tools/fits
+      - ./dependencies/gems:/app/vendor/cache
+    env_file:
+      - ./.env
+
+  postgres:
+    image: postgres:11
+    volumes:
+      - ./docker_data_postgres:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    env_file:
+      - ./.env
+
+  solr:
+    image: solr:7.5.0
+    entrypoint:
+      - docker-entrypoint.sh
+      - solr-precreate
+      - hydra-development
+      - /imported_config
+    ports:
+      - 9983:8983
+    volumes:
+      - ../solr/config:/imported_config
+      - ./docker_data_solr:/opt/solr/server/solr/mycores
+    env_file:
+      - ./.env
+
+  fcrepo:
+    image: lyrasis/fcrepo:4.7.4
+    ports:
+      - 9984:8080
+    volumes:
+      - ./docker_data_fcrepo:/opt/data
+    env_file:
+      - ./.env

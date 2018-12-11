@@ -20,7 +20,7 @@ json_data.each do |newspaper|
     np.location = newspaper[:location]
     np.save
   end
-  newspaper[:issues][0...1].each do |np_issue|
+  newspaper[:issues].each do |np_issue|
     issueid = np.id + '_' + np_issue[:id]
     should_process = false
     if Issue.exists?(issueid)
@@ -39,6 +39,7 @@ json_data.each do |newspaper|
       puts " adding issue %s" % np_issue[:id]
       issue.original_uri = np_issue[:original_uri]
       issue.publisher = np_issue[:publisher]
+      issue.contributor = np_issue[:contributor]
       issue.title = np_issue[:title]
       issue.date_created = np_issue[:date_created]
       issue.nb_pages = np_issue[:nb_pages]
@@ -137,7 +138,7 @@ BEGIN {
     page_ocr_text = ''
     block_annotation_list = {}
     block_annotation_list['@context'] = 'http://iiif.io/api/presentation/2/context.json'
-    block_annotation_list['@id'] = "/iiif/#{doc_id}/list/page_#{page_num}_ocr_block_level"
+    block_annotation_list['@id'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/list/page_#{page_num}_ocr_block_level"
     block_annotation_list['@type'] = 'sc:AnnotationList'
     block_annotation_list['resources'] = []
     block_annotation_list['within'] = {}
@@ -155,7 +156,7 @@ BEGIN {
     word_annotation_list['within']['label'] = 'OCR Layer'
     line_annotation_list = {}
     line_annotation_list['@context'] = 'http://iiif.io/api/presentation/2/context.json'
-    line_annotation_list['@id']#{Rails.configuration.newseye_services['host']} = "#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/list/page_#{page_num}_ocr_line_level"
+    line_annotation_list['@id'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/list/page_#{page_num}_ocr_line_level"
     line_annotation_list['@type'] = 'sc:AnnotationList'
     line_annotation_list['resources'] = []
     line_annotation_list['within'] = {}

@@ -18,6 +18,10 @@ class Issue < ActiveFedora::Base
     index.type :string
     index.as :string_searchable_uniq
   end
+  property :contributor, predicate: ::RDF::Vocab::DC11.contributor, multiple: false do |index|
+    index.type :string
+    index.as :string_searchable_uniq
+  end
   property :original_uri, predicate: ::RDF::Vocab::DC11.source, multiple: false do |index|
     index.type :string
     index.as :string_stored_uniq
