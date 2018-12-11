@@ -39,6 +39,7 @@ json_data.each do |newspaper|
       puts " adding issue %s" % np_issue[:id]
       issue.original_uri = np_issue[:original_uri]
       issue.publisher = np_issue[:publisher]
+      issue.contributor = np_issue[:contributor]
       issue.title = np_issue[:title]
       issue.date_created = np_issue[:date_created]
       issue.nb_pages = np_issue[:nb_pages]

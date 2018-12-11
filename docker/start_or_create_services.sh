@@ -26,8 +26,8 @@ else
     chown -R 999:root $PWD/docker_data_postgres
     chmod -R gu+rwx $PWD/docker_data_postgres
 
-    # replace config to work with docker
-    sed -i 's/localhost:8984/fcrepo:8984/g' $PWD/../config/fedora.yml
+    # replace dev config to work with docker
+    sed -i 's/localhost:8984/fcrepo:8080/g' $PWD/../config/fedora.yml
     sed -i 's/localhost:8983/solr:8983/g' $PWD/../config/solr.yml
     sed -i 's/host: localhost/host: postgres/g' $PWD/../config/database.yml
     sed -i 's/localhost:8983/solr:8983/g' $PWD/../config/blacklight.yml
