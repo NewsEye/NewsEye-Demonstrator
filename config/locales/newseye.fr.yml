@@ -6,6 +6,7 @@ fr:
       fi: 'Finlandais'
       de: 'Allemand'
   blacklight:
+    application_name: 'NewsEye'
     search:
       fields:
         language_ssi: 'Langue'

@@ -6,6 +6,7 @@ fi:
       fi: 'Suomalainen'
       de: 'Saksa'
   blacklight:
+    application_name: 'NewsEye'
     search:
       fields:
         language_ssi: 'Kieli'
