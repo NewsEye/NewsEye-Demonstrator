@@ -16,7 +16,6 @@ class CatalogController < ApplicationController
   # TODO add image part in "see extracts"
   # TODO handle hyphenated words (information already in alto, to be checked)
   # TODO add position to hl : https://issues.apache.org/jira/browse/SOLR-4722
-  # TODO configure stopwords etc for solr
 
   after_action :track_action
 
