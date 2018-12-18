@@ -25,6 +25,10 @@ gem 'charlock_holmes'
 gem 'ahoy_matey'
 gem 'maxminddb'
 
+gem 'simple_form'
+gem 'devise-i18n'
+gem 'devise-bootstrap-views'
+
 gem 'httparty'
 gem 'http_accept_language'
 

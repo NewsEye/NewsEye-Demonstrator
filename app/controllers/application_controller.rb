@@ -7,7 +7,7 @@ class ApplicationController < ActionController::Base
 
   protect_from_forgery with: :exception
 
-  before_action :set_locale
+  before_action :set_locale, :create_feedback
 
   # Automatically set locale to all generated URLs
   def default_url_options
@@ -24,7 +24,10 @@ class ApplicationController < ActionController::Base
     else
       I18n.locale = params[:locale] || I18n.default_locale
     end
+  end
 
+  def create_feedback
+    @feedback = Feedback.new
   end
 
 end
