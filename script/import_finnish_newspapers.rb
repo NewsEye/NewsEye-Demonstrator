@@ -3,11 +3,11 @@ require 'json'
 require 'nokogiri'
 require 'open-uri'
 
-current_np = "l_oeuvre"
-logger = Logger.new MultiIO.new(STDOUT, File.new("/home/axel/Nextcloud/NewsEye/data/import_#{current_np}.log", 'a'))
-failed_path = "/home/axel/Nextcloud/NewsEye/data/failed_#{current_np}.txt"
+current_np = "0785-398X"
+logger = Logger.new MultiIO.new(STDOUT, File.new("/home/axel/Nextcloud/NewsEye/data/data_nlf/import_#{current_np}.log", 'a'))
+failed_path = "/home/axel/Nextcloud/NewsEye/data/data_nlf/failed_#{current_np}.txt"
 
-output_path = "/home/axel/Nextcloud/NewsEye/data/import_#{current_np}"
+output_path = "/home/axel/Nextcloud/NewsEye/data/data_nlf/import_#{current_np}"
 begin
   Dir.mkdir output_path
   logger.info "creating directory #{output_path}"
@@ -17,136 +17,74 @@ end
 
 already_processed = Dir.glob("#{output_path}/*.json")
 
-already_processed.map! { |f| f[f.rindex('/')+7..-6] }
+already_processed.map! { |f| f[f.rindex('/')+current_np.size+1..-6] }
 nb_processed = already_processed.size
 #already_processed.map! { |f| f[6..-6] }
 
 logger.info "starting new import session"
 
-arks = open("/home/axel/Nextcloud/NewsEye/data/bnf_#{current_np}.txt", 'r').read.split("\n")
-nb_arks = arks.size
-arks = arks - already_processed
-arks.each_with_index do |ark, arkindex|
+bindings_ids = open("/home/axel/Nextcloud/NewsEye/data/data_nlf/nlf_#{current_np}.txt", 'r').read.split("\n")
+nb_bindings = bindings_ids.size
+bindings_ids = bindings_ids - already_processed
+bindings_ids.each_with_index do |binding_id, binding_index|
   begin
-    logger.info "importing issue #{ark}, #{arkindex+nb_processed+1} out of #{nb_arks} (#{(((arkindex+nb_processed+1)/nb_arks.to_f)*100).round(2)}%)"
-    if already_processed.include? ark
-      logger.info "#{ark} already processed"
+    logger.info "importing issue #{binding_id}, #{binding_index+nb_processed+1} out of #{nb_bindings} (#{(((binding_index+nb_processed+1)/nb_bindings.to_f)*100).round(2)}%)"
+    if already_processed.include? binding_id
+      logger.info "#{binding_id} already processed"
       next
     end
-    ark = "12148/#{ark}"
     output_issue = {}
-    output_issue['original_uri'] = "https://gallica.bnf.fr/ark:/#{ark}"
-    output_issue['id'] = ark.sub('/', '-')
-    metadata_doc = Nokogiri::XML(open('https://gallica.bnf.fr/services/OAIRecord?ark=%s' % ark[ark.rindex('/')+1..-1]).read)
+    output_issue['original_uri'] = "https://digi.kansalliskirjasto.fi/sanomalehti/binding/#{binding_id}"
+    output_issue['id'] = "#{current_np}#{binding_id}"
+    metadata_doc = Nokogiri::XML(open("https://digi.kansalliskirjasto.fi/interfaces/OAI-PMH?verb=GetRecord&metadataPrefix=oai_dc&identifier=oai:null:#{binding_id}").read)
     metadata_doc.remove_namespaces!
     output_issue['date_created'] = metadata_doc.xpath('//metadata//date').text
     output_issue['title'] = metadata_doc.xpath('//metadata//title').text
     output_issue['publisher'] = metadata_doc.xpath('//metadata//publisher').text
     output_issue['contributor'] = metadata_doc.xpath('//metadata//contributor').text
-    output_issue['language'] = "fr"
-
-    pagination_doc = Nokogiri::XML(open('http://gallica.bnf.fr/services/Pagination?ark=%s' % ark[ark.rindex('/')+1..-1]).read)
-    num_page = pagination_doc.xpath('//page').size
-    output_issue['nb_pages'] = num_page
+    output_issue['language'] = metadata_doc.xpath('//metadata//language').text
+    output_issue['location'] = metadata_doc.xpath('//metadata//coverage').text
     output_issue['pages'] = []
-    (1..num_page).each do |i|
+
+    pages_left = true
+    page_number = 1
+    while pages_left do
       begin
-        logger.info "importing page #{i} out of #{num_page}"
+        image_data, thumbnail_data, ocr_data = nil
+        image_url = "https://digi.kansalliskirjasto.fi/sanomalehti/binding/#{binding_id}/image/#{page_number}"
+        thumbnail_url = "https://digi.kansalliskirjasto.fi/sanomalehti/binding/#{binding_id}/thumbnail/#{page_number}"
+        ocr_url = "https://digi.kansalliskirjasto.fi/sanomalehti/binding/#{binding_id}/page-#{page_number}.xml"
+        image_data = open(image_url)
+        thumbnail_data = open(thumbnail_url)
+        ocr_data = open(ocr_url)
+
+        pages_left =
+        logger.info "importing page #{page_number}"
         output_page = {}
-        output_page['id'] = "#{ark.sub('/', '-')}_page_#{i}"
-        output_page['page_number'] = i
+        output_page['id'] = "#{binding_id}_page_#{page_number}"
+        output_page['page_number'] = page_number
         output_page['ocr_path'] = "/db/seeds_data/#{output_page['id']}.xml"
         output_issue['pages'] << output_page
-        ocr_url = 'https://gallica.bnf.fr/RequestDigitalElement?O=%{ark}&E=ALTO&Deb=%{page}' % [ark: ark[ark.rindex('/')+1..-1], page: i]
-        ocr_file = open(ocr_url, 'r')
-        FileUtils.cp(ocr_file.path, "#{output_path}/#{output_page['id']}.xml")
-      rescue Exception => e
-        logger.error "page #{output_page['id']} import failed"
-        # logger.error e
-        File.open(failed_path, 'a') { |f| f.write("#{output_page['id']}\n") }
+
+        FileUtils.cp(image_data, "#{output_path}/#{current_np}#{binding_id}_page_#{page_number}.jpg")
+        FileUtils.cp(ocr_data, "#{output_path}/#{current_np}#{binding_id}_page_#{page_number}.xml")
+
+        page_number += 1
+      rescue
+        logger.info "no more pages"
+        pages_left = false
       end
     end
+    output_issue['nb_pages'] = page_number
     logger.info "Saving issue #{output_issue['id']}"
     File.open("#{output_path}/#{output_issue['id']}.json", 'w') do |of|
       of.write JSON.pretty_generate(output_issue)
     end
   rescue Exception => e
-    logger.error "there was a problem while importing issue #{ark}"
+    logger.error "there was a problem while importing issue #{binding_id}"
     logger.error e
   end
 end
-
-
-
-# require 'nokogiri'
-# require 'open-uri'
-#
-# File.open("/home/axel/Nextcloud/NewsEye/data/bnf_l_oeuvre.txt", 'w') do |f|
-#
-#   # la_presse = 'ark:/12148/cb34448033b/date'
-#   # (1850..1890).each do |year|
-#   #   puts year
-#   #   issues = Nokogiri::XML(open("https://gallica.bnf.fr/services/Issues?ark=#{la_presse}&date=#{year}"))
-#   #   issues.xpath('//issue').each do |issue|
-#   #     f.write(issue['ark']+"\n")
-#   #   end
-#   # end
-#
-#   # le_matin = 'ark:/12148/cb328123058/date'
-#   # (1884..1944).each do |year|
-#   #   puts year
-#   #   issues = Nokogiri::XML(open("https://gallica.bnf.fr/services/Issues?ark=#{le_matin}&date=#{year}"))
-#   #   issues.xpath('//issue').each do |issue|
-#   #     f.write(issue['ark']+"\n")
-#   #   end
-#   # end
-#
-#   # le_gaulois = 'ark:/12148/cb32779904b/date'
-#   # (1868..1900).each do |year|
-#   #   puts year
-#   #   issues = Nokogiri::XML(open("https://gallica.bnf.fr/services/Issues?ark=#{le_gaulois}&date=#{year}"))
-#   #   issues.xpath('//issue').each do |issue|
-#   #     f.write(issue['ark']+"\n")
-#   #   end
-#   # end
-#
-#   # la_fronde = 'ark:/12148/cb327788531/date'
-#   # (1897..1929).each do |year|
-#   #   puts year
-#   #   begin
-#   #     issues = Nokogiri::XML(open("https://gallica.bnf.fr/services/Issues?ark=#{la_fronde}&date=#{year}"))
-#   #     issues.xpath('//issue').each do |issue|
-#   #       f.write(issue['ark']+"\n")
-#   #     end
-#   #   rescue
-#   #   end
-#   #   end
-#
-#   # marie_claire = 'ark:/12148/cb343488519/date'
-#   # (1937..1944).each do |year|
-#   #   puts year
-#   #   begin
-#   #   issues = Nokogiri::XML(open("https://gallica.bnf.fr/services/Issues?ark=#{marie_claire}&date=#{year}"))
-#   #   issues.xpath('//issue').each do |issue|
-#   #     f.write(issue['ark']+"\n")
-#   #   end
-#   #   rescue
-#   #   end
-#   # end
-#
-#   l_oeuvre = 'ark:/12148/cb34429265b/date'
-#   (1915..1944).each do |year|
-#     puts year
-#     begin
-#     issues = Nokogiri::XML(open("https://gallica.bnf.fr/services/Issues?ark=#{l_oeuvre}&date=#{year}"))
-#     issues.xpath('//issue').each do |issue|
-#       f.write(issue['ark']+"\n")
-#     end
-#     rescue
-#     end
-#   end
-#
-# end
 
 BEGIN{
   class MultiIO

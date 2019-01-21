@@ -46,6 +46,7 @@ json_data.each do |newspaper|
       issue.language = np_issue[:language]
       issue.save
       issue_ocr_text = ''
+      alto_pages = {}
       np_issue[:pages].each do |issue_page|
         puts "  adding page %i out of %i" % [issue_page[:page_number], np_issue[:pages].length]
 
@@ -84,6 +85,7 @@ json_data.each do |newspaper|
         ocr_file.rewind
         ocr = Nokogiri::XML(ocr_file) #, nil, encoding)
         ocr.remove_namespaces!
+        alto_pages[issue_page[:page_number]] = ocr
 
         ###### IIIF Annotation generation ######
 
@@ -122,6 +124,24 @@ json_data.each do |newspaper|
         issue.ordered_members << pfs # this saves pfs
         issue_ocr_text += ocr_full_text
       end
+
+      ###### METS parsing and article annotations ######
+
+      mets_file = ""  # TODO
+      encoding = CharlockHolmes::EncodingDetector.detect(File.read(mets_file))[:ruby_encoding]
+      mets_doc = File.open(mets_file) do |f|
+        Nokogiri::XML(f, nil, encoding)
+      end
+      mets_doc.remove_namespaces!
+
+      puts "title section : "
+      textblocks = mets_doc.xpath("/descendant::structMap[@TYPE='LOGICAL']/descendant::div[@TYPE='ISSUE']/div[@TYPE='TITLE_SECTION']//@BEGIN")
+      textblocks = textblocks.map(&:text)
+      hpos, vpos, width, height = get_bbox(alto_docs, textblocks)
+      puts "hpos: #{hpos}, vpos: #{vpos}, width: #{width}, height: #{height}"
+
+      ###### finalize ######
+
       issue.all_text = issue_ocr_text
       np.members << issue
       issue.member_of_collections << np

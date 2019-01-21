@@ -52,9 +52,9 @@ issues_ids.each_with_index do |issue_id, issue_index|
       logger.info "#{issue_id} already processed"
       next
     end
-    url = "https://iiif.onb.ac.at/presentation/ANNO/#{current_np}#{issue_id}/manifest"
+    url = "https://iiif-auth.onb.ac.at/presentation/ANNO/#{current_np}#{issue_id}/manifest"
     logger.info "Downloading #{url}"
-    manifest = JSON.parse(open(url).read)
+    manifest = JSON.parse(open(url, http_basic_authentication: ['newseye','TIrl1wwNf19nmGjcnSmo']).read)
 
     output_issue = {}
     output_issue['original_uri'] = manifest['seeAlso'].find{ |sa| sa['@id'].start_with? 'http://anno.onb.ac.at/cgi-content/anno?' }['@id']
@@ -79,8 +79,8 @@ issues_ids.each_with_index do |issue_id, issue_index|
         output_page['page_number'] = i
         output_page['ocr_path'] = "/db/seeds_data/#{output_page['id']}.xml"
         output_issue['pages'] << output_page
-        ocr_url = "https://iiif.onb.ac.at/presentation/ANNO/#{current_np}#{issue_id}/resource/#{i.to_s.rjust(8, '0')}.xml"
-        ocr_file = open(ocr_url, 'r')
+        ocr_url = "https://iiif-auth.onb.ac.at/presentation/ANNO/#{current_np}#{issue_id}/resource/#{i.to_s.rjust(8, '0')}.xml"
+        ocr_file = open(ocr_url, 'r', http_basic_authentication: ['newseye','TIrl1wwNf19nmGjcnSmo'])
         FileUtils.cp(ocr_file.path, "#{output_path}/#{output_page['id']}.xml")
       rescue Exception => e
         logger.error "page #{output_page['id']} import failed"
