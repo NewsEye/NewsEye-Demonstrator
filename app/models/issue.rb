@@ -33,9 +33,15 @@ class Issue < ActiveFedora::Base
   property :all_text, predicate: ::RDF::Vocab::CNT.ContentAsText, multiple: false do |index|
     index.as :text_en_searchable_uniq, :text_fr_searchable_uniq, :text_de_searchable_uniq, :text_fi_searchable_uniq, :text_se_searchable_uniq
   end
+
   property :thumbnail_url, predicate: ::RDF::Vocab::DC11.relation, multiple: false do |index|
     index.type :string
     index.as :string_stored_uniq
+  end
+
+  property :location, predicate: ::RDF::Vocab::DC11.coverage, multiple: false do |index|
+    index.type :string
+    index.as :string_searchable_uniq
   end
 
   def manifest(host, with_annotations=false)

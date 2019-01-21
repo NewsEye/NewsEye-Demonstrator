@@ -6,8 +6,9 @@ git_source(:github) do |repo_name|
 end
 
 
-gem 'hydra-head'
-gem 'blacklight'
+gem 'hydra-head', '= 10.5.1'
+gem 'blacklight', '= 6.15.0'
+gem 'blacklight-access_controls', '= 0.6.2'
 gem 'blacklight-gallery'
 gem 'hydra-works'
 gem 'europeana-api'
@@ -24,6 +25,10 @@ gem 'charlock_holmes'
 
 gem 'ahoy_matey'
 gem 'maxminddb'
+
+gem 'simple_form'
+gem 'devise-i18n'
+gem 'devise-bootstrap-views'
 
 gem 'httparty'
 gem 'http_accept_language'

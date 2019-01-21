@@ -1,0 +1,12 @@
+<% if @feedback.errors.any? %>
+    var ul = document.createElement('ul');
+    <% @feedback.errors.full_messages.each do |error| %>
+        ul.appendChild(document.createElement('li').appendChild(document.createTextNode("<%= error %>")))
+    <% end %>
+    // empty children list
+    document.getElementById("feedback_messages").appendChild(ul);
+<% else %>
+    document.getElementById("feedback_form").reset();
+    // empty children list
+    document.getElementById("feedback_messages").appendChild(document.createTextNode("Thanks !"))
+<% end %>

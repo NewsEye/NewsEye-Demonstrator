@@ -46,6 +46,8 @@ Rails.application.routes.draw do
 
     get '/explore', to: 'catalog#explore'
 
+    resources :feedbacks
+
     root to: "catalog#index"
     # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
   end
