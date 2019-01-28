@@ -2,6 +2,13 @@ class Issue < ActiveFedora::Base
 
   include Hydra::Works::WorkBehavior
 
+  attr_accessor :to_solr_articles, :articles
+
+  after_initialize do |issue|
+    self.to_solr_articles = false
+    self.articles = []
+  end
+
   property :title, predicate: ::RDF::Vocab::DC.title, multiple: false do |index|
     index.type :string
     index.as :string_searchable_uniq
@@ -57,6 +64,16 @@ class Issue < ActiveFedora::Base
       sequence.canvases << pfs.canvas(host, self.id, with_annotations)
     end
     manifest.sequences << sequence
+    ###
+    # for each article of the issue :
+    # article = nil
+    # range = IIIF::Presentation::Range.new
+    # range['@id'] = "#{host}/iiif/#{self.id}/range/#{article.id}"
+    # range['label'] = article.title
+    # # for each textblock
+    # range.canvases << "#{host}/iiif/book1/canvas/p3#xywh=0,0,750,300"
+    # manifest.structures << range
+    ###
     manifest.metadata << {'label': 'Title', 'value': self.title}
     manifest.metadata << {'label': 'Date created', 'value': self.date_created}
     manifest.metadata << {'label': 'Publisher', 'value': self.publisher}
@@ -76,6 +93,13 @@ class Issue < ActiveFedora::Base
         solr_doc.except! 'all_text_tde_siv', 'all_text_tfr_siv', 'all_text_tfi_siv', 'all_text_ten_siv'
     else
       solr_doc.except! 'all_text_tde_siv', 'all_text_tfr_siv', 'all_text_tfi_siv', 'all_text_tse_siv' # keep english
+    end
+
+    if self.to_solr_articles
+      solr_doc['_childDocuments_'] = []
+      self.articles.each do |article|
+        solr_doc['_childDocuments_'] << article
+      end
     end
     solr_doc
   end

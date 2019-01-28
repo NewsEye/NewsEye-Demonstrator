@@ -127,25 +127,79 @@ json_data.each do |newspaper|
 
       ###### METS parsing and article annotations ######
 
-      mets_file = ""  # TODO
-      encoding = CharlockHolmes::EncodingDetector.detect(File.read(mets_file))[:ruby_encoding]
-      mets_doc = File.open(mets_file) do |f|
+      mets_file = np_issue[:mets]
+      encoding = CharlockHolmes::EncodingDetector.detect(File.read(Rails.root.to_s + mets_file))[:ruby_encoding]
+      mets_doc = File.open(Rails.root.to_s + mets_file) do |f|
         Nokogiri::XML(f, nil, encoding)
       end
       mets_doc.remove_namespaces!
 
       puts "title section : "
-      textblocks = mets_doc.xpath("/descendant::structMap[@TYPE='LOGICAL']/descendant::div[@TYPE='ISSUE']/div[@TYPE='TITLE_SECTION']//@BEGIN")
-      textblocks = textblocks.map(&:text)
-      hpos, vpos, width, height = get_bbox(alto_docs, textblocks)
-      puts "hpos: #{hpos}, vpos: #{vpos}, width: #{width}, height: #{height}"
+      s = mets_doc.xpath("/descendant::structMap[@TYPE='LOGICAL']/descendant::div[@TYPE='ISSUE']/div[@TYPE='TITLE_SECTION']//@BEGIN")
+      s = s.map(&:text)
+
+      canvases_parts = []
+      title_bboxes = get_bbox(alto_pages, s)
+      title_bboxes.keys.each do |page|
+        title_bboxes[page].each do |bbox|
+          hpos, vpos, width, height = bbox
+          puts "hpos: #{hpos}, vpos: #{vpos}, width: #{width}, height: #{height}"
+          canvases_parts << "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}/canvas/page_#{page}#xywh=#{hpos},#{vpos},#{width},#{height}"
+        end
+      end
+      solr_heading_article = {
+          "id": "#{issue.id}_article_0",
+          "content_t#{issue.language}_siv": get_text(alto_pages, s),
+          "from_issue_ssi": issue.id,
+          "canvases_parts_ssm": canvases_parts
+      }
+      issue.articles << solr_heading_article
+      puts
+      puts "articles"
+      mets_doc.xpath("/descendant::structMap[@TYPE='LOGICAL']/descendant::div[@TYPE='ISSUE']/div[@TYPE='CONTENT']//div[@TYPE='ARTICLE']").each_with_index do |article, idx|
+        canvases_parts = []
+        puts article.xpath("./@ID")
+        tbs = {heading: [], body: []}
+        tbs[:heading].concat(article.xpath(".//div[@TYPE='HEADING']//@BEGIN").map(&:text))
+        tbs[:body].concat(article.xpath(".//div[@TYPE='BODY']//@BEGIN").map(&:text))
+        puts "heading : #{tbs[:heading].size} textblocks"
+        heading_bboxes = get_bbox(alto_pages, tbs[:heading])
+        heading_bboxes.keys.each do |page|
+          heading_bboxes[page].each do |bbox|
+            hpos, vpos, width, height = bbox
+            puts "  hpos: #{hpos}, vpos: #{vpos}, width: #{width}, height: #{height}"
+            canvases_parts << "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}/canvas/page_#{page}#xywh=#{hpos},#{vpos},#{width},#{height}"
+          end
+        end
+        article_title = get_text(alto_pages, tbs[:heading])
+        puts "body : #{tbs[:body].size} textblocks"
+        body_bboxes = get_bbox(alto_pages, tbs[:body])
+        body_bboxes.keys.each do |page|
+          puts "  bboxes in page #{page}: "
+          body_bboxes[page].each do |bbox|
+            hpos, vpos, width, height = bbox
+            puts "    hpos: #{hpos}, vpos: #{vpos}, width: #{width}, height: #{height}"
+            canvases_parts << "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}/canvas/page_#{page}#xywh=#{hpos},#{vpos},#{width},#{height}"
+          end
+        end
+        article_body = get_text(alto_pages, tbs[:body])
+        solr_article = {
+            "id": "#{issue.id}_article_#{idx+1}",
+            "level": "0.articles",
+            "title_t#{issue.language}_siv": article_title,
+            "content_t#{issue.language}_siv": article_body,
+            "from_issue_ssi": issue.id,
+            "canvases_parts_ssm": canvases_parts
+        }
+        issue.articles << solr_article
+      end
 
       ###### finalize ######
 
       issue.all_text = issue_ocr_text
-      np.members << issue
       issue.member_of_collections << np
-      issue.save
+      issue.to_solr_articles = true
+      np.members << issue # save issue
       np.save
     end
   end  # Issue is processed
@@ -327,5 +381,47 @@ BEGIN {
     # neo4j_page.concat neo4j_blocks
     # puts neo4j_page.join("\n")
     return solr_hierarchy, page_ocr_text, block_annotation_list.to_json, line_annotation_list.to_json, word_annotation_list.to_json
+  end
+
+  def get_text_from_id(alto_docs, textblock_id)
+    page = textblock_id[1...textblock_id.index('_')].to_i
+    alto_docs[page].xpath("//TextBlock[@ID='#{textblock_id}']//@CONTENT").map(&:to_s).join(' ')
+  end
+
+  def get_text(alto_docs, textblocks)
+    texts = textblocks.map{ |tb| get_text_from_id(alto_docs, tb) }
+    texts.join(' ')
+    # text = ""
+    # textblocks.each do |tb|
+    #   text = "#{text} #{get_text_from_id(alto_docs, tb)}"
+    # end
+    # text
+  end
+
+  def get_bbox(alto_docs, textblocks)
+    bboxes = {}
+    pages = textblocks.map{ |tb| tb[1...tb.index('_')].to_i }.uniq
+    pages.each do |page|
+      # min_hpos = 100000
+      # min_vpos = 100000
+      # max_hpos = 0
+      # max_vpos = 0
+      bboxes[page] = []
+      textblocks.select{ |tb| tb.index("P#{page}_") }.each do |tb|
+        hpos = alto_docs[page].xpath("//TextBlock[@ID='#{tb}']/@HPOS").to_s.to_i
+        vpos = alto_docs[page].xpath("//TextBlock[@ID='#{tb}']/@VPOS").to_s.to_i
+        width = alto_docs[page].xpath("//TextBlock[@ID='#{tb}']/@WIDTH").to_s.to_i
+        height = alto_docs[page].xpath("//TextBlock[@ID='#{tb}']/@HEIGHT").to_s.to_i
+        # hpos2 = hpos + width
+        # vpos2 = vpos + height
+        # min_hpos = hpos < min_hpos ? hpos : min_hpos
+        # min_vpos = vpos < min_vpos ? vpos : min_vpos
+        # max_hpos = hpos2 > max_hpos ? hpos2 : max_hpos
+        # max_vpos = vpos2 > max_vpos ? vpos2 : max_vpos
+        # bboxes[page] << [min_hpos, min_vpos, max_hpos-min_hpos, max_vpos-min_vpos]
+        bboxes[page] << [hpos, vpos, width, height]
+      end
+    end
+    bboxes
   end
 }

@@ -26,6 +26,7 @@ class SearchBuilder < Blacklight::SearchBuilder
     params << "-level:2.pages.blocks"
     params << "-level:3.pages.blocks.lines"
     params << "-level:4.pages.blocks.lines.words"
+    params << "-level:0.articles"
     solr_parameters[:fq] << "(#{params.join(' AND ')})"
   end
 
