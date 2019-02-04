@@ -44,6 +44,7 @@ json_data.each do |newspaper|
       issue.date_created = np_issue[:date_created]
       issue.nb_pages = np_issue[:nb_pages]
       issue.language = np_issue[:language]
+      # SHould I remove this save to prevent duplicates in solr index ?
       issue.save
       issue_ocr_text = ''
       alto_pages = {}
@@ -149,8 +150,12 @@ json_data.each do |newspaper|
       end
       solr_heading_article = {
           "id": "#{issue.id}_article_0",
+          "level": "0.articles",
+          "title_t#{issue.language}_siv": 'Heading',
           "content_t#{issue.language}_siv": get_text(alto_pages, s),
           "from_issue_ssi": issue.id,
+          "has_model_ssim": 'Article',
+          "member_of_collection_ids_ssim": np.id,
           "canvases_parts_ssm": canvases_parts
       }
       issue.articles << solr_heading_article
@@ -189,6 +194,8 @@ json_data.each do |newspaper|
             "title_t#{issue.language}_siv": article_title,
             "content_t#{issue.language}_siv": article_body,
             "from_issue_ssi": issue.id,
+            "has_model_ssim": 'Article',
+            "member_of_collection_ids_ssim": np.id,
             "canvases_parts_ssm": canvases_parts
         }
         issue.articles << solr_article
@@ -200,10 +207,11 @@ json_data.each do |newspaper|
       issue.member_of_collections << np
       issue.to_solr_articles = true
       np.members << issue # save issue
-      np.save
+      np.save # delete duplicates without all_text
     end
   end  # Issue is processed
-  # SolrService.commit  # commit annotations
+  # The following is not working...
+  ActiveFedora::SolrService.instance.conn.delete_by_query("has_model_ssim:Issue -member_of_collection_ids_ssim:*")
 end
 
 BEGIN {

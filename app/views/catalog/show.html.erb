@@ -1,7 +1,16 @@
-<div id="content" class="<%= show_content_classes %>">
-  <%= render_document_main_content_partial %>
-</div>
+<% if @document[:has_model_ssim].include?('Issue') %>
+  <div id="content" class="<%= show_content_classes %>">
+    <%= render_document_main_content_partial %>
+  </div>
 
-<div id="sidebar" class="<%= show_sidebar_classes %>">
-   <%= render_document_sidebar_partial %>
-</div>
+  <div id="sidebar" class="<%= show_sidebar_classes %>">
+    <%= render_document_sidebar_partial %>
+  </div>
+
+<% elsif @document[:has_model_ssim].include?('Article') %>
+  <div id="content" class="<%= show_content_classes %>">
+    <%= render :partial => 'show_main_content_article' %>
+  </div>
+
+<% end %>
+

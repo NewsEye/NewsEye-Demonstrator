@@ -1,6 +1,7 @@
 development:
   annotations_endpoint: http://localhost:8989/solr/annotations
   host: http://localhost:3000
+  investigator_endpoint: http://investigator.lab.fi
 
 production:
   annotations_endpoint: http://localhost:8989/solr/annotations

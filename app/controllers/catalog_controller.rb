@@ -26,10 +26,12 @@ class CatalogController < ApplicationController
 
 
     config.show.tile_source_field = :content_metadata_image_iiif_info_ssm
-    config.show.partials.insert(1, :openseadragon)
+    # config.show.partials.insert(1, :openseadragon)
 
     # config.index.thumbnail_method= :render_thumbnail # see helpers
     config.index.thumbnail_field = :thumbnail_url_ss
+
+    config.index.document_presenter_class = MyPresenter
 
     ## Class for sending and receiving requests from a search index
     # config.repository_class = Blacklight::Solr::Repository
@@ -42,7 +44,7 @@ class CatalogController < ApplicationController
 
     ## Default parameters to send to solr for all search-like requests. See also SearchBuilder#processed_parameters
     config.default_solr_params = {
-      qf: 'all_text_ten_siv all_text_tfr_siv all_text_tde_siv all_text_tfi_siv all_text_tse_siv',
+      qf: 'all_text_ten_siv all_text_tfr_siv all_text_tde_siv all_text_tfi_siv all_text_tse_siv content_tfr_siv title_tfr_siv',
       qt: 'search',
       rows: 10
     }
@@ -121,6 +123,8 @@ class CatalogController < ApplicationController
   def index
     (@response, @document_list) = search_results(params)
     pp @response[:highlighting]
+    @solr_query = search_builder.with(params).to_hash
+    console
     respond_to do |format|
       format.html { store_preferred_view }
       format.rss  { render :layout => false }
@@ -135,6 +139,15 @@ class CatalogController < ApplicationController
       document_export_formats(format)
     end
 
+  end
+
+  def show
+    @response, @document = fetch params[:id]
+    respond_to do |format|
+      format.html { setup_next_and_previous_documents }
+      format.json { render json: { response: { document: @document } } }
+      additional_export_formats(@document, format)
+    end
   end
 
   def explore

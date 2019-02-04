@@ -1,0 +1,28 @@
+<%= render 'previous_next_doc' %>
+
+<% @page_title = t('blacklight.search.show.title', :document_title => document_show_html_title, :application_name => application_name).html_safe %>
+<% content_for(:head) { render_link_rel_alternates } %>
+
+<h2>
+  <%= @document[:title_tfr_siv] %>
+</h2>
+<p>
+  <%= @document[:content_tfr_siv] %>
+</p>
+<% manifest = get_manifest @document[:from_issue_ssi]%>
+<div>
+  <% @document[:canvases_parts_ssm].each do |canvas| %>
+    <img src="<%= get_iiif_images_from_canvas_path manifest, canvas %>">
+  <% end %>
+</div>
+<%= link_to "Original Issue", "#{url_for(controller: 'catalog')}/#{@document[:from_issue_ssi]}", :class => "btn btn-sm btn-text", :id=>"originalIssueLink" %>
+<%= link_to "manifest", "#{url_for(controller: 'iiif', action: 'manifest', id: @document[:from_issue_ssi], locale: nil)}" %>
+
+<% if @document.respond_to?(:export_as_openurl_ctx_kev) %>
+  <!--
+       // COinS, for Zotero among others.
+       // This document_partial_name(@document) business is not quite right,
+       // but has been there for a while.
+  -->
+  <span class="Z3988" title="<%= @document.export_as_openurl_ctx_kev(document_partial_name(@document)) %>"></span>
+<% end %>

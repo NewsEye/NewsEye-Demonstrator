@@ -48,6 +48,8 @@ Rails.application.routes.draw do
 
     resources :feedbacks
 
+    post '/investigate', to: 'investigator#investigate'
+
     root to: "catalog#index"
     # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
   end
