@@ -3,8 +3,8 @@ require 'json'
 require 'nokogiri'
 require 'open-uri'
 
-current_np = "nfp" # krz, ibn, aze
-years = Array(1864..1873) + Array(1895..1900) + Array(1911..1922) + Array(1933..1939)
+# current_np = "nfp" # krz, ibn, aze
+# years = Array(1864..1873) + Array(1895..1900) + Array(1911..1922) + Array(1933..1939)
 
 # current_np = "ibn"
 # years = Array(1864..1873) + Array(1895..1900) + Array(1911..1922) + Array(1933..1945)
@@ -12,8 +12,8 @@ years = Array(1864..1873) + Array(1895..1900) + Array(1911..1922) + Array(1933..
 # current_np = "krz"
 # years = Array(1911..1922) + Array(1933..1944)
 #
-# current_np = "aze"
-# years = Array(1895..1900) + Array(1911..1922) + Array(1933..1937)
+current_np = "aze"
+years = Array(1895..1900) + Array(1911..1922) + Array(1933..1937)
 
 issues_ids = []
 years.each do |y|

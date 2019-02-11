@@ -45,7 +45,7 @@ json_data.each do |newspaper|
       issue.nb_pages = np_issue[:nb_pages]
       issue.language = np_issue[:language]
       # SHould I remove this save to prevent duplicates in solr index ?
-      issue.save
+      # issue.save
       issue_ocr_text = ''
       alto_pages = {}
       np_issue[:pages].each do |issue_page|
@@ -307,8 +307,9 @@ BEGIN {
               confidence: word_annot['metadata']['word_confidence']
           }
           solr_word.stringify_keys!
+
           solr_line['_childDocuments_'] << solr_word
-          # SolrService.add word_data
+
           line_text << str_content
           line_confidence += word['WC'].to_f
           block_text << str_content

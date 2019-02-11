@@ -57,9 +57,9 @@ arks.each_with_index do |ark, arkindex|
         output_page['page_number'] = i
         output_page['ocr_path'] = "/db/seeds_data/#{output_page['id']}.xml"
         output_issue['pages'] << output_page
-        ocr_url = 'https://gallica.bnf.fr/RequestDigitalElement?O=%{ark}&E=ALTO&Deb=%{page}' % [ark: ark[ark.rindex('/')+1..-1], page: i]
-        ocr_file = open(ocr_url, 'r')
-        FileUtils.cp(ocr_file.path, "#{output_path}/#{output_page['id']}.xml")
+        # ocr_url = 'https://gallica.bnf.fr/RequestDigitalElement?O=%{ark}&E=ALTO&Deb=%{page}' % [ark: ark[ark.rindex('/')+1..-1], page: i]
+        # ocr_file = open(ocr_url, 'r')
+        # FileUtils.cp(ocr_file.path, "#{output_path}/#{output_page['id']}.xml")
       rescue Exception => e
         logger.error "page #{output_page['id']} import failed"
         # logger.error e

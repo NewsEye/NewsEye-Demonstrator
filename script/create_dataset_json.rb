@@ -7,7 +7,7 @@ require 'open-uri'
 require 'json'
 require 'fileutils'
 
-Europeana::API.api_key = 'dMFAkBgyx'
+Europeana::API.key = 'LF3MuoE5h'
 
 # output_dir = File.join(File.dirname(__FILE__), 'seeds_data/')
 output_dir = '/db/seeds_data/'

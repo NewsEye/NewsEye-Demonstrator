@@ -11,4 +11,5 @@ fr:
       fields:
         language_ssi: 'Langue'
         member_of_collection_ids_ssim: 'Journal'
+        has_model_ssim: 'Type'
         date_created_dtsi: 'Date'

@@ -11,4 +11,5 @@ de:
       fields:
         language_ssi: 'Sprache'
         member_of_collection_ids_ssim: 'Zeitung'
+        has_model_ssim: 'Type'
         date_created_dtsi: 'Datum'

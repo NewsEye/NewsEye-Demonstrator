@@ -1,10 +1,14 @@
 module ApplicationHelper
-  def convert_date_to_locale_facet(options={})
-    I18n.localize Date.parse(options)
-  end
 
   def convert_date_to_locale(options={})
-    I18n.localize Date.parse(options[:value].first)
+    case options
+    when String
+      I18n.localize Date.parse(options)
+    when Hash
+      I18n.localize Date.parse(options[:value].first)
+    else
+      "placeholder date"
+    end
   end
 
   def convert_language_to_locale(options={})
@@ -21,7 +25,23 @@ module ApplicationHelper
   end
 
   def get_collection_title_from_id(options={})
-    Newspaper.find(options).title
+    case options
+    when String
+      Newspaper.find(options).title
+    when Hash
+      Newspaper.find(options[:value].first).title
+    else
+      "placeholder newspaper title"
+    end
+  end
+
+  def get_display_value_from_model(options={})
+    case options
+    when 'Article'
+      'Content Item'
+    when 'Issue'
+      'Issue'
+    end
   end
 
   def get_iiif_images_from_canvas_path(manifest, canvas_url)

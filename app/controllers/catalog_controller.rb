@@ -6,16 +6,13 @@ class CatalogController < ApplicationController
   include Hydra::Catalog
 
   # These before_filters apply the hydra access controls
-  #before_filter :enforce_show_permissions, :only=>:show
+  before_filter :enforce_show_permissions, :only=>:show
   # This applies appropriate access controls to all solr queries
   Hydra::SearchBuilder.default_processor_chain -= [:add_access_controls_to_solr_params]
 
-  # TODO feedback button
-  # TODO search history as a tree
   # TODO named entities + integrate thesis method using solr spellcheck ?
-  # TODO add image part in "see extracts"
+  # TODO add image part in "see extracts" + add position to hl : https://issues.apache.org/jira/browse/SOLR-4722
   # TODO handle hyphenated words (information already in alto, to be checked)
-  # TODO add position to hl : https://issues.apache.org/jira/browse/SOLR-4722
 
   after_action :track_action
 
@@ -53,8 +50,9 @@ class CatalogController < ApplicationController
     config.index.display_type_field = 'has_model_ssim'
 
     config.add_facet_field solr_name('language', :string_searchable_uniq), helper_method: :convert_language_to_locale, limit: true
-    config.add_facet_field solr_name('date_created', :date_searchable_uniq), helper_method: :convert_date_to_locale_facet, label: 'Date', date: true
+    config.add_facet_field solr_name('date_created', :date_searchable_uniq), helper_method: :convert_date_to_locale, label: 'Date', date: true
     config.add_facet_field 'member_of_collection_ids_ssim', helper_method: :get_collection_title_from_id, label: 'Newspaper'
+    config.add_facet_field 'has_model_ssim', helper_method: :get_display_value_from_model, label: 'Type'
 
     # Have BL send all facet field names to Solr, which has been the default
     # previously. Simply remove these lines if you'd rather use Solr request
@@ -70,6 +68,7 @@ class CatalogController < ApplicationController
     config.add_index_field solr_name('title', :string_searchable_uniq), label: 'Title'
     config.add_index_field solr_name('date_created', :date_searchable_uniq), helper_method: :convert_date_to_locale, label: 'Published date'
     config.add_index_field solr_name('publisher', :text_en_searchable_uniq), label: 'Publisher'
+    config.add_index_field 'member_of_collection_ids_ssim', helper_method: :get_collection_title_from_id, label: 'Newspaper'
     config.add_index_field solr_name('nb_pages', :int_searchable), label: 'Number of pages'
 
     config.add_show_field solr_name('original_uri', :string_stored_uniq), label: 'Original URI'
@@ -124,7 +123,6 @@ class CatalogController < ApplicationController
     (@response, @document_list) = search_results(params)
     pp @response[:highlighting]
     @solr_query = search_builder.with(params).to_hash
-    console
     respond_to do |format|
       format.html { store_preferred_view }
       format.rss  { render :layout => false }

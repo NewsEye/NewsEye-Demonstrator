@@ -11,4 +11,5 @@ fi:
       fields:
         language_ssi: 'Kieli'
         member_of_collection_ids_ssim: 'Sanomalehti'
+        has_model_ssim: 'Type'
         date_created_dtsi: 'Aika'
