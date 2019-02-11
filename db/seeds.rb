@@ -128,6 +128,7 @@ json_data.each do |newspaper|
 
       ###### METS parsing and article annotations ######
 
+      puts "  adding articles from METS..."
       mets_file = np_issue[:mets]
       encoding = CharlockHolmes::EncodingDetector.detect(File.read(Rails.root.to_s + mets_file))[:ruby_encoding]
       mets_doc = File.open(Rails.root.to_s + mets_file) do |f|
@@ -135,7 +136,7 @@ json_data.each do |newspaper|
       end
       mets_doc.remove_namespaces!
 
-      puts "title section : "
+      # puts "title section : "
       s = mets_doc.xpath("/descendant::structMap[@TYPE='LOGICAL']/descendant::div[@TYPE='ISSUE']/div[@TYPE='TITLE_SECTION']//@BEGIN")
       s = s.map(&:text)
 
@@ -144,68 +145,93 @@ json_data.each do |newspaper|
       title_bboxes.keys.each do |page|
         title_bboxes[page].each do |bbox|
           hpos, vpos, width, height = bbox
-          puts "hpos: #{hpos}, vpos: #{vpos}, width: #{width}, height: #{height}"
+          # puts "hpos: #{hpos}, vpos: #{vpos}, width: #{width}, height: #{height}"
           canvases_parts << "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}/canvas/page_#{page}#xywh=#{hpos},#{vpos},#{width},#{height}"
         end
       end
-      solr_heading_article = {
-          "id": "#{issue.id}_article_0",
-          "level": "0.articles",
-          "title_t#{issue.language}_siv": 'Heading',
-          "content_t#{issue.language}_siv": get_text(alto_pages, s),
-          "from_issue_ssi": issue.id,
-          "has_model_ssim": 'Article',
-          "member_of_collection_ids_ssim": np.id,
-          "canvases_parts_ssm": canvases_parts
-      }
-      issue.articles << solr_heading_article
-      puts
-      puts "articles"
+      article = Article.new
+      article.id = "#{issue.id}_article_0"
+      article.title = 'Heading'
+      article.date_created = issue.date_created
+      article.language = issue.language
+      article.all_text = get_text(alto_pages, s)
+      article.member_of_collections << np
+      article.canvases_parts = canvases_parts
+      article.read_groups = ["admin", "researcher"]
+      issue.members << article
+
+      # solr_heading_article = {
+      #     "id": "#{issue.id}_article_0",
+      #     "level": "0.articles",
+      #     "title_t#{issue.language}_siv": 'Heading',
+      #     "content_t#{issue.language}_siv": get_text(alto_pages, s),
+      #     "from_issue_ssi": issue.id,
+      #     "has_model_ssim": 'Article',
+      #     "member_of_collection_ids_ssim": np.id,
+      #     "canvases_parts_ssm": canvases_parts
+      # }
+      # issue.articles << solr_heading_article
+      # puts
+      # puts "articles"
       mets_doc.xpath("/descendant::structMap[@TYPE='LOGICAL']/descendant::div[@TYPE='ISSUE']/div[@TYPE='CONTENT']//div[@TYPE='ARTICLE']").each_with_index do |article, idx|
         canvases_parts = []
-        puts article.xpath("./@ID")
+        # puts article.xpath("./@ID")
         tbs = {heading: [], body: []}
         tbs[:heading].concat(article.xpath(".//div[@TYPE='HEADING']//@BEGIN").map(&:text))
         tbs[:body].concat(article.xpath(".//div[@TYPE='BODY']//@BEGIN").map(&:text))
-        puts "heading : #{tbs[:heading].size} textblocks"
+        # puts "heading : #{tbs[:heading].size} textblocks"
         heading_bboxes = get_bbox(alto_pages, tbs[:heading])
         heading_bboxes.keys.each do |page|
           heading_bboxes[page].each do |bbox|
             hpos, vpos, width, height = bbox
-            puts "  hpos: #{hpos}, vpos: #{vpos}, width: #{width}, height: #{height}"
+            # puts "  hpos: #{hpos}, vpos: #{vpos}, width: #{width}, height: #{height}"
             canvases_parts << "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}/canvas/page_#{page}#xywh=#{hpos},#{vpos},#{width},#{height}"
           end
         end
         article_title = get_text(alto_pages, tbs[:heading])
-        puts "body : #{tbs[:body].size} textblocks"
+        article_title = article_title == "" ? "placeholder title" : article_title
+        # puts "body : #{tbs[:body].size} textblocks"
         body_bboxes = get_bbox(alto_pages, tbs[:body])
         body_bboxes.keys.each do |page|
-          puts "  bboxes in page #{page}: "
+          # puts "  bboxes in page #{page}: "
           body_bboxes[page].each do |bbox|
             hpos, vpos, width, height = bbox
-            puts "    hpos: #{hpos}, vpos: #{vpos}, width: #{width}, height: #{height}"
+            # puts "    hpos: #{hpos}, vpos: #{vpos}, width: #{width}, height: #{height}"
             canvases_parts << "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}/canvas/page_#{page}#xywh=#{hpos},#{vpos},#{width},#{height}"
           end
         end
         article_body = get_text(alto_pages, tbs[:body])
-        solr_article = {
-            "id": "#{issue.id}_article_#{idx+1}",
-            "level": "0.articles",
-            "title_t#{issue.language}_siv": article_title,
-            "content_t#{issue.language}_siv": article_body,
-            "from_issue_ssi": issue.id,
-            "has_model_ssim": 'Article',
-            "member_of_collection_ids_ssim": np.id,
-            "canvases_parts_ssm": canvases_parts
-        }
-        issue.articles << solr_article
+
+        article = Article.new
+        article.id = "#{issue.id}_article_#{idx+1}"
+        article.title = article_title
+        article.date_created = issue.date_created
+        article.language = issue.language
+        article.all_text = article_body
+        article.member_of_collections << np
+        article.canvases_parts = canvases_parts
+        article.read_groups = ["admin", "researcher"]
+        issue.members << article
+
+        # solr_article = {
+        #     "id": "#{issue.id}_article_#{idx+1}",
+        #     "level": "0.articles",
+        #     "title_t#{issue.language}_siv": article_title,
+        #     "content_t#{issue.language}_siv": article_body,
+        #     "from_issue_ssi": issue.id,
+        #     "has_model_ssim": 'Article',
+        #     "member_of_collection_ids_ssim": np.id,
+        #     "canvases_parts_ssm": canvases_parts
+        # }
+        # issue.articles << solr_article
       end
 
       ###### finalize ######
 
       issue.all_text = issue_ocr_text
       issue.member_of_collections << np
-      issue.to_solr_articles = true
+      issue.read_groups = ["admin", "researcher"]
+      # issue.to_solr_articles = true
       np.members << issue # save issue
       np.save # delete duplicates without all_text
     end

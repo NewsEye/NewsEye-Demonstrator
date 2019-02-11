@@ -7,18 +7,18 @@ alto = 'ALTO'
 # mapping = JSON.parse(File.open("/home/axel/Nextcloud/devops/id_mapping_matin.json").read)
 # metadata_dir = "/home/axel/Nextcloud/NewsEye/data/import_le_matin"
 
-newspaper_dir = "/home/axel/Nextcloud/NewsEye/data/bnf/le gaulois"
-mapping = JSON.parse(File.open("/home/axel/Nextcloud/devops/id_mapping_gaulois.json").read)
-metadata_dir = "/home/axel/Nextcloud/NewsEye/data/import_le_gaulois"
+# newspaper_dir = "/home/axel/Nextcloud/NewsEye/data/bnf/le gaulois"
+# mapping = JSON.parse(File.open("/home/axel/Nextcloud/devops/id_mapping_gaulois.json").read)
+# metadata_dir = "/home/axel/Nextcloud/NewsEye/data/import_le_gaulois"
 
-# alto = 'alto'
-# newspaper_dir = "/home/axel/Nextcloud/NewsEye/data/bnf/la presse"
-# mapping = JSON.parse(File.open("/home/axel/Nextcloud/devops/id_mapping_presse.json").read)
-# metadata_dir = "/home/axel/Nextcloud/NewsEye/data/bnf/la presse/metadata"
+alto = 'alto'
+newspaper_dir = "/home/axel/Nextcloud/NewsEye/data/bnf/la presse"
+mapping = JSON.parse(File.open("/home/axel/Nextcloud/devops/id_mapping_presse.json").read)
+metadata_dir = "/home/axel/Nextcloud/NewsEye/data/bnf/la presse/metadata"
 
 out_dir = '/home/axel/Nextcloud/devops/data'
 
-sample = 100
+sample = 400
 nb_processed = 0
 
 issues_dir = Dir.entries(newspaper_dir).select {|entry| File.directory? File.join(newspaper_dir, entry) and !(entry =='.' || entry == '..') }

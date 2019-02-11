@@ -63,10 +63,6 @@ class PageFileSet < ActiveFedora::Base
       solr_doc['level'] = '1.pages'
       solr_doc['_childDocuments_'] = []
       language = Issue.find(self.id[0...self.id.rindex('_page_')]).language
-      # puts "###### to_solr"
-      # puts self.annot_hierarchy.first
-      # puts caller
-      # puts "###### to_solr"
       self.annot_hierarchy.each do |block|
         block["text_t#{language}_siv"] = block.delete('text')
         block['_childDocuments_'].each do |line|

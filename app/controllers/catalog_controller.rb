@@ -6,7 +6,7 @@ class CatalogController < ApplicationController
   include Hydra::Catalog
 
   # These before_filters apply the hydra access controls
-  before_filter :enforce_show_permissions, :only=>:show
+  before_action :enforce_show_permissions, :only=>:show
   # This applies appropriate access controls to all solr queries
   Hydra::SearchBuilder.default_processor_chain -= [:add_access_controls_to_solr_params]
 
@@ -83,15 +83,26 @@ class CatalogController < ApplicationController
     # case for a BL "search field", which is really a dismax aggregate
     # of Solr search fields.
 
-    # config.add_search_field('title') do |field|
+    # config.add_search_field('article') do |field|
     #   # :solr_local_parameters will be sent using Solr LocalParams
     #   # syntax, as eg {! qf=$title_qf }. This is neccesary to use
     #   # Solr parameter de-referencing like $title_qf.
     #   # See: http://wiki.apache.org/solr/LocalParams
     #   field.solr_local_parameters = {
-    #     qf: '$title_qf',
-    #     pf: '$title_pf'
+    #       fq: 'has_model_ssim:Article'
     #   }
+    #   field.label = 'Article'
+    # end
+    #
+    # config.add_search_field('issue') do |field|
+    #   # :solr_local_parameters will be sent using Solr LocalParams
+    #   # syntax, as eg {! qf=$title_qf }. This is neccesary to use
+    #   # Solr parameter de-referencing like $title_qf.
+    #   # See: http://wiki.apache.org/solr/LocalParams
+    #   field.solr_local_parameters = {
+    #       fq: 'has_model_ssim:Issue'
+    #   }
+    #   field.label = 'Article'
     # end
     #
     # config.add_search_field('author') do |field|

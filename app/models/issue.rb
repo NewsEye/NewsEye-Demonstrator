@@ -1,6 +1,8 @@
 class Issue < ActiveFedora::Base
 
+  include Hydra::AccessControls::Permissions
   include Hydra::Works::WorkBehavior
+
 
   attr_accessor :to_solr_articles, :articles
 
@@ -110,5 +112,13 @@ class Issue < ActiveFedora::Base
 
   def get_language
     self.language
+  end
+
+  def pages
+    ordered_members.select { |v| v.instance_of?(PageFileSet) }
+  end
+
+  def articles
+    members.select { |v| v.instance_of?(Article) }
   end
 end

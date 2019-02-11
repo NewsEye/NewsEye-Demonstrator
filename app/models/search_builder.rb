@@ -15,9 +15,10 @@ class SearchBuilder < Blacklight::SearchBuilder
         ActiveFedora::Aggregation::Proxy
         ActiveFedora::DirectContainer
         ActiveFedora::Aggregation::ListSource
+        Hydra::AccessControl
+        Hydra::AccessControls::Permission
         PageFileSet
         Newspaper
-        IssueFileSet
     )
     to_exclude.each do |model|
       params << "-has_model_ssim:\"#{model}\""
