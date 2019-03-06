@@ -418,19 +418,14 @@ BEGIN {
     return solr_hierarchy, page_ocr_text, block_annotation_list.to_json, line_annotation_list.to_json, word_annotation_list.to_json
   end
 
-  def get_text_from_id(alto_docs, textblock_id)
+  def get_text_from_block_id(alto_docs, textblock_id)
     page = textblock_id[1...textblock_id.index('_')].to_i
     alto_docs[page].xpath("//TextBlock[@ID='#{textblock_id}']//@CONTENT").map(&:to_s).join(' ')
   end
 
   def get_text(alto_docs, textblocks)
-    texts = textblocks.map{ |tb| get_text_from_id(alto_docs, tb) }
+    texts = textblocks.map{ |tb| get_text_from_block_id(alto_docs, tb) }
     texts.join(' ')
-    # text = ""
-    # textblocks.each do |tb|
-    #   text = "#{text} #{get_text_from_id(alto_docs, tb)}"
-    # end
-    # text
   end
 
   def get_bbox(alto_docs, textblocks)

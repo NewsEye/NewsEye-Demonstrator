@@ -1,10 +1,15 @@
 <div class="navbar-right">
-  <ul class="nav navbar-nav">
-    <%= render_nav_actions do |config, action|%>
-      <li><%= action %></li>
-    <% end %>
-    <li><%= link_to 'Explore', "/#{I18n.locale}/explore" %></li>
-  </ul>
+  <% if has_user_authentication_provider? %>
+    <ul class="nav navbar-nav">
+      <% if current_user %>
+        <%= render_nav_actions do |config, action|%>
+          <li><%= action %></li>
+        <% end %>
+        <li><%= link_to 'Explore', "/#{I18n.locale}/explore" %></li>
+      <% end %>
+    </ul>
+  <% end %>
+
 
   <% if has_user_authentication_provider? %>
     <ul class="nav navbar-nav">

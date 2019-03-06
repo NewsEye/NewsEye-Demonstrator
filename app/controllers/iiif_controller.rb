@@ -15,14 +15,19 @@ class IiifController < ApplicationController
   end
 
   def annotation_list
-    pfs_id = params[:id] + '_page_' + params[:name].split('_')[1]
-    case params[:name].split('_')[2..-1].join('_')
-    when 'ocr_word_level'
-      render json: JSON.parse(PageFileSet.find(pfs_id).ocr_word_level_annotation_list.content)
-    when 'ocr_line_level'
-      render json: JSON.parse(PageFileSet.find(pfs_id).ocr_line_level_annotation_list.content)
-    when 'ocr_block_level'
-      render json: JSON.parse(PageFileSet.find(pfs_id).ocr_block_level_annotation_list.content)
+    if params[:name].include? "page_" and params[:name].include? "_ocr_"
+      pfs_id = params[:id] + '_page_' + params[:name].split('_')[1]
+      case params[:name].split('_')[2..-1].join('_')
+      when 'ocr_word_level'
+        render json: JSON.parse(PageFileSet.find(pfs_id).ocr_word_level_annotation_list.content)
+      when 'ocr_line_level'
+        render json: JSON.parse(PageFileSet.find(pfs_id).ocr_line_level_annotation_list.content)
+      when 'ocr_block_level'
+        render json: JSON.parse(PageFileSet.find(pfs_id).ocr_block_level_annotation_list.content)
+      end
+    elsif params[:name].include? "article_"
+      article_id = "#{params[:id]}_article_#{params[:name].split('_')[1]}"
+      render json: Article.find(article_id).annotation_list
     end
   end
 
@@ -33,11 +38,16 @@ class IiifController < ApplicationController
     l['@type'] = 'sc:Layer'
     l['label'] = params[:id] + ' ' + params[:name]
     l['otherContent'] = []
-    nb_page = Issue.find(params[:id]).nb_pages
-    for i in 1..nb_page
-      l['otherContent'] << "#{request.protocol+request.host_with_port}/iiif/#{params[:id]}/list/page_#{i}_#{params[:name]}"
+    if params[:name].include? "ocr_"
+      nb_page = Issue.find(params[:id]).nb_pages
+      for i in 1..nb_page
+        l['otherContent'] << "#{request.protocol+request.host_with_port}/iiif/#{params[:id]}/list/page_#{i}_#{params[:name]}"
+      end
+    elsif params[:name].include? "articles_"
+      Issue.find(params[:id]).articles.each do |article|
+        l['otherContent'] << "#{request.protocol+request.host_with_port}/iiif/#{params[:id]}/list/article_#{article.id[article.id.rindex('_')+1..-1]}_#{params[:name][params[:name].index('_')+1..-1]}"
+      end
     end
-
     render json: l
   end
 end

@@ -26,6 +26,36 @@ class Article < ActiveFedora::Base
     issues[0] unless issues.empty?
   end
 
+  def annotation_list
+    annotation_list = {}
+    annotation_list['@context'] = 'http://iiif.io/api/presentation/2/context.json'
+    annotation_list['@id'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}/list/article_#{self.id.split('_')[-1]}_block_level"
+    annotation_list['@type'] = 'sc:AnnotationList'
+    annotation_list['resources'] = []
+    annotation_list['within'] = {}
+    annotation_list['within']['@id'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}/layer/articles_block_level"
+    annotation_list['within']['@type'] = 'sc:Layer'
+    annotation_list['within']['label'] = 'OCR Layer'
+    flarg = "*, [child parentFilter=level:1.* childFilter=level:2.pages.blocks limit=1000000]"
+    selectors = self.canvases_parts.map{|url| url[url.rindex('#')..-1]}
+    canvases_map = {}
+    selectors.each { |s| canvases_map[s] = self.canvases_parts.select { |cp| cp.include? s }.first }
+    ActiveFedora::SolrService.query("id:#{issue.id}_page_*", {fl: flarg}).first['_childDocuments_'].select{ |a| selectors.include? a['selector'] }.each do |annot|
+      block_annot = {}
+      block_annot['@type'] = 'oa:Annotation'
+      block_annot['motivation'] = 'sc:painting'
+      block_annot['resource'] = {}
+      block_annot['resource']['@type'] = 'cnt:ContentAsText'
+      block_annot['resource']['format'] = 'text/plain'
+      block_annot['resource']['chars'] =  annot[annot.find{|k, hash| k.start_with?('text_')}[0]]
+      block_annot['metadata'] = {}
+      # block_annot['metadata']['word_confidence'] = block_text.size == 0 ? 0 : block_confidence / block_text.size
+      block_annot['on'] = canvases_map[annot['selector']]
+      annotation_list['resources'] << block_annot
+    end
+    return annotation_list
+  end
+
   def to_solr
     solr_doc = super
     solr_doc['level'] = '0.articles'

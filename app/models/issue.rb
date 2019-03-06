@@ -66,16 +66,15 @@ class Issue < ActiveFedora::Base
       sequence.canvases << pfs.canvas(host, self.id, with_annotations)
     end
     manifest.sequences << sequence
-    ###
-    # for each article of the issue :
-    # article = nil
-    # range = IIIF::Presentation::Range.new
-    # range['@id'] = "#{host}/iiif/#{self.id}/range/#{article.id}"
-    # range['label'] = article.title
-    # # for each textblock
-    # range.canvases << "#{host}/iiif/book1/canvas/p3#xywh=0,0,750,300"
-    # manifest.structures << range
-    ###
+
+    articles.each do |article|
+      range = IIIF::Presentation::Range.new
+      range['@id'] = "#{host}/iiif/#{self.id}/range/#{article.id}"
+      range['label'] = article.title
+      range.canvases.push(*article.canvases_parts)
+      range['contentLayer'] = "#{host}/iiif/#{self.id}/layer/#{article.id}"
+      manifest.structures << range
+    end
     manifest.metadata << {'label': 'Title', 'value': self.title}
     manifest.metadata << {'label': 'Date created', 'value': self.date_created}
     manifest.metadata << {'label': 'Publisher', 'value': self.publisher}
