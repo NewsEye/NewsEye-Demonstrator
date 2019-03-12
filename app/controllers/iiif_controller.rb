@@ -50,4 +50,10 @@ class IiifController < ApplicationController
     end
     render json: l
   end
+
+  def get_image_resource_proxy
+    # https://iiif-auth.onb.ac.at/images/ANNO/nfp19160707/00000001
+    # http://localhost:3000/iiif/Neue_freie_Presse_nfp19160707_page_1
+    redirect_to controller: 'riiif/images', action: 'show'
+  end
 end
