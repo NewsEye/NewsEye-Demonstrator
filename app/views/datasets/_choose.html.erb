@@ -1,0 +1,38 @@
+<!--<div id="add_to_dataset">-->
+<!--  <div id="create_and_add_dataset">-->
+  <%#= simple_form_for Dataset.new, html: {id: 'add_to_dataset_form', class: 'form-inline'}, remote: true do |f| %>
+<!--    <div class="form-group">-->
+      <%#= f.label :name, 'Title' %>
+      <%#= f.text_field :title %>
+<!--    </div>-->
+    <%#= f.submit "Create and add" %>
+  <%# end %>
+<!--  </div>-->
+<!--  <p>---------- OR----------</p>-->
+<!--  <div id="select_existing_dataset">-->
+<!--    <select name="" id="select_dataset" class="form-control" onfocus='this.size=5;' onblur='this.size=1;' onchange='this.size=1; this.blur(); select_changed();'>-->
+      <%# current_user.datasets.each do |dataset| %>
+<!--        <option value="<%#= dataset.id %>"><%#= dataset.title %></option>-->
+      <%# end %>
+<!--    </select>-->
+<!--    <form id="add_search_form" class="simple_form" action="/datasets/add_search" accept-charset="UTF-8" method="post" remote="true">-->
+      <%#= hidden_field_tag :authenticity_token, form_authenticity_token %>
+<!--      <input type="hidden" name="search" value="<%#= request.original_url %>">-->
+<!--      <input type="hidden" name="dataset_id" value="">-->
+<!--      <input type="submit" name="commit" value="Add to selected dataset" class="btn" data-disable-with="Update Dataset">-->
+<!--    </form>-->
+<!--  </div>-->
+<!--  <div id="log_add_to_dataset"></div>-->
+<!--</div>-->
+
+<!--Script onchange de la liste pour mettre à jour le formulaire-->
+<!--<script type="application/javascript">-->
+<!--    function select_changed() {-->
+<!--        console.log('ok');-->
+<!--        var e = document.getElementById("select_dataset");-->
+<!--        var val = e.options[e.selectedIndex].value;-->
+<!--        var txt = e.options[e.selectedIndex].text;-->
+<!--        var f = document.getElementsByName("dataset_id")[0];-->
+<!--        f.value = val;-->
+<!--    }-->
+<!--</script>-->

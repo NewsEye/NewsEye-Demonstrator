@@ -62,7 +62,7 @@ class Issue < ActiveFedora::Base
     manifest.description = "This is a description."
     sequence = IIIF::Presentation::Sequence.new
     sequence['@id'] = "#{host}/iiif/#{self.id}/sequence/normal"
-    self.ordered_members.to_a.select(&:file_set?).each do |pfs|
+    pages.each do |pfs|
       sequence.canvases << pfs.canvas(host, self.id, with_annotations)
     end
     manifest.sequences << sequence
@@ -114,10 +114,10 @@ class Issue < ActiveFedora::Base
   end
 
   def pages
-    ordered_members.select { |v| v.instance_of?(PageFileSet) }
+    self.ordered_members.to_ary.select { |v| v.instance_of?(PageFileSet) }
   end
 
   def articles
-    members.select { |v| v.instance_of?(Article) }
+    self.members.to_ary.select { |v| v.instance_of?(Article) }
   end
 end

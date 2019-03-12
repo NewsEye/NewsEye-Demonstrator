@@ -45656,7 +45656,7 @@ $.SimpleASEndpoint = function (options) {
     },
 
     updateImage: function(canvasID) {
-      canvasID = canvasID.substring(0, canvasID.lastIndexOf('#'));
+      //canvasID = canvasID.substring(0, canvasID.lastIndexOf('#'));
       var _this = this;
       if (this.canvasID !== canvasID) {
         this.canvases[_this.canvasID].getVisibleImages().forEach(function(imageResource){

@@ -4,7 +4,7 @@ development:
   researcher:
     - r1@univ.com
     - r2@univ.com
-    - axel.jeancaurant@gmail.com
+    - axel.jean-caurant@univ-lr.fr
     - roger.labahn@uni-rostock.de
     - kimmo.kettunen@helsinki.fi
     - guenter.muehlberger@uibk.ac.at
@@ -57,7 +57,7 @@ production:
   researcher:
     - r1@univ.com
     - r2@univ.com
-    - axel.jeancaurant@gmail.com
+    - axel.jean-caurant@univ-lr.fr
     - roger.labahn@uni-rostock.de
     - kimmo.kettunen@helsinki.fi
     - guenter.muehlberger@uibk.ac.at

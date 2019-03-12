@@ -3,29 +3,28 @@
 <% @page_title = t('blacklight.search.show.title', :document_title => document_show_html_title, :application_name => application_name).html_safe %>
 <% content_for(:head) { render_link_rel_alternates } %>
 
-<div class="row">
-  <div class="col-sm-6">
-
-  </div>
-  <div class="col-sm-6">
-
-  </div>
-</div>
 
 <h2>
   <%= @document[:title_tfr_siv] %>
 </h2>
-<p>
-  <%= @document[:all_text_tfr_siv] %>
-</p>
-<% manifest = get_manifest @document[:from_issue_ssi]%>
-<div>
-  <% @document[:canvases_parts_ssm].each do |canvas| %>
-    <img src="<%= get_iiif_images_from_canvas_path manifest, canvas %>">
-  <% end %>
-</div>
+
 <%= link_to "Original Issue", "#{url_for(controller: 'catalog')}/#{@document[:from_issue_ssi]}", :class => "btn btn-sm btn-text", :id=>"originalIssueLink" %>
 <%= link_to "manifest", "#{url_for(controller: 'iiif', action: 'manifest', id: @document[:from_issue_ssi], locale: nil)}" %>
+<div class="row">
+  <div class="col-sm-6">
+    <p>
+      <%= @document[:all_text_tfr_siv] %>
+    </p>
+  </div>
+  <div class="col-sm-6">
+    <div>
+      <% manifest = get_manifest @document[:from_issue_ssi]%>
+      <% @document[:canvases_parts_ssm].each do |canvas| %>
+        <img src="<%= get_iiif_images_from_canvas_path manifest, canvas %>">
+      <% end %>
+    </div>
+  </div>
+</div>
 
 <% if @document.respond_to?(:export_as_openurl_ctx_kev) %>
   <!--

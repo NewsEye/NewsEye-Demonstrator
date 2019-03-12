@@ -1,154 +1,148 @@
 puts "seeding..."
 
-json_data = JSON.parse(File.read(File.join(File.dirname(__FILE__), './seeds_data/data.json')))
+alto = 'alto'
+main_directory = '/home/axel/Nextcloud/NewsEye/data/bnf/la presse'
+metadata_dir = "/home/axel/Nextcloud/NewsEye/data/bnf/la presse/metadata"
+mapping = JSON.parse(File.open("/home/axel/Nextcloud/NewsEye/data/bnf/id_mapping_presse.json").read)
 
-json_data.each do |newspaper|
-  newspaper = newspaper.with_indifferent_access
-  npid = newspaper[:title].to_ascii.sub(' ', '_')
-  if Newspaper.exists?(npid)
-    puts "newspaper %s already exists" % newspaper[:title]
-    np = Newspaper.find(npid)
-  else
-    puts "adding newspaper %s" % newspaper[:title]
-    np = Newspaper.new
-    np.id = npid
-    np.title = newspaper[:title]
-    np.publisher = newspaper[:publisher]
-    np.language = newspaper[:language]
-    np.datefrom = newspaper[:datefrom]
-    np.dateto = newspaper[:dateto]
-    np.location = newspaper[:location]
-    np.save
-  end
-  newspaper[:issues].each do |np_issue|
-    issueid = np.id + '_' + np_issue[:id]
-    should_process = false
-    if Issue.exists?(issueid)
-      issue = Issue.find(issueid)
-      if issue.all_text.nil?
-        should_process = true
-      else
-        puts " issue %s already exists" % np_issue[:id]
-      end
-    else
-      issue = Issue.new
-      issue.id = issueid
+##### Create or get newspaper
+npid = 'la_presse'
+if Newspaper.exists?(npid)
+  puts "newspaper %s already exists" % 'La Presse'
+  np = Newspaper.find(npid)
+else
+  puts "adding newspaper %s" % 'La Presse'
+  np = Newspaper.new
+  np.id = npid
+  np.title = 'La Presse'
+  # np.publisher = newspaper[:publisher]
+  np.language = 'fr'
+  np.save
+end
+############################
+
+
+for issue_dir in Dir[main_directory + "/*"]
+  bad_id = issue_dir.split('/')[-1].split('_')[2..-1].join('_')
+  ark = mapping[bad_id]
+  issueid = np.id + '_' + ark.split('/')[1..-1].join('-')
+  should_process = false
+  if Issue.exists?(issueid)
+    issue = Issue.find(issueid)
+    if issue.all_text.nil?
       should_process = true
+    else
+      puts " issue %s already exists" % issueid
     end
-    if should_process
-      puts " adding issue %s" % np_issue[:id]
-      issue.original_uri = np_issue[:original_uri]
-      issue.publisher = np_issue[:publisher]
-      issue.contributor = np_issue[:contributor]
-      issue.title = np_issue[:title]
-      issue.date_created = np_issue[:date_created]
-      issue.nb_pages = np_issue[:nb_pages]
-      issue.language = np_issue[:language]
-      # SHould I remove this save to prevent duplicates in solr index ?
-      # issue.save
-      issue_ocr_text = ''
-      alto_pages = {}
-      np_issue[:pages].each do |issue_page|
-        puts "  adding page %i out of %i" % [issue_page[:page_number], np_issue[:pages].length]
+  else
+    issue = Issue.new
+    issue.id = issueid
+    should_process = true
+  end
+  if should_process
+    json_metadata = JSON.parse(File.open("#{metadata_dir}/#{ark.split('/')[1..-1].join('-')}.json").read).with_indifferent_access
+    puts " adding issue %s" % json_metadata[:id]
+    issue.original_uri = json_metadata[:original_uri]
+    issue.publisher = json_metadata[:publisher]
+    issue.contributor = json_metadata[:contributor]
+    issue.title = json_metadata[:title]
+    issue.date_created = json_metadata[:date_created]
+    issue.nb_pages = json_metadata[:nb_pages]
+    issue.language = json_metadata[:language]
+    # SHould I remove this save to prevent duplicates in solr index ?
+    # issue.save
+    issue_ocr_text = ''
+    alto_pages = {}
+    json_metadata[:pages].each do |issue_page|
+      puts "  adding page %i out of %i" % [issue_page[:page_number], json_metadata[:pages].length]
 
-        pfs = PageFileSet.new
-        pfs.id = issue.id + '_' + issue_page[:id].split('_')[1..-1].join('_')
-        pfs.page_number = issue_page[:page_number]
+      pfs = PageFileSet.new
+      pfs.id = issueid + "_page_#{issue_page[:page_number]}"
+      pfs.page_number = issue_page[:page_number]
 
-        if issue.original_uri.include? 'ark:/' # If there exists an iiif image service
-          pfs.iiif_url = (issue.original_uri + "/f#{pfs.page_number}").insert(issue.original_uri.index('ark:/'), 'iiif/')
-          info_json = JSON.load(open(pfs.iiif_url+'/info.json'))
-          pfs.height = info_json['height'].to_i
-          pfs.width = info_json['width'].to_i
-          pfs.mime_type = 'image/jpeg'
-          if issue_page[:page_number] == 1
-            issue.thumbnail_url = "#{pfs.iiif_url}/full/,200/0/default.jpg"
-          end
-        else # Else import image
-          open(Rails.root.to_s + issue_page[:image_path], 'r') do |image_full|
-            Hydra::Works::AddFileToFileSet.call(pfs, image_full, :original_file)
-          end
-          Hydra::Works::CharacterizationService.run pfs.original_file
-          pfs.iiif_url = "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}_page_#{pfs.page_number}"
-          pfs.height = pfs.original_file.height.first
-          pfs.width = pfs.original_file.width.first
-          pfs.mime_type = pfs.original_file.mime_type
-          if issue_page[:page_number] == 1
-            issue.thumbnail_url = "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}_page_1/full/,200/0/default.jpg"
-          end
-        end
-
-        ###### Parse OCR and add full text property ######
-
-        # encoding = CharlockHolmes::EncodingDetector.detect(File.read(Rails.root.to_s + issue_page[:ocr_path]))[:ruby_encoding]
-        ocr_file = open(Rails.root.to_s + issue_page[:ocr_path], 'r')
-        Hydra::Works::AddFileToFileSet.call(pfs, ocr_file, :alto_xml)
-        ocr_file.rewind
-        ocr = Nokogiri::XML(ocr_file) #, nil, encoding)
-        ocr.remove_namespaces!
-        alto_pages[issue_page[:page_number]] = ocr
-
-        ###### IIIF Annotation generation ######
-
-        scale_factor = pfs.height.to_f / ocr.xpath('//Page')[0]['HEIGHT'].to_f
-        solr_hierarchy, ocr_full_text, block_annots, line_annots, word_annots = parse_alto_index(ocr, issue.id, pfs.page_number, scale_factor)
-
-        annotation_file = Tempfile.new(%w(annotation_list_word_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
-        annotation_file.write(word_annots)
-        annotation_file.close
-        annotation_file = open(annotation_file.path, 'r')
-        Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_word_level_annotation_list)
-        annotation_file.close
-
-        annotation_file = Tempfile.new(%w(annotation_list_line_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
-        annotation_file.write(line_annots)
-        annotation_file.close
-        annotation_file = open(annotation_file.path, 'r')
-        Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_line_level_annotation_list)
-        annotation_file.close
-
-        annotation_file = Tempfile.new(%w(annotation_list_block_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
-        annotation_file.write(block_annots)
-        annotation_file.close
-        annotation_file = open(annotation_file.path, 'r')
-        Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_block_level_annotation_list)
-        annotation_file.close
-
-        ###### Finalize ######
-        pfs.to_solr_annots = true
-        pfs.annot_hierarchy = solr_hierarchy
-        # puts "######### seeds.rb"
-        # puts pfs.annot_hierarchy.first
-        # puts "######### seeds.rb"
-        # pfs.save
-        ActiveFedora::SolrService.instance.conn.delete_by_query("id:#{pfs.id} -level:[* TO *]") # delete duplicates without level field
-        issue.ordered_members << pfs # this saves pfs
-        issue_ocr_text += ocr_full_text
+      pfs.iiif_url = (issue.original_uri + "/f#{pfs.page_number}").insert(issue.original_uri.index('ark:/'), 'iiif/')
+      info_json = JSON.load(open(pfs.iiif_url+'/info.json'))
+      pfs.height = info_json['height'].to_i
+      pfs.width = info_json['width'].to_i
+      pfs.mime_type = 'image/jpeg'
+      if issue_page[:page_number] == 1
+        issue.thumbnail_url = "#{pfs.iiif_url}/full/,200/0/default.jpg"
       end
 
-      ###### METS parsing and article annotations ######
+      ###### Parse OCR and add full text property ######
 
-      puts "  adding articles from METS..."
-      mets_file = np_issue[:mets]
-      encoding = CharlockHolmes::EncodingDetector.detect(File.read(Rails.root.to_s + mets_file))[:ruby_encoding]
-      mets_doc = File.open(Rails.root.to_s + mets_file) do |f|
-        Nokogiri::XML(f, nil, encoding)
+      # encoding = CharlockHolmes::EncodingDetector.detect(File.read(Rails.root.to_s + issue_page[:ocr_path]))[:ruby_encoding]
+      ocr_file = open(issue_dir + '/'+ alto + '/' + pfs.page_number.to_s.rjust(8, '0') + '.xml', 'r')
+      Hydra::Works::AddFileToFileSet.call(pfs, ocr_file, :alto_xml)
+      ocr_file.rewind
+      ocr = Nokogiri::XML(ocr_file) #, nil, encoding)
+      ocr.remove_namespaces!
+      alto_pages[issue_page[:page_number]] = ocr
+
+      ###### IIIF Annotation generation ######
+
+      scale_factor = pfs.height.to_f / ocr.xpath('//Page')[0]['HEIGHT'].to_f
+      solr_hierarchy, ocr_full_text, block_annots, line_annots, word_annots = parse_alto_index(ocr, issue.id, pfs.page_number, scale_factor)
+
+      annotation_file = Tempfile.new(%w(annotation_list_word_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
+      annotation_file.write(word_annots)
+      annotation_file.close
+      annotation_file = open(annotation_file.path, 'r')
+      Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_word_level_annotation_list)
+      annotation_file.close
+
+      annotation_file = Tempfile.new(%w(annotation_list_line_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
+      annotation_file.write(line_annots)
+      annotation_file.close
+      annotation_file = open(annotation_file.path, 'r')
+      Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_line_level_annotation_list)
+      annotation_file.close
+
+      annotation_file = Tempfile.new(%w(annotation_list_block_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
+      annotation_file.write(block_annots)
+      annotation_file.close
+      annotation_file = open(annotation_file.path, 'r')
+      Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_block_level_annotation_list)
+      annotation_file.close
+
+      ###### Finalize ######
+      pfs.to_solr_annots = true
+      pfs.annot_hierarchy = solr_hierarchy
+      # puts "######### seeds.rb"
+      # puts pfs.annot_hierarchy.first
+      # puts "######### seeds.rb"
+      # pfs.save
+      ActiveFedora::SolrService.instance.conn.delete_by_query("id:#{pfs.id} -level:[* TO *]") # delete duplicates without level field
+      issue.ordered_members << pfs # this saves pfs
+      issue_ocr_text += ocr_full_text
+    end
+
+    issue.save
+
+    ###### METS parsing and article annotations ######
+
+    puts "  adding articles from METS..."
+    mets_file = Dir["#{issue_dir}/*.xml"][0]
+    encoding = CharlockHolmes::EncodingDetector.detect(File.read(mets_file))[:ruby_encoding]
+    mets_doc = File.open(mets_file) do |f|
+      Nokogiri::XML(f, nil, encoding)
+    end
+    mets_doc.remove_namespaces!
+
+    # puts "title section : "
+    s = mets_doc.xpath("/descendant::structMap[@TYPE='LOGICAL']/descendant::div[@TYPE='ISSUE']/div[@TYPE='TITLE_SECTION']//@BEGIN")
+    s = s.map(&:text)
+
+    canvases_parts = []
+    title_bboxes = get_bbox(alto_pages, s)
+    title_bboxes.keys.each do |page|
+      title_bboxes[page].each do |bbox|
+        hpos, vpos, width, height = bbox
+        # puts "hpos: #{hpos}, vpos: #{vpos}, width: #{width}, height: #{height}"
+        canvases_parts << "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}/canvas/page_#{page}#xywh=#{hpos},#{vpos},#{width},#{height}"
       end
-      mets_doc.remove_namespaces!
-
-      # puts "title section : "
-      s = mets_doc.xpath("/descendant::structMap[@TYPE='LOGICAL']/descendant::div[@TYPE='ISSUE']/div[@TYPE='TITLE_SECTION']//@BEGIN")
-      s = s.map(&:text)
-
-      canvases_parts = []
-      title_bboxes = get_bbox(alto_pages, s)
-      title_bboxes.keys.each do |page|
-        title_bboxes[page].each do |bbox|
-          hpos, vpos, width, height = bbox
-          # puts "hpos: #{hpos}, vpos: #{vpos}, width: #{width}, height: #{height}"
-          canvases_parts << "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}/canvas/page_#{page}#xywh=#{hpos},#{vpos},#{width},#{height}"
-        end
-      end
+    end
+    unless canvases_parts.empty?
       article = Article.new
       article.id = "#{issue.id}_article_0"
       article.title = 'Heading'
@@ -159,82 +153,86 @@ json_data.each do |newspaper|
       article.canvases_parts = canvases_parts
       article.read_groups = ["admin", "researcher"]
       issue.members << article
+    end
 
-      # solr_heading_article = {
-      #     "id": "#{issue.id}_article_0",
+    # solr_heading_article = {
+    #     "id": "#{issue.id}_article_0",
+    #     "level": "0.articles",
+    #     "title_t#{issue.language}_siv": 'Heading',
+    #     "content_t#{issue.language}_siv": get_text(alto_pages, s),
+    #     "from_issue_ssi": issue.id,
+    #     "has_model_ssim": 'Article',
+    #     "member_of_collection_ids_ssim": np.id,
+    #     "canvases_parts_ssm": canvases_parts
+    # }
+    # issue.articles << solr_heading_article
+    # puts
+    # puts "articles"
+    mets_doc.xpath("/descendant::structMap[@TYPE='LOGICAL']/descendant::div[@TYPE='ISSUE']/div[@TYPE='CONTENT']//div[@TYPE='ARTICLE']").each_with_index do |article, idx|
+      canvases_parts = []
+      # puts article.xpath("./@ID")
+      tbs = {heading: [], body: []}
+      tbs[:heading].concat(article.xpath(".//div[@TYPE='HEADING']//@BEGIN").map(&:text))
+      tbs[:body].concat(article.xpath(".//div[@TYPE='BODY']//@BEGIN").map(&:text))
+      # puts "heading : #{tbs[:heading].size} textblocks"
+      heading_bboxes = get_bbox(alto_pages, tbs[:heading])
+      heading_bboxes.keys.each do |page|
+        heading_bboxes[page].each do |bbox|
+          hpos, vpos, width, height = bbox
+          # puts "  hpos: #{hpos}, vpos: #{vpos}, width: #{width}, height: #{height}"
+          canvases_parts << "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}/canvas/page_#{page}#xywh=#{hpos},#{vpos},#{width},#{height}"
+        end
+      end
+      article_title = get_text(alto_pages, tbs[:heading])
+      article_title = article_title == "" ? "placeholder title" : article_title
+      # puts "body : #{tbs[:body].size} textblocks"
+      body_bboxes = get_bbox(alto_pages, tbs[:body])
+      body_bboxes.keys.each do |page|
+        # puts "  bboxes in page #{page}: "
+        body_bboxes[page].each do |bbox|
+          hpos, vpos, width, height = bbox
+          # puts "    hpos: #{hpos}, vpos: #{vpos}, width: #{width}, height: #{height}"
+          canvases_parts << "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}/canvas/page_#{page}#xywh=#{hpos},#{vpos},#{width},#{height}"
+        end
+      end
+      article_body = get_text(alto_pages, tbs[:body])
+
+      article = Article.new
+      article.id = "#{issue.id}_article_#{idx+1}"
+      article.title = article_title
+      article.date_created = issue.date_created
+      article.language = issue.language
+      article.all_text = article_body
+      article.member_of_collections << np
+      article.canvases_parts = canvases_parts
+      article.read_groups = ["admin", "researcher"]
+      article.discover_groups = ["admin", "researcher"]
+      article.edit_groups = ["admin", "researcher"]
+      issue.members << article
+
+      # solr_article = {
+      #     "id": "#{issue.id}_article_#{idx+1}",
       #     "level": "0.articles",
-      #     "title_t#{issue.language}_siv": 'Heading',
-      #     "content_t#{issue.language}_siv": get_text(alto_pages, s),
+      #     "title_t#{issue.language}_siv": article_title,
+      #     "content_t#{issue.language}_siv": article_body,
       #     "from_issue_ssi": issue.id,
       #     "has_model_ssim": 'Article',
       #     "member_of_collection_ids_ssim": np.id,
       #     "canvases_parts_ssm": canvases_parts
       # }
-      # issue.articles << solr_heading_article
-      # puts
-      # puts "articles"
-      mets_doc.xpath("/descendant::structMap[@TYPE='LOGICAL']/descendant::div[@TYPE='ISSUE']/div[@TYPE='CONTENT']//div[@TYPE='ARTICLE']").each_with_index do |article, idx|
-        canvases_parts = []
-        # puts article.xpath("./@ID")
-        tbs = {heading: [], body: []}
-        tbs[:heading].concat(article.xpath(".//div[@TYPE='HEADING']//@BEGIN").map(&:text))
-        tbs[:body].concat(article.xpath(".//div[@TYPE='BODY']//@BEGIN").map(&:text))
-        # puts "heading : #{tbs[:heading].size} textblocks"
-        heading_bboxes = get_bbox(alto_pages, tbs[:heading])
-        heading_bboxes.keys.each do |page|
-          heading_bboxes[page].each do |bbox|
-            hpos, vpos, width, height = bbox
-            # puts "  hpos: #{hpos}, vpos: #{vpos}, width: #{width}, height: #{height}"
-            canvases_parts << "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}/canvas/page_#{page}#xywh=#{hpos},#{vpos},#{width},#{height}"
-          end
-        end
-        article_title = get_text(alto_pages, tbs[:heading])
-        article_title = article_title == "" ? "placeholder title" : article_title
-        # puts "body : #{tbs[:body].size} textblocks"
-        body_bboxes = get_bbox(alto_pages, tbs[:body])
-        body_bboxes.keys.each do |page|
-          # puts "  bboxes in page #{page}: "
-          body_bboxes[page].each do |bbox|
-            hpos, vpos, width, height = bbox
-            # puts "    hpos: #{hpos}, vpos: #{vpos}, width: #{width}, height: #{height}"
-            canvases_parts << "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}/canvas/page_#{page}#xywh=#{hpos},#{vpos},#{width},#{height}"
-          end
-        end
-        article_body = get_text(alto_pages, tbs[:body])
-
-        article = Article.new
-        article.id = "#{issue.id}_article_#{idx+1}"
-        article.title = article_title
-        article.date_created = issue.date_created
-        article.language = issue.language
-        article.all_text = article_body
-        article.member_of_collections << np
-        article.canvases_parts = canvases_parts
-        article.read_groups = ["admin", "researcher"]
-        issue.members << article
-
-        # solr_article = {
-        #     "id": "#{issue.id}_article_#{idx+1}",
-        #     "level": "0.articles",
-        #     "title_t#{issue.language}_siv": article_title,
-        #     "content_t#{issue.language}_siv": article_body,
-        #     "from_issue_ssi": issue.id,
-        #     "has_model_ssim": 'Article',
-        #     "member_of_collection_ids_ssim": np.id,
-        #     "canvases_parts_ssm": canvases_parts
-        # }
-        # issue.articles << solr_article
-      end
-
-      ###### finalize ######
-
-      issue.all_text = issue_ocr_text
-      issue.member_of_collections << np
-      issue.read_groups = ["admin", "researcher"]
-      # issue.to_solr_articles = true
-      np.members << issue # save issue
-      np.save # delete duplicates without all_text
+      # issue.articles << solr_article
     end
+
+    ###### finalize ######
+
+    issue.all_text = issue_ocr_text
+    issue.member_of_collections << np
+    issue.read_groups = ["admin", "researcher"]
+    issue.discover_groups = ["admin", "researcher"]
+    issue.edit_groups = ["admin", "researcher"]
+    # issue.to_solr_articles = true
+    np.members << issue # save issue
+    np.save # delete duplicates without all_text
   end  # Issue is processed
   # The following is not working...
   ActiveFedora::SolrService.instance.conn.delete_by_query("has_model_ssim:Issue -member_of_collection_ids_ssim:*")

@@ -6,9 +6,12 @@ class CatalogController < ApplicationController
   include Hydra::Catalog
 
   # These before_filters apply the hydra access controls
-  before_action :enforce_show_permissions, :only=>:show
+  before_action :enforce_show_permissions, only: :show
+
+  before_action :handle_empty_query, only: :index
+
   # This applies appropriate access controls to all solr queries
-  Hydra::SearchBuilder.default_processor_chain -= [:add_access_controls_to_solr_params]
+  Hydra::SearchBuilder.default_processor_chain += [:add_access_controls_to_solr_params]
 
   # TODO named entities + integrate thesis method using solr spellcheck ?
   # TODO add image part in "see extracts" + add position to hl : https://issues.apache.org/jira/browse/SOLR-4722
@@ -169,6 +172,33 @@ class CatalogController < ApplicationController
   end
 
   protected
+
+  # Redirect to action: index if this action is a query (not a return to home) and if there is no f or q params
+  def handle_empty_query
+    # @return if it's not a query
+    return unless a_query?(params)
+
+    # Remove whitespace(s) in empty query if params[:q] exists
+    query = params[:q].blank? ? '' : params[:q].gsub(/\A\p{Space}*|\p{Space}*\z/, '')
+
+    # @return if :q is not empty and if :f is not nil
+    return unless query.empty? && params[:f].nil?
+
+    redirect_to(root_path, notice: 'Please type something or select a facet filter !')
+  end
+
+  # Detect a call to index action is a real query
+  def a_query?(params)
+    # @return "true" if :q or :f params are not nil
+    return true if !params[:q].blank? || !params[:f].blank?
+
+    # @return "true" if search_field *OR* utf8 params exists
+    return true if %i[search_field utf8].any? { |k| params.key?(k) }
+
+    # Otherwise, return "false"
+    false
+  end
+
 
   def track_action
     ahoy.track "Ran action", request.path_parameters

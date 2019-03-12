@@ -58,24 +58,27 @@ class Article < ActiveFedora::Base
 
   def to_solr
     solr_doc = super
-    solr_doc['level'] = '0.articles'
-    solr_doc['from_issue_ssi'] = issue.id
-    case issue.language
-    when 'fr'
-      solr_doc.except! 'all_text_tde_siv', 'all_text_ten_siv', 'all_text_tfi_siv', 'all_text_tse_siv'
-      solr_doc.except! 'title_tde_siv', 'title_ten_siv', 'title_tfi_siv', 'title_tse_siv'
-    when 'de'
-      solr_doc.except! 'all_text_ten_siv', 'all_text_tfr_siv', 'all_text_tfi_siv', 'all_text_tse_siv'
-      solr_doc.except! 'title_ten_siv', 'title_tfr_siv', 'title_tfi_siv', 'title_tse_siv'
-    when 'fi'
-      solr_doc.except! 'all_text_tde_siv', 'all_text_tfr_siv', 'all_text_ten_siv', 'all_text_tse_siv'
-      solr_doc.except! 'title_tde_siv', 'title_tfr_siv', 'title_ten_siv', 'title_tse_siv'
-    when 'se'
-      solr_doc.except! 'all_text_tde_siv', 'all_text_tfr_siv', 'all_text_tfi_siv', 'all_text_ten_siv'
-      solr_doc.except! 'title_tde_siv', 'title_tfr_siv', 'title_tfi_siv', 'title_ten_siv'
-    else
-      solr_doc.except! 'all_text_tde_siv', 'all_text_tfr_siv', 'all_text_tfi_siv', 'all_text_tse_siv' # keep english
-      solr_doc.except! 'title_tde_siv', 'title_tfr_siv', 'title_tfi_siv', 'title_tse_siv'
+    unless issue.nil?
+      solr_doc['level'] = '0.articles'
+      solr_doc['from_issue_ssi'] = issue.id
+      case issue.language
+      when 'fr'
+        solr_doc.except! 'all_text_tde_siv', 'all_text_ten_siv', 'all_text_tfi_siv', 'all_text_tse_siv'
+        solr_doc.except! 'title_tde_siv', 'title_ten_siv', 'title_tfi_siv', 'title_tse_siv'
+      when 'de'
+        solr_doc.except! 'all_text_ten_siv', 'all_text_tfr_siv', 'all_text_tfi_siv', 'all_text_tse_siv'
+        solr_doc.except! 'title_ten_siv', 'title_tfr_siv', 'title_tfi_siv', 'title_tse_siv'
+      when 'fi'
+        solr_doc.except! 'all_text_tde_siv', 'all_text_tfr_siv', 'all_text_ten_siv', 'all_text_tse_siv'
+        solr_doc.except! 'title_tde_siv', 'title_tfr_siv', 'title_ten_siv', 'title_tse_siv'
+      when 'se'
+        solr_doc.except! 'all_text_tde_siv', 'all_text_tfr_siv', 'all_text_tfi_siv', 'all_text_ten_siv'
+        solr_doc.except! 'title_tde_siv', 'title_tfr_siv', 'title_tfi_siv', 'title_ten_siv'
+      else
+        solr_doc.except! 'all_text_tde_siv', 'all_text_tfr_siv', 'all_text_tfi_siv', 'all_text_tse_siv' # keep english
+        solr_doc.except! 'title_tde_siv', 'title_tfr_siv', 'title_tfi_siv', 'title_tse_siv'
+      end
     end
+    solr_doc
   end
 end

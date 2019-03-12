@@ -52,6 +52,10 @@ Rails.application.routes.draw do
 
     root to: "catalog#index"
     # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
+
+    # resources :datasets
+    #
+    # post '/datasets/add_search', to: 'datasets#add_search'
   end
 
   mount Riiif::Engine => '/iiif', as: 'riiif'
