@@ -46,8 +46,15 @@ Rails.application.routes.draw do
 
     get '/explore', to: 'catalog#explore'
 
+    resources :feedbacks
+
+    post '/investigate', to: 'investigator#investigate'
+
     root to: "catalog#index"
     # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
+
+    resources :datasets
+
   end
 
   mount Riiif::Engine => '/iiif', as: 'riiif'

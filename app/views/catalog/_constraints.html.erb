@@ -1,0 +1,66 @@
+<% if query_has_constraints? %>
+
+  <div id="appliedParams" class="clearfix constraints-container">
+    <div class="pull-right">
+      <div id="add_to_dataset_dropdown">
+        <button class="dropdown-toggle btn btn-sm btn-text" type="button" href="#" id="add_to_dataset_dropdown_btn" role="button" aria-haspopup="true" aria-expanded="false">
+          Add to dataset...
+        </button>
+        <div class="dropdown-menu" aria-labelledby="add_to_dataset_dropdown">
+          <%= render 'datasets/choose' %>
+        </div>
+      </div>
+      
+      <%=link_to t('blacklight.search.start_over'), start_over_path, :class => "catalog_startOverLink btn btn-sm btn-text", :id=>"startOverLink" %>
+
+      <%#= form_tag('/investigate', :method => "post", id: "investigateForm", class: "nav-search-wrapper", style: "display:none;", remote: true) do %>
+        <%#= text_field_tag(:user, current_user) %>
+        <%#= text_field_tag(:search_id, current_search_session.id) %>
+        <%#= text_field_tag(:solr_query, @solr_query.to_json) %>
+        <%#= hidden_field_tag :authenticity_token, form_authenticity_token %>
+      <%# end %>
+<!--      <input type="submit" value="Investigate" form="investigateForm" class="btn btn-sm btn-text">-->
+
+      <%#= link_to 'Investigate', "#", :onclick => "$('#investigateForm').submit()" %>
+      <%#=link_to 'Investigate', "/investigate?search_id=#{current_search_session.id}", :class => "btn btn-sm btn-text", :id=>"investigateLink", remote: true %>
+    </div>
+    <span class="constraints-label"><%= t('blacklight.search.filters.title') %></span>
+    <%= render_constraints(params) %>
+  </div>
+<% end %>
+
+<!-- Pour éviter la fermeture du div quand on clicque dedans -->
+<script type="text/javascript">
+    $( document ).on('turbolinks:load', function() {
+        $('#add_to_dataset_dropdown button').on('click', function (event) {
+            $(this).parent().toggleClass('open');
+        });
+    });
+    $('body').on('click', function (e) {
+        if (!$('#add_to_dataset_dropdown').is(e.target)
+            && $('#add_to_dataset_dropdown').has(e.target).length === 0
+            && $('.open').has(e.target).length === 0
+        ) {
+            $('#add_to_dataset_dropdown').removeClass('open');
+        }
+    });
+</script>
+
+<!--<script type="text/javascript">-->
+<!--    $( document ).on('turbolinks:load', function() {-->
+<!--        document.getElementById('investigate_button').removeEventListener('click', function(event){go_investigate(event);}, false);-->
+<!--        document.getElementById('investigate_button').addEventListener('click', function(event){go_investigate(event);}, false);-->
+<!--    });-->
+<!--    function go_investigate(event) {-->
+<!--        let investigator_data = {};-->
+<!--        investigator_data['user'] = "<%= current_user %>";-->
+<!--        investigator_data['query'] = <%#= @solr_query.to_json.html_safe %>;-->
+<!--        console.log(investigator_data);-->
+
+<!--        $.post("<%#= Rails.configuration.newseye_services['investigator_endpoint'] %>",-->
+<!--            investigator_data,-->
+<!--            function(data, status){-->
+<!--                alert("Data: " + data + "\nStatus: " + status);-->
+<!--            });-->
+<!--    }-->
+<!--</script>-->

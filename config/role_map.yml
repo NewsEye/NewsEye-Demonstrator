@@ -1,23 +1,105 @@
 development:
-  archivist:
-    - archivist1@example.com
-
-test:
-  archivist:
-    - archivist1@example.com
-    - archivist2@example.com
-    - leland_himself@example.com
-  admin_policy_object_editor:
-    - archivist1@example.com
-  donor:
-    - donor1@example.com
-    - leland_himself@example.com
+  admin:
+    - axel.jean-caurant@univ-lr.fr
   researcher:
-    - archivist1@example.com
-    - researcher1@example.com
-  patron:
-    - patron1@example.com
-    - leland_himself@example.com
+    - r1@univ.com
+    - r2@univ.com
+    - axel.jean-caurant@univ-lr.fr
+    - roger.labahn@uni-rostock.de
+    - kimmo.kettunen@helsinki.fi
+    - guenter.muehlberger@uibk.ac.at
+    - guenter.hackl@transkribus.eu
+    - jedmond36@gmail.com
+    - eva.pna@gmail.com
+    - martin.gasteiner@univie.ac.at
+    - christoph.steindl@onb.ac.at
+    - jani.marjanen@helsinki.fi
+    - leo.leppanen@helsinki.fi
+    - max.weidemann@uni-rostock.de
+    - juha.rautiainen@helsinki.fi
+    - georg.petz@onb.ac.at
+    - jari.avikainen@helsinki.fi
+    - esteban.frossard@univ-lr.fr
+    - adoucet@univ-lr.fr
+    - jean-philippe.moreux@bnf.fr
+    - hannu.toivonen@helsinki.fi
+    - minna.kaukonen@helsinki.fi
+    - mark.granroth-wilding@helsinki.fi
+    - johannes.michael@uni-rostock.de
+    - hanna.arpiainen@helsinki.fi
+    - tiina.lehmikoski-pessa@helsinki.fi
+    - marion.ansel@bnf.fr
+    - elisabeth.freyre@bnf.fr
+    - max.kaiser@onb.ac.at
+    - simon.hengchen@helsinki.fi
+    - mikko.tolonen@helsinki.fi
+    - tonica.hunter@onb.ac.at
+    - marie-eve.therenty@univ-montp3.fr
+    - pierrecarl.langlais@gmail.com
+    - stefan.karner@onb.ac.at
+    - stefan.hechl@uibk.ac.at
+    - nejmaomari@gmail.com
+    - aude.couteau@univ-lr.fr
+    - barbara.klaus@uibk.ac.at
+    - sarah.oberbichler@uibk.ac.at
+    - jean-baptiste.vaisman@bnf.fr
+    - a.ummels@student.ru.nl
+    - florian.krull@uibk.ac.at
+    - mickael.coustaty@univ-lr.fr
+    - bastian.laasch@uni-rostock.de
+    - cyrille.suire@univ-lr.fr
+    - ahmed.hamdi@univ-lr.fr
+    - fanny.adam20@gmail.com
 
 production:
-  # Add roles for users here.
+  admin:
+    - axel.jean-caurant@univ-lr.fr
+  researcher:
+    - r1@univ.com
+    - r2@univ.com
+    - axel.jean-caurant@univ-lr.fr
+    - roger.labahn@uni-rostock.de
+    - kimmo.kettunen@helsinki.fi
+    - guenter.muehlberger@uibk.ac.at
+    - guenter.hackl@transkribus.eu
+    - jedmond36@gmail.com
+    - eva.pna@gmail.com
+    - martin.gasteiner@univie.ac.at
+    - christoph.steindl@onb.ac.at
+    - jani.marjanen@helsinki.fi
+    - leo.leppanen@helsinki.fi
+    - max.weidemann@uni-rostock.de
+    - juha.rautiainen@helsinki.fi
+    - georg.petz@onb.ac.at
+    - jari.avikainen@helsinki.fi
+    - esteban.frossard@univ-lr.fr
+    - adoucet@univ-lr.fr
+    - jean-philippe.moreux@bnf.fr
+    - hannu.toivonen@helsinki.fi
+    - minna.kaukonen@helsinki.fi
+    - mark.granroth-wilding@helsinki.fi
+    - johannes.michael@uni-rostock.de
+    - hanna.arpiainen@helsinki.fi
+    - tiina.lehmikoski-pessa@helsinki.fi
+    - marion.ansel@bnf.fr
+    - elisabeth.freyre@bnf.fr
+    - max.kaiser@onb.ac.at
+    - simon.hengchen@helsinki.fi
+    - mikko.tolonen@helsinki.fi
+    - tonica.hunter@onb.ac.at
+    - marie-eve.therenty@univ-montp3.fr
+    - pierrecarl.langlais@gmail.com
+    - stefan.karner@onb.ac.at
+    - stefan.hechl@uibk.ac.at
+    - nejmaomari@gmail.com
+    - aude.couteau@univ-lr.fr
+    - barbara.klaus@uibk.ac.at
+    - sarah.oberbichler@uibk.ac.at
+    - jean-baptiste.vaisman@bnf.fr
+    - a.ummels@student.ru.nl
+    - florian.krull@uibk.ac.at
+    - mickael.coustaty@univ-lr.fr
+    - bastian.laasch@uni-rostock.de
+    - cyrille.suire@univ-lr.fr
+    - ahmed.hamdi@univ-lr.fr
+    - fanny.adam20@gmail.com

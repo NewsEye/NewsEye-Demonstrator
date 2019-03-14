@@ -1,6 +1,15 @@
 class Issue < ActiveFedora::Base
 
+  include Hydra::AccessControls::Permissions
   include Hydra::Works::WorkBehavior
+
+
+  attr_accessor :to_solr_articles, :articles
+
+  after_initialize do |issue|
+    self.to_solr_articles = false
+    self.articles = []
+  end
 
   property :title, predicate: ::RDF::Vocab::DC.title, multiple: false do |index|
     index.type :string
@@ -33,9 +42,15 @@ class Issue < ActiveFedora::Base
   property :all_text, predicate: ::RDF::Vocab::CNT.ContentAsText, multiple: false do |index|
     index.as :text_en_searchable_uniq, :text_fr_searchable_uniq, :text_de_searchable_uniq, :text_fi_searchable_uniq, :text_se_searchable_uniq
   end
+
   property :thumbnail_url, predicate: ::RDF::Vocab::DC11.relation, multiple: false do |index|
     index.type :string
     index.as :string_stored_uniq
+  end
+
+  property :location, predicate: ::RDF::Vocab::DC11.coverage, multiple: false do |index|
+    index.type :string
+    index.as :string_searchable_uniq
   end
 
   def manifest(host, with_annotations=false)
@@ -47,10 +62,19 @@ class Issue < ActiveFedora::Base
     manifest.description = "This is a description."
     sequence = IIIF::Presentation::Sequence.new
     sequence['@id'] = "#{host}/iiif/#{self.id}/sequence/normal"
-    self.ordered_members.to_a.select(&:file_set?).each do |pfs|
+    pages.each do |pfs|
       sequence.canvases << pfs.canvas(host, self.id, with_annotations)
     end
     manifest.sequences << sequence
+
+    articles.each do |article|
+      range = IIIF::Presentation::Range.new
+      range['@id'] = "#{host}/iiif/#{self.id}/range/#{article.id}"
+      range['label'] = article.title
+      range.canvases.push(*article.canvases_parts)
+      range['contentLayer'] = "#{host}/iiif/#{self.id}/layer/#{article.id}"
+      manifest.structures << range
+    end
     manifest.metadata << {'label': 'Title', 'value': self.title}
     manifest.metadata << {'label': 'Date created', 'value': self.date_created}
     manifest.metadata << {'label': 'Publisher', 'value': self.publisher}
@@ -71,6 +95,13 @@ class Issue < ActiveFedora::Base
     else
       solr_doc.except! 'all_text_tde_siv', 'all_text_tfr_siv', 'all_text_tfi_siv', 'all_text_tse_siv' # keep english
     end
+
+    if self.to_solr_articles
+      solr_doc['_childDocuments_'] = []
+      self.articles.each do |article|
+        solr_doc['_childDocuments_'] << article
+      end
+    end
     solr_doc
   end
 
@@ -80,5 +111,13 @@ class Issue < ActiveFedora::Base
 
   def get_language
     self.language
+  end
+
+  def pages
+    self.ordered_members.to_ary.select { |v| v.instance_of?(PageFileSet) }
+  end
+
+  def articles
+    self.members.to_ary.select { |v| v.instance_of?(Article) }
   end
 end

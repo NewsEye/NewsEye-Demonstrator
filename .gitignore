@@ -7,6 +7,7 @@
 /.idea
 /public/assets/*
 /db/seeds_data
+/db/old_seeds_data
 /tools
 
 # Ignore bundler config.
@@ -32,5 +33,7 @@
 /docker/docker_data_solr
 /docker/log
 /docker/dependencies
+
+/lib/GeoLite2-City.mmdb
 
 /vendor/cache

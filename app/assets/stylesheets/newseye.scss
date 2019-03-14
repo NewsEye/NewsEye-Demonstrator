@@ -27,3 +27,21 @@ li#locale_dropdown{
 li#locale_dropdown button{
   margin: 10px;
 }
+
+li#feedback_dropdown{
+  position: relative;
+  display: block;
+}
+
+li#feedback_dropdown button{
+  margin: 10px;
+}
+
+div#add_to_dataset_dropdown{
+   position: relative;
+   display: block;
+ }
+
+div#add_to_dataset_dropdown button{
+  margin: 10px;
+}

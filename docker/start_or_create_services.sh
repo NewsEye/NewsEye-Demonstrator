@@ -7,7 +7,7 @@ if [[ $EUID -ne 0 ]]; then
 else
     if [ ! -d "$PWD/dependencies" ]; then
         mkdir $PWD/dependencies
-        wget --no-check-certificate https://nextcloud.lr17.fr/index.php/s/KnK7mBhVjDk7jd3/download -O dependencies/dependencies.zip
+        wget --no-check-certificate https://nextcloud.lr17.fr/index.php/s/5VC279vAnNb96fJ/download -O dependencies/dependencies.zip
         cd dependencies
         unzip dependencies.zip
         rm dependencies.zip

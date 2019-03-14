@@ -6,8 +6,10 @@ fr:
       fi: 'Finlandais'
       de: 'Allemand'
   blacklight:
+    application_name: 'NewsEye'
     search:
       fields:
         language_ssi: 'Langue'
         member_of_collection_ids_ssim: 'Journal'
+        has_model_ssim: 'Type'
         date_created_dtsi: 'Date'

@@ -3,9 +3,9 @@ require 'json'
 require 'nokogiri'
 require 'open-uri'
 
-current_np = "l_oeuvre"
+current_np = "le_matin"
 logger = Logger.new MultiIO.new(STDOUT, File.new("/home/axel/Nextcloud/NewsEye/data/import_#{current_np}.log", 'a'))
-failed_path = "/home/axel/Nextcloud/NewsEye/data/failed.txt"
+failed_path = "/home/axel/Nextcloud/NewsEye/data/failed_#{current_np}.txt"
 
 output_path = "/home/axel/Nextcloud/NewsEye/data/import_#{current_np}"
 begin
@@ -56,14 +56,14 @@ arks.each_with_index do |ark, arkindex|
         output_page['id'] = "#{ark.sub('/', '-')}_page_#{i}"
         output_page['page_number'] = i
         output_page['ocr_path'] = "/db/seeds_data/#{output_page['id']}.xml"
-        ocr_url = 'https://gallica.bnf.fr/RequestDigitalElement?O=%{ark}&E=ALTO&Deb=%{page}' % [ark: ark[ark.rindex('/')+1..-1], page: i]
-        ocr_file = open(ocr_url, 'r')
-        FileUtils.cp(ocr_file.path, "#{output_path}/#{output_page['id']}.xml")
         output_issue['pages'] << output_page
+        # ocr_url = 'https://gallica.bnf.fr/RequestDigitalElement?O=%{ark}&E=ALTO&Deb=%{page}' % [ark: ark[ark.rindex('/')+1..-1], page: i]
+        # ocr_file = open(ocr_url, 'r')
+        # FileUtils.cp(ocr_file.path, "#{output_path}/#{output_page['id']}.xml")
       rescue Exception => e
         logger.error "page #{output_page['id']} import failed"
         # logger.error e
-        File.open(failed_path, 'a') { |f| f.write("") }
+        File.open(failed_path, 'a') { |f| f.write("#{output_page['id']}\n") }
       end
     end
     logger.info "Saving issue #{output_issue['id']}"
