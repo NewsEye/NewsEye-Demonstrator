@@ -24,9 +24,11 @@ class DatasetsController < ApplicationController
   # POST /datasets
   # POST /datasets.json
   def create
-    puts dataset_params
-    @dataset = Dataset.create(dataset_params)
-    puts @dataset.inspect
+    dataset_params_copy = dataset_params
+    dataset_params_copy[:searches] = [dataset_params[:searches]]
+    @dataset = Dataset.create(dataset_params_copy)
+    # @dataset.user_id = current_user.id
+    # @dataset.searches.append(dataset_params[:search])
     respond_to do |format|
       if @dataset.save
         format.html { redirect_to @dataset, notice: 'Dataset was successfully created.' }
@@ -42,8 +44,10 @@ class DatasetsController < ApplicationController
   # PATCH/PUT /datasets/1
   # PATCH/PUT /datasets/1.json
   def update
+    dataset_params_copy = dataset_params
+    dataset_params_copy[:searches] = [dataset_params[:searches]] + @dataset.searches
     respond_to do |format|
-      if @dataset.update(dataset_params)
+      if @dataset.update(dataset_params_copy)
         format.html { redirect_to @dataset, notice: 'Dataset was successfully updated.' }
         format.json { render :show, status: :ok, location: @dataset }
       else

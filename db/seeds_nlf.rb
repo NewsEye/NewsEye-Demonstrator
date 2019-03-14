@@ -4,7 +4,8 @@ main_directory = '/home/axel/Nextcloud/NewsEye/data/test_data2'
 
 
 ##### Create or get newspaper
-npid = '1458-2619'
+npid = 'paivalehti'
+np_orig_id = '1458-2619'
 if Newspaper.exists?(npid)
   puts "newspaper %s already exists" % 'Päivälehti'
   np = Newspaper.find(npid)
@@ -42,7 +43,7 @@ for json_issue in Dir[main_directory + "/*.json"]
     issue.original_uri = issue_data[:original_uri]
     issue.title = issue_data[:title]
     issue.date_created = issue_data[:date_created]
-    issue.nb_pages = issue_data[:nb_pages]
+    issue.nb_pages = issue_data[:pages].size
     issue.language = 'fi' # issue_data[:language]
     # SHould I remove this save to prevent duplicates in solr index ?
     issue.save
@@ -55,7 +56,7 @@ for json_issue in Dir[main_directory + "/*.json"]
       pfs.id = issue.id + '_' + issue_page[:id].split('_')[1..-1].join('_')
       pfs.page_number = issue_page[:page_number]
 
-      open(main_directory + '/' + np.id + issue_page[:id] + '.jpg', 'r') do |image_full|
+      open(main_directory + '/' + np_orig_id + issue_page[:id] + '.jpg', 'r') do |image_full|
         Hydra::Works::AddFileToFileSet.call(pfs, image_full, :original_file)
       end
       Hydra::Works::CharacterizationService.run pfs.original_file
@@ -70,7 +71,7 @@ for json_issue in Dir[main_directory + "/*.json"]
       ###### Parse OCR and add full text property ######
 
       # encoding = CharlockHolmes::EncodingDetector.detect(File.read(Rails.root.to_s + issue_page[:ocr_path]))[:ruby_encoding]
-      ocr_file = open(main_directory + '/' + np.id + issue_page[:id] + '.xml', 'r')
+      ocr_file = open(main_directory + '/' + np_orig_id + issue_page[:id] + '.xml', 'r')
       Hydra::Works::AddFileToFileSet.call(pfs, ocr_file, :alto_xml)
       ocr_file.rewind
       ocr = Nokogiri::XML(ocr_file) #, nil, encoding)
@@ -104,7 +105,7 @@ for json_issue in Dir[main_directory + "/*.json"]
       annotation_file.close
 
       ###### Finalize ######
-      pfs.to_solr_annots = true
+      pfs.to_solr_annots = false
       pfs.annot_hierarchy = solr_hierarchy
       # puts "######### seeds.rb"
       # puts pfs.annot_hierarchy.first

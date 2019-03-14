@@ -1,3 +1,4 @@
+require 'open-uri'
 puts "seeding..."
 
 alto = 'alto'
@@ -21,11 +22,20 @@ else
 end
 ############################
 
+ids_query = 'http://localhost:8983/solr/hydra-development/select?fl=id&q=has_model_ssim:Issue&wt=json&rows=1000000'
+processed_ids = JSON.parse(open(ids_query).read)['response']['docs'].map{|h| h['id']}
 
+nb_issues_dir = Dir[main_directory + "/*"].size
+issue_ind = 0
 for issue_dir in Dir[main_directory + "/*"]
+  issue_ind += 1
   bad_id = issue_dir.split('/')[-1].split('_')[2..-1].join('_')
   ark = mapping[bad_id]
   issueid = np.id + '_' + ark.split('/')[1..-1].join('-')
+  if processed_ids.include? issueid
+    puts " issue %s already exists" % issueid
+    next
+  end
   should_process = false
   if Issue.exists?(issueid)
     issue = Issue.find(issueid)
@@ -41,13 +51,13 @@ for issue_dir in Dir[main_directory + "/*"]
   end
   if should_process
     json_metadata = JSON.parse(File.open("#{metadata_dir}/#{ark.split('/')[1..-1].join('-')}.json").read).with_indifferent_access
-    puts " adding issue %s" % json_metadata[:id]
+    puts " adding issue #{issueid} (#{issue_ind} out of #{nb_issues_dir})"
     issue.original_uri = json_metadata[:original_uri]
     issue.publisher = json_metadata[:publisher]
     issue.contributor = json_metadata[:contributor]
     issue.title = json_metadata[:title]
     issue.date_created = json_metadata[:date_created]
-    issue.nb_pages = json_metadata[:nb_pages]
+    issue.nb_pages = json_metadata[:pages].size
     issue.language = json_metadata[:language]
     # SHould I remove this save to prevent duplicates in solr index ?
     # issue.save
@@ -106,7 +116,7 @@ for issue_dir in Dir[main_directory + "/*"]
       annotation_file.close
 
       ###### Finalize ######
-      pfs.to_solr_annots = true
+      pfs.to_solr_annots = false
       pfs.annot_hierarchy = solr_hierarchy
       # puts "######### seeds.rb"
       # puts pfs.annot_hierarchy.first
@@ -231,7 +241,8 @@ for issue_dir in Dir[main_directory + "/*"]
     issue.discover_groups = ["admin", "researcher"]
     issue.edit_groups = ["admin", "researcher"]
     # issue.to_solr_articles = true
-    np.members << issue # save issue
+    np.members << issue # save issue-rw-r--r--  1 axel axel     807 Feb 24 11:45 .profile
+
     np.save # delete duplicates without all_text
   end  # Issue is processed
   # The following is not working...

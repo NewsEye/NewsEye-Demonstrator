@@ -1,10 +1,11 @@
+require 'open-uri'
 puts "seeding..."
 
 main_directory = '/home/axel/Nextcloud/NewsEye/data/test_data'
 
 
 ##### Create or get newspaper
-npid = 'Neue_freie_Presse'
+npid = 'neue_freie_presse'
 if Newspaper.exists?(npid)
   puts "newspaper %s already exists" % 'Neue freie Presse'
   np = Newspaper.find(npid)
@@ -42,7 +43,7 @@ for json_issue in Dir[main_directory + "/*.json"]
     issue.original_uri = issue_data[:original_uri]
     issue.title = issue_data[:title]
     issue.date_created = issue_data[:date_created]
-    issue.nb_pages = issue_data[:nb_pages]
+    issue.nb_pages = issue_data[:pages].size
     issue.language = 'de' # issue_data[:language]
     # SHould I remove this save to prevent duplicates in solr index ?
     issue.save
@@ -55,8 +56,10 @@ for json_issue in Dir[main_directory + "/*.json"]
       pfs.id = issue.id + '_' + issue_page[:id].split('_')[1..-1].join('_')
       pfs.page_number = issue_page[:page_number]
 
-      pfs.iiif_url = "https://iiif-auth.onb.ac.at/images/ANNO/#{issue_data[:id]}/#{pfs.page_number.to_s.rjust(8,'0')}"
-      info_json = JSON.load(open(pfs.iiif_url+'/info.json'))
+      # pfs.iiif_url = "https://iiif-auth.onb.ac.at/images/ANNO/#{issue_data[:id]}/#{pfs.page_number.to_s.rjust(8,'0')}"
+      info_json_url = "https://iiif-auth.onb.ac.at/images/ANNO/#{issue_data[:id]}/#{pfs.page_number.to_s.rjust(8,'0')}/info.json"
+      pfs.iiif_url = "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}_page_#{pfs.page_number}"
+      info_json = JSON.load(open(info_json_url))
       pfs.height = info_json['height'].to_i
       pfs.width = info_json['width'].to_i
       pfs.mime_type = 'image/jpeg'
@@ -101,7 +104,7 @@ for json_issue in Dir[main_directory + "/*.json"]
       annotation_file.close
 
       ###### Finalize ######
-      pfs.to_solr_annots = true
+      pfs.to_solr_annots = false
       pfs.annot_hierarchy = solr_hierarchy
       # puts "######### seeds.rb"
       # puts pfs.annot_hierarchy.first

@@ -1,3 +1,4 @@
+#require 'open-uri '
 module Riiif
   class ImagesController < ::ApplicationController
     before_action :link_header, only: [:show, :info]
@@ -6,41 +7,66 @@ module Riiif
       head 400
     end
 
-    def show
-      begin
-        image = model.new(image_id)
-        status = if authorization_service.can?(:show, image)
-                   :ok
-                 else
-                   :unauthorized
-                 end
-      rescue ImageNotFoundError
-        status = :not_found
-      end
-
-      image = error_image(status) unless status == :ok
-
-      data = image.render(image_request_params)
-      headers['Access-Control-Allow-Origin'] = '*'
-      # Set a Cache-Control header
-      expires_in cache_expires, public: public_cache? if status == :ok
-      send_data data,
-                status: status,
-                type: Mime::Type.lookup_by_extension(params[:format]),
-                disposition: 'inline'
+    def self.onb_newpapers
+      ['neue_freie_presse']
     end
 
-    def info
-      image = model.new(image_id)
-      if authorization_service.can?(:info, image)
-        image_info = image.info
-        return render json: { error: 'no info' }, status: :not_found unless image_info.valid?
+    def show
+        begin
+          image = model.new(image_id)
+          status = if authorization_service.can?(:show, image)
+                     :ok
+                   else
+                     :unauthorized
+                   end
+        rescue ImageNotFoundError
+          status = :not_found
+        end
+        puts "Riiif image status : #{status}"
+        image = error_image(status) unless status == :ok
+
+        if image_id.starts_with?(*ImagesController.onb_newpapers)
+          pagenum = image_id.split('_')[-1]
+          issueid = image_id.split('_')[-3..-3].join('_')
+          size = image_request_params[:size]
+          region = image_request_params[:region]
+          quality = image_request_params[:quality]
+          rotation = image_request_params[:rotation]
+          format = image_request_params[:format]
+          url = "https://iiif-auth.onb.ac.at/images/ANNO/#{issueid}/#{pagenum.rjust(8,'0')}/#{region}/#{size}/#{rotation}/#{quality}.#{format}"
+          data = open(url, http_basic_authentication: ["newseye", "TIrl1wwNf19nmGjcnSmo"]).read
+        else
+          data = image.render(image_request_params)
+        end
         headers['Access-Control-Allow-Origin'] = '*'
         # Set a Cache-Control header
-        expires_in cache_expires, public: public_cache?
-        render json: image_info.to_h.merge(server_info), content_type: 'application/ld+json'
+        expires_in cache_expires, public: public_cache? if status == :ok
+        send_data data,
+                  status: status,
+                  type: Mime::Type.lookup_by_extension(params[:format]),
+                  disposition: 'inline'
+      end
+
+    def info
+      if image_id.starts_with?(*ImagesController.onb_newpapers)
+        pagenum = image_id.split('_')[-1]
+        issueid = image_id.split('_')[-3..-3].join('_')
+        url = "https://iiif-auth.onb.ac.at/images/ANNO/#{issueid}/#{pagenum.rjust(8,'0')}/info.json"
+        data = open(url, http_basic_authentication: ["newseye", "TIrl1wwNf19nmGjcnSmo"]).read
+        data.sub! /^  "@id.*$/, "  \"@id\" : \"#{Rails.configuration.newseye_services['host']}/iiif/#{image_id}\""
+        render json: data
       else
-        render json: { error: 'unauthorized' }, status: :unauthorized
+        image = model.new(image_id)
+        if authorization_service.can?(:info, image)
+          image_info = image.info
+          return render json: { error: 'no info' }, status: :not_found unless image_info.valid?
+          headers['Access-Control-Allow-Origin'] = '*'
+          # Set a Cache-Control header
+          expires_in cache_expires, public: public_cache?
+          render json: image_info.to_h.merge(server_info), content_type: 'application/ld+json'
+        else
+          render json: { error: 'unauthorized' }, status: :unauthorized
+        end
       end
     end
 
