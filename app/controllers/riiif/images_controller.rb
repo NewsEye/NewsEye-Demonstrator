@@ -8,10 +8,11 @@ module Riiif
     end
 
     def self.onb_newpapers
-      ['neue_freie_presse']
+      ['neue_freie_presse', 'arbeiter_zeitung']
     end
 
     def show
+      if current_user
         begin
           image = model.new(image_id)
           status = if authorization_service.can?(:show, image)
@@ -46,6 +47,7 @@ module Riiif
                   type: Mime::Type.lookup_by_extension(params[:format]),
                   disposition: 'inline'
       end
+    end
 
     def info
       if image_id.starts_with?(*ImagesController.onb_newpapers)

@@ -13,3 +13,8 @@ fr:
         member_of_collection_ids_ssim: 'Journal'
         has_model_ssim: 'Type'
         date_created_dtsi: 'Date'
+    range_limit:
+        range_begin: "%{field_label} range begin"
+        range_end: "%{field_label} range end"
+        submit_limit: 'Limiter'
+        remove_limit: 'supprimer'

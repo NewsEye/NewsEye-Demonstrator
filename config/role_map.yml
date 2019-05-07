@@ -50,6 +50,8 @@ development:
     - cyrille.suire@univ-lr.fr
     - ahmed.hamdi@univ-lr.fr
     - fanny.adam20@gmail.com
+    - elvyslpontes@gmail.com
+    - lidia.pivovarova@helsinki.fi
 
 production:
   admin:
@@ -103,3 +105,5 @@ production:
     - cyrille.suire@univ-lr.fr
     - ahmed.hamdi@univ-lr.fr
     - fanny.adam20@gmail.com
+    - elvyslpontes@gmail.com
+    - lidia.pivovarova@helsinki.fi
