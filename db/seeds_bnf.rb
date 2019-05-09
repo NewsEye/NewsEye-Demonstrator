@@ -8,14 +8,15 @@ mapping = JSON.parse(File.open("/home/axel/Nextcloud/NewsEye/data/bnf/id_mapping
 
 ##### Create or get newspaper
 npid = 'la_presse'
+nptitle = 'La Presse'
 if Newspaper.exists?(npid)
-  puts "newspaper %s already exists" % 'La Presse'
+  puts "newspaper %s already exists" % nptitle
   np = Newspaper.find(npid)
 else
-  puts "adding newspaper %s" % 'La Presse'
+  puts "adding newspaper %s" % nptitle
   np = Newspaper.new
   np.id = npid
-  np.title = 'La Presse'
+  np.title = nptitle
   # np.publisher = newspaper[:publisher]
   np.language = 'fr'
   np.save

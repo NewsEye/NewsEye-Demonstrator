@@ -6,14 +6,15 @@ main_directory = '/home/axel/Nextcloud/NewsEye/data/test_data'
 
 ##### Create or get newspaper
 npid = 'neue_freie_presse'
+nptitle = 'Neue freie Presse'
 if Newspaper.exists?(npid)
-  puts "newspaper %s already exists" % 'Neue freie Presse'
+  puts "newspaper %s already exists" % nptitle
   np = Newspaper.find(npid)
 else
-  puts "adding newspaper %s" % 'Neue freie Presse'
+  puts "adding newspaper %s" % nptitle
   np = Newspaper.new
   np.id = npid
-  np.title = 'Neue freie Presse'
+  np.title = nptitle
   # np.publisher = newspaper[:publisher]
   np.language = 'de'
   np.save
@@ -22,7 +23,12 @@ end
 
 
 for json_issue in Dir[main_directory + "/*.json"]
-  issue_data = JSON.parse(File.read(json_issue)).with_indifferent_access
+  begin
+    json_content = File.read(json_issue)
+    issue_data = JSON.parse(json_content).with_indifferent_access
+  rescue Json::ParserError
+    next
+  end
 
   issueid = np.id + '_' + issue_data[:id]
   should_process = false
