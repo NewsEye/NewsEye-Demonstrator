@@ -120,4 +120,14 @@ class Issue < ActiveFedora::Base
   def articles
     self.members.to_ary.select { |v| v.instance_of?(Article) }
   end
+
+  def named_entity_mentions
+    # entity types :
+    # NamedEntity.joins(:named_entity_mentions).where('named_entity_mentions.doc_id': 'paivalehti_471957').group(:id).pluck("ne_type")
+    NamedEntityMention.where(doc_id: self.id)
+  end
+
+  def named_entities
+    NamedEntity.joins(:named_entity_mentions).where('named_entity_mentions.doc_id': 'paivalehti_471957').group(:id)
+  end
 end
