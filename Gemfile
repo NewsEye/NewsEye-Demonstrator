@@ -5,11 +5,14 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
+gem 'dotenv-rails', require: 'dotenv/rails-now', groups: [:development, :test]
 
 gem 'hydra-head', '= 10.5.1'
 gem 'blacklight', '= 6.15.0'
 gem 'blacklight-access_controls', '= 0.6.2'
 gem 'blacklight-gallery'
+gem "blacklight_range_limit"
+gem "blacklight_advanced_search"
 gem 'hydra-works'
 gem 'europeana-api'
 gem 'riiif'
@@ -29,6 +32,8 @@ gem 'maxminddb'
 gem 'simple_form'
 gem 'devise-i18n'
 gem 'devise-bootstrap-views'
+gem 'jwt'
+gem 'simple_command'
 
 gem 'httparty'
 gem 'http_accept_language'

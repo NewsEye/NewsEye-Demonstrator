@@ -5,9 +5,13 @@ class ApplicationController < ActionController::Base
   include Hydra::Controller::ControllerBehavior
   layout 'blacklight'
 
-  protect_from_forgery with: :exception
-
-  before_action :set_locale, :create_feedback
+  protect_from_forgery with: :exception, unless: :json_request
+  protect_from_forgery with: :null_session, if: :json_request
+  # before_action :authenticate_user!, unless: :json_request
+  before_action :authorize_api_request, except: [:authenticate]
+  before_action :set_locale, unless: :json_request
+  before_action :create_feedback, unless: :json_request
+  #TODO not set locale before every action to avoid ?locale=fr in url sometimes (iiif for exemple)
 
   # Automatically set locale to all generated URLs
   def default_url_options
@@ -28,6 +32,22 @@ class ApplicationController < ActionController::Base
 
   def create_feedback
     @feedback = Feedback.new
+  end
+
+  def json_request
+    request.content_type == 'application/json'
+  end
+
+  def authorize_api_request
+    puts self.controller_name
+    return if self.controller_name == "sessions"
+    @current_user = AuthorizeApiRequest.call(request.headers).result
+    unless current_user
+      respond_to do |format|
+        format.html { store_preferred_view }
+        format.json { render json: { error: 'Not Authorized' }, status: 401 }
+      end
+    end
   end
 
 end

@@ -13,3 +13,8 @@ fi:
         member_of_collection_ids_ssim: 'Sanomalehti'
         has_model_ssim: 'Type'
         date_created_dtsi: 'Aika'
+    range_limit:
+        range_begin: "%{field_label} range begin"
+        range_end: "%{field_label} range end"
+        submit_limit: 'Limit'
+        remove_limit: 'remove'

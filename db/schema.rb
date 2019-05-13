@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190311122324) do
+ActiveRecord::Schema.define(version: 20190509075718) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -84,6 +84,33 @@ ActiveRecord::Schema.define(version: 20190311122324) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "jwt_blacklist", id: :serial, force: :cascade do |t|
+    t.string "jti", null: false
+    t.index ["jti"], name: "index_jwt_blacklist_on_jti"
+  end
+
+  create_table "named_entities", force: :cascade do |t|
+    t.string "label"
+    t.string "ne_type"
+    t.string "kb_url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["label"], name: "index_named_entities_on_label"
+  end
+
+  create_table "named_entity_mentions", force: :cascade do |t|
+    t.string "mention"
+    t.string "doc_id"
+    t.bigint "named_entity_id"
+    t.float "detection_confidence"
+    t.float "linking_confidence"
+    t.float "stance"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["doc_id"], name: "index_named_entity_mentions_on_doc_id"
+    t.index ["named_entity_id"], name: "index_named_entity_mentions_on_named_entity_id"
+  end
+
   create_table "searches", id: :serial, force: :cascade do |t|
     t.binary "query_params"
     t.integer "user_id"
@@ -107,4 +134,5 @@ ActiveRecord::Schema.define(version: 20190311122324) do
   end
 
   add_foreign_key "datasets", "users"
+  add_foreign_key "named_entity_mentions", "named_entities"
 end

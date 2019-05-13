@@ -1,7 +1,9 @@
 Rails.application.routes.draw do
 
+  concern :range_searchable, BlacklightRangeLimit::Routes::RangeSearchable.new
   scope "(:locale)", locale: /en|fr|de|fi/ do
     devise_for :users
+    post 'authenticate', to: 'api_authentication#authenticate'
     concern :exportable, Blacklight::Routes::Exportable.new
 
     resources :solr_documents, only: [:show], path: '/catalog', controller: 'catalog' do
@@ -20,6 +22,8 @@ Rails.application.routes.draw do
 
     resource :catalog, only: [:index], as: 'catalog', path: '/catalog', controller: 'catalog' do
       concerns :searchable
+      concerns :range_searchable
+
     end
 
     concern :exportable, Blacklight::Routes::Exportable.new
@@ -37,6 +41,10 @@ Rails.application.routes.draw do
     end
 
     mount Blacklight::Engine => '/'
+    # mount BlacklightAdvancedSearch::Engine => '/'
+    # get 'advanced' => 'advanced#index'
+    # get 'advanced/range_limit' => 'advanced#range_limit'
+
 
     get '/annotations/search', to: 'annotations#search'
 

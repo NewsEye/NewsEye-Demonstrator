@@ -2,6 +2,9 @@
 require 'blacklight/catalog'
 
 class CatalogController < ApplicationController
+  # include BlacklightAdvancedSearch::Controller
+
+  include BlacklightRangeLimit::ControllerOverride
 
   include Hydra::Catalog
 
@@ -20,6 +23,13 @@ class CatalogController < ApplicationController
   after_action :track_action
 
   configure_blacklight do |config|
+    # default advanced config values
+    # config.advanced_search ||= Blacklight::OpenStructWithHashAccess.new
+    # # config.advanced_search[:qt] ||= 'advanced'
+    # config.advanced_search[:url_key] ||= 'advanced'
+    # config.advanced_search[:query_parser] ||= 'dismax'
+    # config.advanced_search[:form_solr_parameters] ||= {}
+    # #
     config.view.gallery.partials = [:index_header, :index]
     config.view.masonry.partials = [:index]
     config.view.slideshow.partials = [:index]
@@ -54,6 +64,7 @@ class CatalogController < ApplicationController
 
     config.add_facet_field solr_name('language', :string_searchable_uniq), helper_method: :convert_language_to_locale, limit: true
     config.add_facet_field solr_name('date_created', :date_searchable_uniq), helper_method: :convert_date_to_locale, label: 'Date', date: true
+    config.add_facet_field 'year_isi', label: 'Year', range: true
     config.add_facet_field 'member_of_collection_ids_ssim', helper_method: :get_collection_title_from_id, label: 'Newspaper'
     config.add_facet_field 'has_model_ssim', helper_method: :get_display_value_from_model, label: 'Type'
 

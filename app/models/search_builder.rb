@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 class SearchBuilder < Blacklight::SearchBuilder
   include Blacklight::Solr::SearchBuilderBehavior
+  # include BlacklightAdvancedSearch::AdvancedSearchBuilder
+  # self.default_processor_chain += [:add_advanced_parse_q_to_solr, :add_advanced_search_to_solr]
+  include BlacklightRangeLimit::RangeLimitBuilder
+
   # Add a filter query to restrict the search to documents the current user has access to
   include Hydra::AccessControlsEnforcement
 
@@ -35,9 +39,10 @@ class SearchBuilder < Blacklight::SearchBuilder
     solr_parameters[:'hl.method'] = 'unified'
     solr_parameters[:'hl.fl'] = 'all_text_* content_*'
     solr_parameters[:'hl.snippets'] = 10
-    solr_parameters[:'hl.fragsize'] = 200
+    solr_parameters[:'hl.fragsize'] = 150
     solr_parameters[:'hl.simple.pre'] = '<span style="background-color: red; color: white;">'
     solr_parameters[:'hl.simple.post'] = '</span>'
+    solr_parameters[:'hl.maxAnalyzedChars'] = 10000000
   end
 
 end
