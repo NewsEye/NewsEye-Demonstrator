@@ -27,9 +27,14 @@ module ApplicationHelper
   def get_collection_title_from_id(options={})
     case options
     when String
-      Newspaper.find(options).title
+      npid = options
     when Hash
-      Newspaper.find(options[:value].first).title
+      npid = options[:value].first
+    else
+      npid = nil
+    end
+    if npid
+      ActiveFedora::SolrService.instance.conn.get('select', params: {q: "id:#{npid}"})['response']['docs'][0]['title_ssi']
     else
       "placeholder newspaper title"
     end

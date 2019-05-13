@@ -2,21 +2,20 @@ require 'open-uri'
 puts "seeding..."
 
 alto = 'alto'
-main_directory = '/home/axel/Nextcloud/NewsEye/data/bnf/la presse'
-metadata_dir = "/home/axel/Nextcloud/NewsEye/data/bnf/la presse/metadata"
-mapping = JSON.parse(File.open("/home/axel/Nextcloud/NewsEye/data/bnf/id_mapping_presse.json").read)
+main_directory = '/home/axel/newseye_data/bnf/la_presse'
+metadata_dir = "/home/axel/newseye_data/bnf/la_presse/metadata"
+mapping = JSON.parse(File.open("/home/axel/id_mapping_presse.json").read)
 
 ##### Create or get newspaper
 npid = 'la_presse'
-nptitle = 'La Presse'
 if Newspaper.exists?(npid)
-  puts "newspaper %s already exists" % nptitle
+  puts "newspaper %s already exists" % 'La Presse'
   np = Newspaper.find(npid)
 else
-  puts "adding newspaper %s" % nptitle
+  puts "adding newspaper %s" % 'La Presse'
   np = Newspaper.new
   np.id = npid
-  np.title = nptitle
+  np.title = 'La Presse'
   # np.publisher = newspaper[:publisher]
   np.language = 'fr'
   np.save

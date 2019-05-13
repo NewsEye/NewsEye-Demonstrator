@@ -1,12 +1,12 @@
 puts "seeding..."
 
-main_directory = '/home/axel/Nextcloud/NewsEye/data/test_data2'
+main_directory = '/home/axel/newseye_data/nlf/import_fk14893'
 
 
 ##### Create or get newspaper
-npid = 'paivalehti'
-nptitle = 'Päivälehti'
-np_orig_id = '1458-2619'
+npid = 'wiipuri'
+nptitle = 'Wiipuri'
+np_orig_id = 'fk14893'
 if Newspaper.exists?(npid)
   puts "newspaper %s already exists" % nptitle
   np = Newspaper.find(npid)
@@ -21,28 +21,46 @@ else
 end
 ############################
 
-
+ids_query = 'http://localhost:8983/solr/hydra-development/select?fl=id&q=has_model_ssim:Issue&wt=json&rows=1000000'
+processed_ids = JSON.parse(open(ids_query).read)['response']['docs'].map{|h| h['id']}
+nbissues = Dir[main_directory + "/*.json"].size
+i = 0
 for json_issue in Dir[main_directory + "/*.json"]
+  i += 1
   json_content = File.read(json_issue)
   next if json_content == ''
   issue_data = JSON.parse(File.read(json_issue)).with_indifferent_access
   issue_data[:id] = issue_data[:id][9..-1]
   issueid = np.id + '_' + issue_data[:id]
+  if processed_ids.include? issueid
+    puts " issue %s already exists" % issueid
+    next
+  end
   should_process = false
   if Issue.exists?(issueid)
     issue = Issue.find(issueid)
     if issue.all_text.nil?
       should_process = true
+      issue_data[:pages].each do |issue_page|
+        fpath = main_directory + '/' + np_orig_id + issue_page[:id]
+        should_process = File.file?(fpath+'.jpg') && File.file?(fpath+'.xml')
+      end
+      puts " issue %s is missing files" % issue_data[:id] unless should_process
     else
       puts " issue %s already exists" % issue_data[:id]
     end
   else
+    should_process = true
+    issue_data[:pages].each do |issue_page|
+      fpath = main_directory + '/' + np_orig_id + issue_page[:id]
+      should_process = File.file?(fpath+'.jpg') && File.file?(fpath+'.xml')
+    end
+    puts " issue %s is missing files" % issue_data[:id] unless should_process
     issue = Issue.new
     issue.id = issueid
-    should_process = true
   end
   if should_process
-    puts " adding issue %s" % issue_data[:id]
+    puts " adding issue #{issue_data[:id]} (#{i} out of #{nbissues})"
     issue.original_uri = issue_data[:original_uri]
     issue.title = issue_data[:title]
     issue.date_created = issue_data[:date_created]
