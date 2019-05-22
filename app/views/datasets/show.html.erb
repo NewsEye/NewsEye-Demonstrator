@@ -1,12 +1,17 @@
-<p id="notice"><%= notice %></p>
+<!--<p id="notice"><%#= notice %></p>-->
 
-<p>
+<div>
   <strong>Title:</strong>
-  <%= @dataset.title %>
+  <p><%= @dataset.title %></p>
+  <strong>Searches</strong>
   <% @dataset.searches.each do |search| %>
   <p><%= search %></p>
   <% end %>
-</p>
+  <strong>Documents</strong>
+  <% @dataset.issues.each do |doc| %>
+    <p><%= doc %></p>
+  <% end %>
+</div>
 
 <%= link_to 'Edit', edit_dataset_path(@dataset) %> |
 <%= link_to 'Back', datasets_path %>

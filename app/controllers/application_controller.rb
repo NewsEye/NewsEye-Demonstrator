@@ -40,7 +40,7 @@ class ApplicationController < ActionController::Base
 
   def authorize_api_request
     puts self.controller_name
-    return if self.controller_name == "sessions"
+    return if self.controller_name == "sessions" or self.controller_name == "registrations"
     @current_user = AuthorizeApiRequest.call(request.headers).result
     unless current_user
       respond_to do |format|

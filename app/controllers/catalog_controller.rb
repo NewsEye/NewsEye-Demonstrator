@@ -16,9 +16,30 @@ class CatalogController < ApplicationController
   # This applies appropriate access controls to all solr queries
   Hydra::SearchBuilder.default_processor_chain += [:add_access_controls_to_solr_params]
 
-  # TODO named entities + integrate thesis method using solr spellcheck ?
   # TODO add image part in "see extracts" + add position to hl : https://issues.apache.org/jira/browse/SOLR-4722
+  # TODO mapping between fultext and iiif annotations (for point above + named entities)
   # TODO handle hyphenated words (information already in alto, to be checked)
+  # TODO check the year range issues (using as a facet without q), compute distribution before querying to filter
+  # TODO improve personal datasets handling
+  # TODO advanced search
+  # TODO authorize_api_request in ApplicationController : check if query is json, else return
+  # TODO check and debug import process...
+  # TODO remove wiipuri
+  # TODO mapping text/position
+  # TODO check uusisuometar ocr data (new or old ?)
+  # TODO make available a local solr endpoint for finnish
+  # TODO integrate named entities inside solr as facets
+  # TODO send subset texts to topics in Helsinki, wait for response and display
+  # TODO add comparison of subsets in personnal workspace for topics
+  # TODO send query to investigator (dates+language) + keywords
+  # TODO wait list of tasks (pending, partial results, finished)
+  # TODO named entities on arbeiter zeitung
+  # TODO see with ahmed for named entities in german
+  # TODO newspaper context api (maybe explore controller ? which issue are available, calendar, etc)
+  # TODO import one swedish newspaper
+  # TODO open and secure solr to helsinki CS
+  #
+  # TODO send sarah small description of platform + images
 
   after_action :track_action
 
@@ -146,7 +167,7 @@ class CatalogController < ApplicationController
 
   def index
     (@response, @document_list) = search_results(params)
-    pp @response[:highlighting]
+    # pp @response[:highlighting]
     @solr_query = search_builder.with(params).to_hash
     respond_to do |format|
       format.html { store_preferred_view }

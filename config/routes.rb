@@ -63,6 +63,9 @@ Rails.application.routes.draw do
 
     resources :datasets
 
+    post '/datasets/:id/delete_searches', to: 'datasets#delete_searches'
+    post '/datasets/:id/add_issue', to: 'datasets#add_issue'
+
   end
 
   mount Riiif::Engine => '/iiif', as: 'riiif'

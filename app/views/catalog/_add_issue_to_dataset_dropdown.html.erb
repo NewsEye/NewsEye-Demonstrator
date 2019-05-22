@@ -1,0 +1,70 @@
+<div id="add_to_dataset_dropdown">
+  <button class="dropdown-toggle btn btn-sm btn-text" type="button" href="#" id="add_to_dataset_dropdown_btn" role="button" aria-haspopup="true" aria-expanded="false">
+    Add to dataset...
+  </button>
+  <div class="dropdown-menu" aria-labelledby="add_to_dataset_dropdown">
+    <div id="add_to_dataset">
+      <div id="create_and_add_dataset">
+        <%= simple_form_for Dataset.new, html: {id: 'add_to_dataset_form', class: 'form-inline'}, remote: true do |f| %>
+          <div class="form-group">
+            <%= f.label :name, 'Title' %>
+            <%= f.text_field :title %>
+            <%= f.input :issues, :as => :hidden, :input_html => { :value => request.original_url } %>
+            <%= f.input :user_id, :as => :hidden, :input_html => { :value => current_user.id } %>
+            <!--      <input type="hidden" name="search" value="<%#= request.original_url %>">-->
+          </div>
+          <%= f.submit "Create and add" %>
+        <% end %>
+      </div>
+      <% unless current_user.datasets.empty? %>
+        <p>---------- OR----------</p>
+        <div id="select_existing_dataset">
+          <select name="dataset_selector_name" id="dataset_selector" class="form-control" onfocus='this.size=5;' onblur='this.size=1;' onchange='this.size=1; this.blur(); select_changed();'>
+            <% current_user.datasets.each_with_index do |dataset, ind| %>
+              <% if ind==0 %>
+                <option value="<%= dataset.id %>" selected="selected"><%= dataset.title %></option>
+              <% else %>
+                <option value="<%= dataset.id %>"><%= dataset.title %></option>
+              <% end %>
+            <% end %>
+          </select>
+          <form id="add_search_form" class="simple_form" action="/datasets/<%= current_user.datasets[0].id %>/add_issue" accept-charset="UTF-8" method="post" remote="true">
+            <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+<!--            <input name="_method" type="hidden" value="patch" />-->
+            <input type="hidden" name="dataset[issues]" value="<%= request.original_url %>">
+            <input type="submit" name="commit" value="Add to selected dataset" class="btn" data-disable-with="Update Dataset">
+          </form>
+        </div>
+      <% end %>
+      <div id="log_add_to_dataset"></div>
+    </div>
+  </div>
+</div>
+<!-- Pour éviter la fermeture du div quand on clicque dedans -->
+<script type="application/javascript">
+    $( document ).on('turbolinks:load', function() {
+        $('#add_to_dataset_dropdown button').on('click', function (event) {
+            $(this).parent().toggleClass('open');
+        });
+    });
+    $('body').on('click', function (e) {
+        if (!$('#add_to_dataset_dropdown').is(e.target)
+            && $('#add_to_dataset_dropdown').has(e.target).length === 0
+            && $('.open').has(e.target).length === 0
+        ) {
+            $('#add_to_dataset_dropdown').removeClass('open');
+        }
+    });
+</script>
+
+<!--Script onchange de la liste pour mettre à jour le formulaire-->
+<script type="application/javascript">
+    function select_changed() {
+        console.log('ok');
+        var e = document.getElementById("dataset_selector");
+        var val = e.options[e.selectedIndex].value;
+        var txt = e.options[e.selectedIndex].text;
+        var f = document.getElementById("add_search_form");
+        f.action = '/datasets/'+val+'/add_issue';
+    }
+</script>

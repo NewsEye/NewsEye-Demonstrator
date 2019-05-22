@@ -32,11 +32,16 @@
   </div>
 </div>
 
+<div id="manage_tools" class="panel panel-default">
+  <div class="panel-body">
+    <%= render 'add_issue_to_dataset_dropdown' %>
+  </div>
+</div>
+
 <div id="named_entities_list" class="panel panel-default">
   <div class="panel-body">
     <div>
       <% named_entities = get_named_entities_for_doc(@document.id) %>
-      <% puts JSON.pretty_generate(named_entities) %>
       <h3>Persons</h3>
       <ul>
         <% named_entities[:PER].keys.each do |label| %>

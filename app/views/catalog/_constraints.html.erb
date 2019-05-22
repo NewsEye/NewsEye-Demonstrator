@@ -2,14 +2,8 @@
 
   <div id="appliedParams" class="clearfix constraints-container">
     <div class="pull-right">
-      <div id="add_to_dataset_dropdown">
-        <button class="dropdown-toggle btn btn-sm btn-text" type="button" href="#" id="add_to_dataset_dropdown_btn" role="button" aria-haspopup="true" aria-expanded="false">
-          Add to dataset...
-        </button>
-        <div class="dropdown-menu" aria-labelledby="add_to_dataset_dropdown">
-          <%= render 'datasets/choose' %>
-        </div>
-      </div>
+
+      <%= render 'add_search_to_dataset_dropdown' %>
       
       <%=link_to t('blacklight.search.start_over'), start_over_path, :class => "catalog_startOverLink btn btn-sm btn-text", :id=>"startOverLink" %>
 
@@ -29,22 +23,7 @@
   </div>
 <% end %>
 
-<!-- Pour éviter la fermeture du div quand on clicque dedans -->
-<script type="text/javascript">
-    $( document ).on('turbolinks:load', function() {
-        $('#add_to_dataset_dropdown button').on('click', function (event) {
-            $(this).parent().toggleClass('open');
-        });
-    });
-    $('body').on('click', function (e) {
-        if (!$('#add_to_dataset_dropdown').is(e.target)
-            && $('#add_to_dataset_dropdown').has(e.target).length === 0
-            && $('.open').has(e.target).length === 0
-        ) {
-            $('#add_to_dataset_dropdown').removeClass('open');
-        }
-    });
-</script>
+
 
 <!--<script type="text/javascript">-->
 <!--    $( document ).on('turbolinks:load', function() {-->

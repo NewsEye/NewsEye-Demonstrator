@@ -108,6 +108,7 @@ GEM
     bootstrap-sass (3.4.0)
       autoprefixer-rails (>= 5.2.1)
       sassc (>= 2.0.0)
+    bootstrap-select-rails (1.13.8)
     browser (2.5.3)
     builder (3.2.3)
     byebug (10.0.2)
@@ -490,6 +491,7 @@ DEPENDENCIES
   blacklight_advanced_search
   blacklight_range_limit
   bootsnap
+  bootstrap-select-rails
   byebug
   capybara (~> 2.13)
   charlock_holmes

@@ -29,6 +29,7 @@ gem 'charlock_holmes'
 gem 'ahoy_matey'
 gem 'maxminddb'
 
+gem 'bootstrap-select-rails'
 gem 'simple_form'
 gem 'devise-i18n'
 gem 'devise-bootstrap-views'
