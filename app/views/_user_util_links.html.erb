@@ -2,7 +2,7 @@
   <% if has_user_authentication_provider? %>
     <ul class="nav navbar-nav">
       <% if current_user %>
-        <li><%= link_to 'Datasets', datasets_path %></li>
+        <li><%= link_to 'Personal Workspace', '/personal_workspace' %></li>
         <%#= render_nav_actions do |config, action|%>
 <!--          <li><%#= action %></li>-->
         <%# end %>

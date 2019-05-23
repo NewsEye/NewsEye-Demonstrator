@@ -1,0 +1,54 @@
+<div class="row">
+  <div class="panel panel-default">
+    <div class="panel-heading">Personal Research Assistant</div>
+    <div class="panel-body">
+      <form>
+        <div class="form-group col-md-6">
+          <select id="dataset_invetigate_select" class="form-control">
+            <option value="" disabled selected>Select your dataset</option>
+            <%= options_for_select(@current_user.datasets.map(&:title)) %>
+          </select>
+        </div>
+        <div class="form-group col-md-6">
+          <input type="text" class="form-control" placeholder="Search for...">
+        </div>
+        <button type="submit" class="btn btn-primary">Investigate</button>
+      </form>
+      <%#= select_tag(:dataset_investigate, options_for_select(@current_user.datasets.map(&:title)), {id: 'dataset_invetigate_select', class: "selectpicker"}) %>
+      <!--            <div class="input-group mb-3">-->
+      <!--              <input type="text" class="form-control" placeholder="Search terms" aria-label="Search terms">-->
+      <!--              <div class="input-group-btn">-->
+      <!--                <button class="btn btn-default" type="button">Investigate</button>-->
+      <!--              </div>-->
+      <!--            </div>-->
+      <!--          dropdown select dataset + textfield-->
+
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="panel panel-default">
+    <div class="panel-heading">Topic modelling</div>
+    <div class="panel-body">
+      <form>
+        <div class="form-group col-md-6">
+          <select id="dataset_tm_select" class="form-control">
+            <option value="" disabled selected>Select your dataset</option>
+            <%= options_for_select(@current_user.datasets.map(&:title)) %>
+          </select>
+        </div>
+        <div class="form-group col-md-6">
+          <select id="model_tm_select" class="form-control">
+            <option value="" disabled selected>Select the model to use</option>
+            <option>model_1</option>
+            <option>model_2</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">List topics</button>
+      </form>
+      <%#= select_tag(:dataset_tm, options_for_select(@current_user.datasets.map(&:title)), {id: 'dataset_tm_select', class: "selectpicker"}) %>
+      <%#= select_tag(:model_tm, options_for_select(['model_1', 'model_2']), {id: 'model_tm_select', class: "selectpicker"}) %>
+      <!--            <button class="btn btn-default" type="button">List topics</button>-->
+    </div>
+  </div>
+</div>
