@@ -85,7 +85,7 @@ class CatalogController < ApplicationController
 
     config.add_facet_field solr_name('language', :string_searchable_uniq), helper_method: :convert_language_to_locale, limit: true
     config.add_facet_field solr_name('date_created', :date_searchable_uniq), helper_method: :convert_date_to_locale, label: 'Date', date: true
-    config.add_facet_field 'year_isi', label: 'Year', range: true
+    config.add_facet_field 'year_isi', label: 'Year', range: { assumed_boundaries: [1800, 1950] }
     config.add_facet_field 'member_of_collection_ids_ssim', helper_method: :get_collection_title_from_id, label: 'Newspaper'
     config.add_facet_field 'has_model_ssim', helper_method: :get_display_value_from_model, label: 'Type'
 
@@ -209,13 +209,13 @@ class CatalogController < ApplicationController
   def handle_empty_query
     # @return if it's not a query
     return unless a_query?(params)
-
     # Remove whitespace(s) in empty query if params[:q] exists
     query = params[:q].blank? ? '' : params[:q].gsub(/\A\p{Space}*|\p{Space}*\z/, '')
 
     # @return if :q is not empty and if :f is not nil
     return unless query.empty? && params[:f].nil?
 
+    return if params[:range]
     redirect_to(root_path, notice: 'Please type something or select a facet filter !')
   end
 
@@ -223,10 +223,8 @@ class CatalogController < ApplicationController
   def a_query?(params)
     # @return "true" if :q or :f params are not nil
     return true if !params[:q].blank? || !params[:f].blank?
-
     # @return "true" if search_field *OR* utf8 params exists
     return true if %i[search_field utf8].any? { |k| params.key?(k) }
-
     # Otherwise, return "false"
     false
   end
