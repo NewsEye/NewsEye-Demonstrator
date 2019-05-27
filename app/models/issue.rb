@@ -83,6 +83,7 @@ class Issue < ActiveFedora::Base
 
   def to_solr
     solr_doc = super
+    solr_doc['year_isi'] = solr_doc['date_created_ssim'][0][0..3].to_i
     case self.language
       when 'fr'
         solr_doc.except! 'all_text_tde_siv', 'all_text_ten_siv', 'all_text_tfi_siv', 'all_text_tse_siv'

@@ -7,6 +7,7 @@ class CreateNamedEntityMentions < ActiveRecord::Migration[5.1]
       t.float :detection_confidence
       t.float :linking_confidence
       t.float :stance
+      t.string :position
 
       t.timestamps
     end

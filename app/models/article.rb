@@ -60,6 +60,7 @@ class Article < ActiveFedora::Base
     solr_doc = super
     unless issue.nil?
       solr_doc['level'] = '0.articles'
+      solr_doc['year_isi'] = solr_doc['date_created_ssim'][0][0..3].to_i
       solr_doc['from_issue_ssi'] = issue.id
       case issue.language
       when 'fr'

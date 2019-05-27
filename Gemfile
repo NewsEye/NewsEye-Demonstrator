@@ -39,6 +39,8 @@ gem 'simple_command'
 gem 'httparty'
 gem 'http_accept_language'
 
+gem 'fastimage' # to avoid using hydra::characterize
+
 # mirador dependencies
 gem 'tinymce-rails'
 gem 'font-awesome-rails'
@@ -82,6 +84,7 @@ group :development, :test do
   # Adds support for Capybara system testing and selenium driver
   gem 'capybara', '~> 2.13'
   gem 'roo'
+  gem 'ruby-prof'
   gem 'roo-xls'
   gem 'selenium-webdriver'
 end

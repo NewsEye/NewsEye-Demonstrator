@@ -1,12 +1,13 @@
+require 'open-uri'
 puts "seeding..."
 
-main_directory = '/home/axel/newseye_data/nlf/import_fk14893'
+main_directory = '/home/axel/Nextcloud/NewsEye/data/test_data2'
 
 
 ##### Create or get newspaper
-npid = 'wiipuri'
-nptitle = 'Wiipuri'
-np_orig_id = 'fk14893'
+npid = 'paivalehti'
+nptitle = 'Päivälehti'
+np_orig_id = '1458-2619'
 if Newspaper.exists?(npid)
   puts "newspaper %s already exists" % nptitle
   np = Newspaper.find(npid)
@@ -77,13 +78,20 @@ for json_issue in Dir[main_directory + "/*.json"]
       pfs.id = issue.id + '_' + issue_page[:id].split('_')[1..-1].join('_')
       pfs.page_number = issue_page[:page_number]
 
+      t1 = Time.new
       open(main_directory + '/' + np_orig_id + issue_page[:id] + '.jpg', 'r') do |image_full|
         Hydra::Works::AddFileToFileSet.call(pfs, image_full, :original_file)
       end
-      Hydra::Works::CharacterizationService.run pfs.original_file
+      t2 = Time.new
+      puts "open image: #{(t2-t1).seconds} seconds"
+      t1 = Time.new
+      # Hydra::Works::CharacterizationService.run pfs.original_file
+      width, height = FastImage.size(pfs.original_file.uri.to_s)
+      t2 = Time.new
+      puts "characterize: #{(t2-t1).seconds} seconds"
       pfs.iiif_url = "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}_page_#{pfs.page_number}"
-      pfs.height = pfs.original_file.height.first
-      pfs.width = pfs.original_file.width.first
+      pfs.height = height
+      pfs.width = width
       pfs.mime_type = pfs.original_file.mime_type
       if issue_page[:page_number] == 1
         issue.thumbnail_url = "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}_page_1/full/,200/0/default.jpg"
@@ -92,8 +100,14 @@ for json_issue in Dir[main_directory + "/*.json"]
       ###### Parse OCR and add full text property ######
 
       # encoding = CharlockHolmes::EncodingDetector.detect(File.read(Rails.root.to_s + issue_page[:ocr_path]))[:ruby_encoding]
+      t1 = Time.new
       ocr_file = open(main_directory + '/' + np_orig_id + issue_page[:id] + '.xml', 'r')
+      t2 = Time.new
+      puts "open ocr: #{(t2-t1).seconds} seconds"
+      t1 = Time.new
       Hydra::Works::AddFileToFileSet.call(pfs, ocr_file, :alto_xml)
+      t2 = Time.new
+      puts "add ocr to fileset: #{(t2-t1).seconds} seconds"
       ocr_file.rewind
       ocr = Nokogiri::XML(ocr_file) #, nil, encoding)
       ocr.remove_namespaces!
@@ -104,28 +118,38 @@ for json_issue in Dir[main_directory + "/*.json"]
       scale_factor = pfs.height.to_f / ocr.xpath('//Page')[0]['HEIGHT'].to_f
       solr_hierarchy, ocr_full_text, block_annots, line_annots, word_annots = parse_alto_index(ocr, issue.id, pfs.page_number, scale_factor)
 
+      t1 = Time.new
       annotation_file = Tempfile.new(%w(annotation_list_word_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
       annotation_file.write(word_annots)
       annotation_file.close
       annotation_file = open(annotation_file.path, 'r')
       Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_word_level_annotation_list)
       annotation_file.close
+      t2 = Time.new
+      puts "word annots : #{(t2-t1).seconds} seconds"
 
+      t1 = Time.new
       annotation_file = Tempfile.new(%w(annotation_list_line_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
       annotation_file.write(line_annots)
       annotation_file.close
       annotation_file = open(annotation_file.path, 'r')
       Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_line_level_annotation_list)
       annotation_file.close
+      t2 = Time.new
+      puts "line annots : #{(t2-t1).seconds} seconds"
 
+      t1 = Time.new
       annotation_file = Tempfile.new(%w(annotation_list_block_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
       annotation_file.write(block_annots)
       annotation_file.close
       annotation_file = open(annotation_file.path, 'r')
       Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_block_level_annotation_list)
       annotation_file.close
+      t2 = Time.new
+      puts "block annots : #{(t2-t1).seconds} seconds"
 
       ###### Finalize ######
+      # t1 = Time.new
       pfs.to_solr_annots = false
       pfs.annot_hierarchy = solr_hierarchy
       # puts "######### seeds.rb"
@@ -135,11 +159,15 @@ for json_issue in Dir[main_directory + "/*.json"]
       ActiveFedora::SolrService.instance.conn.delete_by_query("id:#{pfs.id} -level:[* TO *]") # delete duplicates without level field
       issue.ordered_members << pfs # this saves pfs
       issue_ocr_text += ocr_full_text
+      issue_ocr_text += "\n"
+      t2 = Time.new
+      puts "finalize : #{(t2-t1).seconds} seconds"
+
     end
 
     ###### finalize ######
 
-    issue.all_text = issue_ocr_text
+    issue.all_text = issue_ocr_text.strip
     issue.member_of_collections << np
     issue.read_groups = ["admin", "researcher"]
     issue.discover_groups = ["admin", "researcher"]
@@ -292,6 +320,7 @@ BEGIN {
       end
       in_page_line_index += nb_lines
       page_ocr_text.strip!
+      page_ocr_text += "\n"
       block_annot = {}
       block_annot['@type'] = 'oa:Annotation'
       block_annot['motivation'] = 'sc:painting'
