@@ -1,35 +1,44 @@
-p = {q: "has_model_ssim:Issue AND id:paivalehti*", fl: 'id', rows: 10000}
-ids = ActiveFedora::SolrService.instance.conn.get('select', params: p)['response']['docs'].map{|doc| doc['id']}
-cpt = 0
-ids.each do |issue_id|
-  cpt += 1
-  puts "processing issue #{cpt} out of #{ids.size}"
-  i = Issue.find issue_id
+workdir = '/home/axel/data_nlf_ahmed/data_nlf_ahmed'
+processed = File.open('/home/axel/already_processed.log', 'r'){|f| f.readlines}.map(&:strip)
+outdir = '/home/axel/data_uusisuometar_ahmed2'
+nbissues = Dir[workdir + "/*.json"].size
+i = 0
+do_process = true
+for json_issue in Dir[workdir + "/*.json"]
+  do_process = true
+  i += 1
+  json_content = File.read(json_issue)
+  next if json_content == ''
+  issue_data = JSON.parse(File.read(json_issue)).with_indifferent_access
+  issue_data[:id] = issue_data[:id][9..-1]
+  issueid = "uusisuometar_#{issue_data[:id]}"
+  next if processed.include? issueid
+  puts "processing issue #{i} (#{issueid}) out of #{nbissues}"
   fulltext = ''
-  (0..i.nb_pages-1).each do |ind|
-    puts "  adding page #{ind+1} out of #{i.nb_pages}"
-    pfs = i.pages[ind]
-
-
-    ocr = Nokogiri::XML(pfs.alto_xml.content) #, nil, encoding)
+  (0..issue_data[:pages].size-1).each do |ind|
+    puts "  adding page #{ind+1} out of #{issue_data[:pages].size}"
+    ocr_path = "#{workdir}/#{json_issue[json_issue.rindex('/')+1..json_issue.rindex('.')-1]}_page_#{ind+1}.xml"
+    begin
+      xml = File.open(ocr_path, 'r'){ |f| f.read }
+    rescue
+      do_process = false
+      puts "error missing page"
+    end
+    ocr = Nokogiri::XML(xml) #, nil, encoding)
     ocr.remove_namespaces!
 
 
-    scale_factor = pfs.height.to_f / ocr.xpath('//Page')[0]['HEIGHT'].to_f
-    solr_hierarchy, ocr_full_text, block_annots, line_annots, word_annots = parse_alto_index(ocr, i.id, pfs.page_number, scale_factor)
+    scale_factor = 1
+    solr_hierarchy, ocr_full_text, block_annots, line_annots, word_annots = parse_alto_index(ocr, "", ind+1, scale_factor)
 
     fulltext << ocr_full_text
     fulltext << "\n"
 
-    pfs.to_solr_annots = true
-    pfs.annot_hierarchy = solr_hierarchy
-    pfs.save
-    ActiveFedora::SolrService.instance.conn.delete_by_query("id:#{pfs.id} -level:[* TO *]") # delete duplicates without level field
   end
+  next unless do_process
   fulltext.strip!
-  i.all_text = fulltext
-  i.save
-  File.open('/home/axel/processed_ids_reform.log', 'a') { |f| f << "#{issue_id}\n" }
+  File.open("#{outdir}/#{issueid}.txt", 'w'){ |f| f.write(fulltext) }
+  File.open('/home/axel/already_processed.log', 'a') { |f| f << "#{issueid}\n" }
 end
 
 BEGIN {

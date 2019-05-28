@@ -106,6 +106,7 @@ ActiveRecord::Schema.define(version: 20190522102816) do
     t.float "linking_confidence"
     t.float "stance"
     t.string "position"
+    t.string "iiif_annotations"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["doc_id"], name: "index_named_entity_mentions_on_doc_id"
