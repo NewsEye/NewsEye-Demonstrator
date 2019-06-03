@@ -31,6 +31,6 @@
 // this:
 //= require blacklight_range_limit
 
-//= require bootstrap/alert
-//= require bootstrap/dropdown
-//= require bootstrap-select
+//* = require bootstrap/alert
+//* = require bootstrap/dropdown
+//* = require bootstrap-select

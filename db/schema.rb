@@ -106,7 +106,7 @@ ActiveRecord::Schema.define(version: 20190522102816) do
     t.float "linking_confidence"
     t.float "stance"
     t.string "position"
-    t.string "iiif_annotations"
+    t.text "iiif_annotations"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["doc_id"], name: "index_named_entity_mentions_on_doc_id"
@@ -125,14 +125,16 @@ ActiveRecord::Schema.define(version: 20190522102816) do
   create_table "tasks", force: :cascade do |t|
     t.bigint "user_id"
     t.string "status"
+    t.string "uuid"
     t.datetime "started"
     t.datetime "finished"
-    t.string "type"
-    t.text "parameters"
-    t.text "results"
+    t.string "task_type"
+    t.json "parameters"
+    t.json "results"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_tasks_on_user_id"
+    t.index ["uuid"], name: "index_tasks_on_uuid"
   end
 
   create_table "users", force: :cascade do |t|

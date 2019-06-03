@@ -2,13 +2,15 @@
 
 <div class="container-fluid">
   <div class="row">
-    <div class="col-sm-4">
+    <%= render 'tools' %>
+  </div>
+  <div class="row">
+    <div class="col-sm">
       <%= render 'datasets' %>
     </div>
-    <div class="col-sm-4">
-      <%= render 'tools' %>
-    </div>
-    <div class="col-sm-4">
+  </div>
+  <div class="row">
+    <div class="col-sm" id="tasks_column">
       <%= render 'tasks' %>
     </div>
   </div>

@@ -14,6 +14,7 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   has_many :datasets
+  has_many :tasks
 
 
   # Method added by Blacklight; Blacklight uses #to_s on your
