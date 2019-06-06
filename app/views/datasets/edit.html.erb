@@ -1,6 +1,39 @@
 <h1>Editing Dataset</h1>
+<% if current_user.id == @dataset.user_id %>
+  <div class="row">
+    <p>Modify title</p>
+    <form novalidate="novalidate" data-remote="true" action="/datasets/<%= @dataset.id %>" accept-charset="UTF-8" method="post">
+      <%= csrf_meta_tags %>
+      <input type="text" name="dataset[title]" placeholder="Dataset title">
+      <button type="submit" class="btn btn-primary">Update dataset</button>
+    </form>
+  </div>
 
-<%= render 'form', dataset: @dataset %>
+  <div class="row">
+    <div class="col-md-4">
+      <ul>
+        <% @dataset.searches.each do |search| %>
+          <li><%= search %></li>
+        <% end %>
+      </ul>
+    </div>
+    <div class="col-md-4">
+      <ul>
+        <% @dataset.issues.each do |issue| %>
+          <li><%= issue %></li>
+        <% end %>
+      </ul>
+    </div>
+    <div class="col-md-4">
+      <ul>
+        <% @dataset.articles.each do |article| %>
+          <li><%= article %></li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
 
-<%= link_to 'Show', @dataset %> |
-<%= link_to 'Back', datasets_path %>
+  <%= link_to 'Show', @dataset %><% else %>
+  <p>Access forbidden.</p>
+<% end %>
+<%= link_to 'Back to Personal workspace', '/personal_workspace' %>

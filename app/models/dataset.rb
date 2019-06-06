@@ -1,9 +1,11 @@
 class Dataset < ApplicationRecord
+
   belongs_to :user, optional: true
 
-  # serialize :searches
-  # serialize :articles
-  # serialize :issues
+  validates :title, uniqueness: { scope: :user_id }
 
-  # attr_accessor :title, :searches, :articles, :issues
+  # serialize :searches, Array
+  # serialize :articles, Array
+  # serialize :issues, Array
+
 end

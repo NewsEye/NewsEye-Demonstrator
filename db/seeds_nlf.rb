@@ -77,6 +77,7 @@ for json_issue in Dir[main_directory + "/*.json"]
       pfs = PageFileSet.new
       pfs.id = issue.id + '_' + issue_page[:id].split('_')[1..-1].join('_')
       pfs.page_number = issue_page[:page_number]
+      pfs.language = 'fi'
 
       t1 = Time.new
       open(main_directory + '/' + np_orig_id + issue_page[:id] + '.jpg', 'r') do |image_full|
@@ -118,39 +119,39 @@ for json_issue in Dir[main_directory + "/*.json"]
       scale_factor = pfs.height.to_f / ocr.xpath('//Page')[0]['HEIGHT'].to_f
       solr_hierarchy, ocr_full_text, block_annots, line_annots, word_annots = parse_alto_index(ocr, issue.id, pfs.page_number, scale_factor)
 
-      t1 = Time.new
-      annotation_file = Tempfile.new(%w(annotation_list_word_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
-      annotation_file.write(word_annots)
-      annotation_file.close
-      annotation_file = open(annotation_file.path, 'r')
-      Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_word_level_annotation_list)
-      annotation_file.close
-      t2 = Time.new
-      puts "word annots : #{(t2-t1).seconds} seconds"
-
-      t1 = Time.new
-      annotation_file = Tempfile.new(%w(annotation_list_line_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
-      annotation_file.write(line_annots)
-      annotation_file.close
-      annotation_file = open(annotation_file.path, 'r')
-      Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_line_level_annotation_list)
-      annotation_file.close
-      t2 = Time.new
-      puts "line annots : #{(t2-t1).seconds} seconds"
-
-      t1 = Time.new
-      annotation_file = Tempfile.new(%w(annotation_list_block_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
-      annotation_file.write(block_annots)
-      annotation_file.close
-      annotation_file = open(annotation_file.path, 'r')
-      Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_block_level_annotation_list)
-      annotation_file.close
-      t2 = Time.new
-      puts "block annots : #{(t2-t1).seconds} seconds"
+      # t1 = Time.new
+      # annotation_file = Tempfile.new(%w(annotation_list_word_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
+      # annotation_file.write(word_annots)
+      # annotation_file.close
+      # annotation_file = open(annotation_file.path, 'r')
+      # Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_word_level_annotation_list)
+      # annotation_file.close
+      # t2 = Time.new
+      # puts "word annots : #{(t2-t1).seconds} seconds"
+      #
+      # t1 = Time.new
+      # annotation_file = Tempfile.new(%w(annotation_list_line_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
+      # annotation_file.write(line_annots)
+      # annotation_file.close
+      # annotation_file = open(annotation_file.path, 'r')
+      # Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_line_level_annotation_list)
+      # annotation_file.close
+      # t2 = Time.new
+      # puts "line annots : #{(t2-t1).seconds} seconds"
+      #
+      # t1 = Time.new
+      # annotation_file = Tempfile.new(%w(annotation_list_block_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
+      # annotation_file.write(block_annots)
+      # annotation_file.close
+      # annotation_file = open(annotation_file.path, 'r')
+      # Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_block_level_annotation_list)
+      # annotation_file.close
+      # t2 = Time.new
+      # puts "block annots : #{(t2-t1).seconds} seconds"
 
       ###### Finalize ######
       # t1 = Time.new
-      pfs.to_solr_annots = false
+      pfs.to_solr_annots = true
       pfs.annot_hierarchy = solr_hierarchy
       # puts "######### seeds.rb"
       # puts pfs.annot_hierarchy.first

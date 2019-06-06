@@ -2,7 +2,7 @@ class PageFileSet < ActiveFedora::Base
 
   include Hydra::Works::FileSetBehavior
 
-  attr_accessor :to_solr_annots, :annot_hierarchy
+  attr_accessor :to_solr_annots, :annot_hierarchy, :language
 
   def initialize
     super
@@ -62,13 +62,13 @@ class PageFileSet < ActiveFedora::Base
     if self.to_solr_annots
       solr_doc['level'] = '1.pages'
       solr_doc['_childDocuments_'] = []
-      language = Issue.find(self.id[0...self.id.rindex('_page_')]).language
+      # language = Issue.find(self.id[0...self.id.rindex('_page_')]).language
       self.annot_hierarchy.each do |block|
-        block["text_t#{language}_siv"] = block.delete('text')
+        block["text_t#{self.language}_siv"] = block.delete('text')
         block['_childDocuments_'].each do |line|
-          line["text_t#{language}_siv"] = line.delete('text')
+          line["text_t#{self.language}_siv"] = line.delete('text')
           line['_childDocuments_'].each do |word|
-            word["text_t#{language}_siv"] = word.delete('text')
+            word["text_t#{self.language}_siv"] = word.delete('text')
           end
         end
         solr_doc['_childDocuments_'] << block

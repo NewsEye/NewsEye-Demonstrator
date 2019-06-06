@@ -163,7 +163,6 @@ class CatalogController < ApplicationController
 
   def index
     (@response, @document_list) = search_results(params)
-    # pp @response[:highlighting]
     @solr_query = search_builder.with(params).to_hash
     respond_to do |format|
       format.html { store_preferred_view }

@@ -100,7 +100,7 @@ class Issue < ActiveFedora::Base
     if self.to_solr_articles
       solr_doc['_childDocuments_'] = []
       self.articles.each do |article|
-        solr_doc['_childDocuments_'] << article
+        solr_doc['_childDocuments_'] << article.to_solr
       end
     end
     solr_doc
@@ -118,7 +118,7 @@ class Issue < ActiveFedora::Base
     self.ordered_members.to_ary.select { |v| v.instance_of?(PageFileSet) }
   end
 
-  def articles
+  def get_articles
     self.members.to_ary.select { |v| v.instance_of?(Article) }
   end
 

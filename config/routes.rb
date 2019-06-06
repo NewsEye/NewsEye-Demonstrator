@@ -65,11 +65,13 @@ Rails.application.routes.draw do
     resources :datasets
 
     post '/datasets/:id/delete_searches', to: 'datasets#delete_searches'
-    post '/datasets/:id/add_issue', to: 'datasets#add_issue'
+    post '/datasets/add', to: 'datasets#add'
+    post '/datasets/create_and_add', to: 'datasets#create_and_add'
 
     get '/personal_workspace', to: 'personal_workspace#index'
     get '/personal_workspace/show_report/:task_uuid', to: 'personal_workspace#show_report'
     get '/personal_workspace/show_params/:task_uuid', to: 'personal_workspace#show_params'
+    get '/topic_models/list_models', to: 'topic_model#list_models'
 
   end
 

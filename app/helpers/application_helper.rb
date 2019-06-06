@@ -43,7 +43,7 @@ module ApplicationHelper
   def get_display_value_from_model(options={})
     case options
     when 'Article'
-      'Content Item'
+      'Article'
     when 'Issue'
       'Issue'
     end

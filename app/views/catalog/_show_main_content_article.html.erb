@@ -4,27 +4,27 @@
 <% content_for(:head) { render_link_rel_alternates } %>
 
 
-<h2>
-  <%= @document[:title_tfr_siv] %>
-</h2>
 
-<%= link_to "Original Issue", "#{url_for(controller: 'catalog')}/#{@document[:from_issue_ssi]}", :class => "btn btn-sm btn-text", :id=>"originalIssueLink" %>
-<%= link_to "manifest", "#{url_for(controller: 'iiif', action: 'manifest', id: @document[:from_issue_ssi], locale: nil)}" %>
-<div class="row">
-  <div class="col-sm-6">
+
+<!--<div class="row">-->
+  <div class="col-sm-5">
+    <b>
+      <%= ERB::Util.html_escape(@document[:title_ssi]).gsub("\n","<br>").html_safe %>
+    </b>
     <p>
-      <%= @document[:all_text_tfr_siv] %>
+      <%= ERB::Util.html_escape(@document[:all_text_tfr_siv]).gsub("\n","<br>").html_safe %>
     </p>
+
   </div>
-  <div class="col-sm-6">
+  <div class="col-sm-7">
     <div>
       <% manifest = get_manifest @document[:from_issue_ssi]%>
       <% @document[:canvases_parts_ssm].each do |canvas| %>
-        <img src="<%= get_iiif_images_from_canvas_path manifest, canvas %>">
+        <img src="<%= get_iiif_images_from_canvas_path manifest, canvas %>" style="max-width: 100%;">
       <% end %>
     </div>
   </div>
-</div>
+<!--</div>-->
 
 <% if @document.respond_to?(:export_as_openurl_ctx_kev) %>
   <!--

@@ -55,6 +55,7 @@ development:
     - elaine.zosa@helsinki.fi
     - miia.ramo@helsinki.fi
     - khldalnajjar@gmail.com
+    - tuula.paakkonen@helsinki.fi
 
 production:
   admin:
@@ -113,3 +114,4 @@ production:
     - elaine.zosa@helsinki.fi
     - miia.ramo@helsinki.fi
     - khldalnajjar@gmail.com
+    - tuula.paakkonen@helsinki.fi

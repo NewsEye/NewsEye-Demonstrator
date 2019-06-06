@@ -1,17 +1,23 @@
-<!--<p id="notice"><%#= notice %></p>-->
+<% if current_user.id == @dataset.user_id %>
+  <div>
+    <strong>Title:</strong>
+    <p><%= @dataset.title %></p>
+    <strong>Searches</strong>
+    <% @dataset.searches.each do |search| %>
+    <p><%= search %></p>
+    <% end %>
+    <strong>Documents</strong>
+    <% @dataset.issues.each do |doc| %>
+      <p><%= doc %></p>
+    <% end %>
+    <strong>Articles</strong>
+    <% @dataset.articles.each do |doc| %>
+      <p><%= doc %></p>
+    <% end %>
+  </div>
 
-<div>
-  <strong>Title:</strong>
-  <p><%= @dataset.title %></p>
-  <strong>Searches</strong>
-  <% @dataset.searches.each do |search| %>
-  <p><%= search %></p>
-  <% end %>
-  <strong>Documents</strong>
-  <% @dataset.issues.each do |doc| %>
-    <p><%= doc %></p>
-  <% end %>
-</div>
-
-<%= link_to 'Edit', edit_dataset_path(@dataset) %> |
+  <%= link_to 'Edit', edit_dataset_path(@dataset) %>
+<% else %>
+  <p>Access forbidden.</p>
+<% end %>
 <%= link_to 'Back', '/personal_workspace' %>

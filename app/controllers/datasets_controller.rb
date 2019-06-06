@@ -1,5 +1,5 @@
 class DatasetsController < ApplicationController
-  before_action :set_dataset, only: [:show, :edit, :update, :destroy, :delete_searches, :add_issue]
+  before_action :set_dataset, only: [:show, :edit, :update, :destroy, :delete_searches]
 
   # GET /datasets
   # GET /datasets.json
@@ -25,10 +25,7 @@ class DatasetsController < ApplicationController
   # POST /datasets.json
   def create
     dataset_params_copy = dataset_params
-    dataset_params_copy[:searches] = [dataset_params[:searches]]
     @dataset = Dataset.create(dataset_params_copy)
-    # @dataset.user_id = current_user.id
-    # @dataset.searches.append(dataset_params[:search])
     respond_to do |format|
       if @dataset.save
         format.html { redirect_to @dataset, notice: 'Dataset was successfully created.' }
@@ -44,21 +41,14 @@ class DatasetsController < ApplicationController
   # PATCH/PUT /datasets/1
   # PATCH/PUT /datasets/1.json
   def update
-    dataset_params_copy = dataset_params
-    if dataset_params_copy[:search_to_add]
-      dataset_params_copy[:searches] = @dataset.searches + [dataset_params_copy[:search_to_add]]
-      dataset_params_copy = dataset_params_copy.except(:search_to_add)
-    end
-    puts "### #{dataset_params_copy}"
-    # dataset_params_copy[:searches] = [dataset_params[:searches]] + @dataset.searches
-    # dataset_params_copy[:issues] = [dataset_params[:issues]] + @dataset.issues
-    # dataset_params_copy[:articles] = [dataset_params[:articles]] + @dataset.articles
     respond_to do |format|
-      if @dataset.update(dataset_params_copy)
+      if @dataset.update(dataset_params)
         format.html { redirect_to request.referer, alert: 'Dataset was successfully updated.' }
+        format.js { render partial: "datasets/confirm_add", locals: {message: 'Dataset was successfully updated.', status: 'success'}}
         format.json { render :show, status: :ok, location: @dataset }
       else
         format.html { render :edit }
+        format.js { render partial: "datasets/confirm_add", locals: {message: 'Error updating dataset', status: 'warning'}}
         format.json { render json: @dataset.errors, status: :unprocessable_entity }
       end
     end
@@ -75,14 +65,55 @@ class DatasetsController < ApplicationController
     end
   end
 
-  # POST /datasets/1/add_issue
-  def add_issue
-    to_add = dataset_params[:issues]
-    @dataset.issues.append(to_add) unless @dataset.issues.include? to_add
-    @dataset.save
+  # POST /datasets/add
+  def add
+    @dataset = Dataset.find(dataset_params[:id])
+    if dataset_params[:issue]
+      @dataset.issues << dataset_params[:issue] unless @dataset.issues.include? dataset_params[:issue]
+    end
+    if dataset_params[:search]
+      @dataset.searches << dataset_params[:search] unless @dataset.searches.include? dataset_params[:search]
+    end
+    if dataset_params[:article]
+      @dataset.articles << dataset_params[:article] unless @dataset.articles.include? dataset_params[:article]
+    end
+    begin
+      @dataset.save!
+      message = "Item was added successfully."
+      status = "success"
+    rescue
+      message = "Error adding item"
+      status = "warning"
+    end
     respond_to do |format|
-      format.html {redirect_to request.referer, alert: 'Dataset was successfully updated.'}
-      format.json {redirect_to request.referer, alert: 'Dataset was successfully updated.'}
+      format.js { render partial: "datasets/confirm_add", locals: {message: message, status: status}}
+    end
+  end
+
+  # POST /datasets/create_and_add
+  def create_and_add
+    @dataset = Dataset.new
+    @dataset.user_id = current_user.id
+    @dataset.title = dataset_params[:title]
+    if dataset_params[:issue]
+      @dataset.issues << dataset_params[:issue]
+    end
+    if dataset_params[:search]
+      @dataset.searches << dataset_params[:search]
+    end
+    if dataset_params[:article]
+      @dataset.articles << dataset_params[:article]
+    end
+    begin
+      @dataset.save!
+      message = "Dataset was successfully created."
+      status = "success"
+    rescue ActiveRecord::RecordInvalid => e
+      message = "A dataset with this name already exists."
+      status = "warning"
+    end
+    respond_to do |format|
+      format.js { render partial: "datasets/confirm_add", locals: {message: message, status: status}}
     end
   end
 
@@ -91,7 +122,7 @@ class DatasetsController < ApplicationController
   def destroy
     @dataset.destroy
     respond_to do |format|
-      format.html { redirect_to datasets_url, notice: 'Dataset was successfully destroyed.' }
+      format.html { redirect_to '/personal_workspace', notice: 'Dataset was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
@@ -104,7 +135,6 @@ class DatasetsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def dataset_params
-      params.require(:dataset).permit(:title, :user_id, :searches, :articles, :issues, :search_to_add, searches_to_remove: [])
-
+      params.require(:dataset).permit(:id, :title, :user_id, :search, :issue, :article, searches_to_remove: [])
     end
 end
