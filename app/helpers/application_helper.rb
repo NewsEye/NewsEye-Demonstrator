@@ -34,7 +34,11 @@ module ApplicationHelper
       npid = nil
     end
     if npid
-      ActiveFedora::SolrService.instance.conn.get('select', params: {q: "id:#{npid}"})['response']['docs'][0]['title_ssi']
+      # ActiveFedora::SolrService.instance.conn.get('select', params: {q: "id:#{npid}"})['response']['docs'][0]['title_ssi']
+      case npid
+      when 'l_oeuvre'
+        "L'Œuvre"
+      end
     else
       "placeholder newspaper title"
     end

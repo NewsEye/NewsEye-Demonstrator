@@ -14,8 +14,10 @@ class TopicModelController < ApplicationController
   end
 
   def list_models
+    models = get_models
+    puts models
     respond_to do |format|
-      format.js { render file: "personal_workspace/update_topic_model_list", layout: false}
+      format.js { render partial: "personal_workspace/update_topic_model_list", locals: models}
     end
   end
 
@@ -32,6 +34,7 @@ class TopicModelController < ApplicationController
       res = http.request(req)
       out[model_type] = JSON.parse(res.body)
     end
+    out
   end
 
 end

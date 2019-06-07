@@ -6,18 +6,18 @@ main_directory = '/home/axel/Nextcloud/NewsEye/data/bnf/l_oeuvre'
 
 ##### Create or get newspaper
 npid = 'l_oeuvre'
-if Newspaper.exists?(npid)
-  puts "newspaper %s already exists" % 'L\' Oeuvre'
-  np = Newspaper.find(npid)
-else
-  puts "adding newspaper %s" % 'L\'Oeuvre'
-  np = Newspaper.new
-  np.id = npid
-  np.title = 'L\'Oeuvre'
-  # np.publisher = newspaper[:publisher]
-  np.language = 'fr'
-  np.save
-end
+# if Newspaper.exists?(npid)
+#   puts "newspaper %s already exists" % 'L\' Oeuvre'
+#   np = Newspaper.find(npid)
+# else
+#   puts "adding newspaper %s" % 'L\'Oeuvre'
+#   np = Newspaper.new
+#   np.id = npid
+#   np.title = 'L\'Oeuvre'
+#   # np.publisher = newspaper[:publisher]
+#   np.language = 'fr'
+#   np.save
+# end
 ############################
 
 ids_query = 'http://localhost:8983/solr/hydra-development/select?fl=id&q=has_model_ssim:Issue&wt=json&rows=1000000'
@@ -37,10 +37,10 @@ for issue_dir in Dir[main_directory + "/*"]
 
   # bad_id = issue_dir.split('/')[-1].split('_')[2..-1].join('_')
   # ark = mapping[bad_id]
-  issueid = np.id + '_' + ark.split('/')[1..-1].join('-')
+  issueid = npid + '_' + ark.split('/')[1..-1].join('-')
   if processed_ids.include? issueid
     puts " issue %s already exists" % issueid
-    # next
+    next
   end
   should_process = false
   if Issue.exists?(issueid)
@@ -142,9 +142,14 @@ for issue_dir in Dir[main_directory + "/*"]
     issue.all_text = issue_ocr_text.join("\n")
     issue.read_groups = ["admin", "researcher"]
     issue.discover_groups = ["admin", "researcher"]
-    issue.member_of_collections << np
-    # issue.save
-    np.members << issue # save issue
+    # issue.member_of_collections << np
+    issue.newspaper_id = npid
+    begin
+      issue.save
+    rescue Exception
+      next
+    end
+    # np.members << issue # save issue
 
     time_end = Time.now
     puts "Issue was processed in #{(time_end-time_start).seconds} seconds."
@@ -258,7 +263,7 @@ for issue_dir in Dir[main_directory + "/*"]
     # issue.articles = articles_to_save
     # issue.to_solr_articles = true
     # issue.save
-    np.save
+    # np.save
   end  # Issue is processed
 end
 

@@ -1,35 +1,50 @@
-<h1>Editing Dataset</h1>
+<h1>Editing Dataset "<%= @dataset.title %>"</h1>
 <% if current_user.id == @dataset.user_id %>
   <div class="row">
-    <p>Modify title</p>
-    <form novalidate="novalidate" data-remote="true" action="/datasets/<%= @dataset.id %>" accept-charset="UTF-8" method="post">
+    <form novalidate="novalidate" data-remote="true" action="/datasets/<%= @dataset.id %>" accept-charset="UTF-8" method="post" class="form-inline">
       <%= csrf_meta_tags %>
-      <input type="text" name="dataset[title]" placeholder="Dataset title">
-      <button type="submit" class="btn btn-primary">Update dataset</button>
+      <input name="_method" type="hidden" value="patch" />
+      <input type="text" name="dataset[title]" placeholder="<%= @dataset.title %>">
+      <button type="submit" class="btn btn-primary">Update dataset title</button>
     </form>
   </div>
 
   <div class="row">
     <div class="col-md-4">
-      <ul>
-        <% @dataset.searches.each do |search| %>
-          <li><%= search %></li>
-        <% end %>
-      </ul>
+      <div class="panel panel-default">
+        <div class="panel-heading"><h3 class="panel-title">Searches</h3></div>
+        <div class="panel-body" style="height: 200px; overflow-y: scroll; padding: 0px;">
+          <ul class="list-group">
+            <% @dataset.searches.each do |search| %>
+              <li class="list-group-item"><input type="checkbox" value=""><%= search %></li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
     </div>
     <div class="col-md-4">
-      <ul>
-        <% @dataset.issues.each do |issue| %>
-          <li><%= issue %></li>
-        <% end %>
-      </ul>
+      <div class="panel panel-default">
+        <div class="panel-heading"><h3 class="panel-title">Issues</h3></div>
+        <div class="panel-body" style="height: 200px; overflow-y: scroll;">
+          <ul class="list-group">
+            <% @dataset.issues.each do |issue| %>
+              <li class="list-group-item"><input type="checkbox" value=""><%= issue %></li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
     </div>
     <div class="col-md-4">
-      <ul>
-        <% @dataset.articles.each do |article| %>
-          <li><%= article %></li>
-        <% end %>
-      </ul>
+      <div class="panel panel-default">
+        <div class="panel-heading"><h3 class="panel-title">Articles</h3></div>
+        <div class="panel-body" style="height: 200px; overflow-y: scroll;">
+          <ul class="list-group">
+            <% @dataset.articles.each do |article| %>
+              <li class="list-group-item"><input type="checkbox" value=""><%= article %></li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -37,3 +52,24 @@
   <p>Access forbidden.</p>
 <% end %>
 <%= link_to 'Back to Personal workspace', '/personal_workspace' %>
+
+<script type="application/javascript">
+    $(function(){
+        console.log('ready');
+
+        $('ul.list-group li').click(function(e) {
+            e.preventDefault()
+            $that = $(this);
+            var classlist = $that.attr('class').split(/\s+/);
+            if(classlist.includes('active')){
+                $that.find('input')[0].checked=false;
+                classlist.splice( classlist.indexOf('active'), 1 );
+            }
+            else{
+                $that.find('input')[0].checked=true
+                classlist.push('active');
+            }
+            $that.attr('class', classlist.join(' '));
+        });
+    })
+</script>

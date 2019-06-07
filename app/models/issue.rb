@@ -4,7 +4,7 @@ class Issue < ActiveFedora::Base
   include Hydra::Works::WorkBehavior
 
 
-  attr_accessor :to_solr_articles, :articles
+  attr_accessor :to_solr_articles, :articles, :newspaper_id
 
   after_initialize do |issue|
     self.to_solr_articles = false
@@ -84,6 +84,7 @@ class Issue < ActiveFedora::Base
   def to_solr
     solr_doc = super
     solr_doc['year_isi'] = solr_doc['date_created_ssim'][0][0..3].to_i
+    solr_doc["member_of_collection_ids_ssim"] = self.newspaper_id
     case self.language
       when 'fr'
         solr_doc.except! 'all_text_tde_siv', 'all_text_ten_siv', 'all_text_tfi_siv', 'all_text_tse_siv'

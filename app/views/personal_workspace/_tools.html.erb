@@ -32,15 +32,19 @@
         <div class="form-group col-md-6">
           <select id="model_tm_select" class="form-control">
             <option value="" disabled selected>Select the model to use</option>
-            <option>model_1</option>
-            <option>model_2</option>
+            <% models = get_models %>
+            <% models.keys.each do |model_type| %>
+              <% next if models[model_type].is_a? String %>
+              <optgroup label="<%= model_type %>">
+                <% models[model_type].each do |data| %>
+                  <option value="<%= data['name'] %>"><%= data['description'] %></option>
+                <% end %>
+              </optgroup>
+            <% end %>
           </select>
         </div>
         <button type="submit" class="btn btn-primary">List topics</button>
       </form>
-      <%#= select_tag(:dataset_tm, options_for_select(@current_user.datasets.map(&:title)), {id: 'dataset_tm_select', class: "selectpicker"}) %>
-      <%#= select_tag(:model_tm, options_for_select(['model_1', 'model_2']), {id: 'model_tm_select', class: "selectpicker"}) %>
-      <!--            <button class="btn btn-default" type="button">List topics</button>-->
     </div>
   </div>
 </div>
