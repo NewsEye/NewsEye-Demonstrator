@@ -2,35 +2,55 @@
   <div class="panel panel-default">
     <div class="panel-heading">Personal Research Assistant</div>
     <div class="panel-body">
-      <form novalidate="novalidate" data-remote="true" action="/investigate" accept-charset="UTF-8" method="post">
+<!--      <form novalidate="novalidate" data-remote="true" action="/investigate" accept-charset="UTF-8" method="post">-->
+        <%#= csrf_meta_tags %>
+<!--        <div class="form-group col-md-6">-->
+<!--          <select name="dataset_invetigate_select" class="form-control" autocomplete="off">-->
+<!--            <option value="" disabled selected>Select your dataset</option>-->
+            <%#= options_for_select(@current_user.datasets.map(&:title)) %>
+<!--          </select>-->
+<!--        </div>-->
+<!--        <div class="form-group col-md-6">-->
+<!--          <input name="query" type="text" class="form-control" placeholder="Search for...">-->
+<!--        </div>-->
+<!--        <button type="submit" class="btn btn-primary">Investigate</button>-->
+<!--      </form>-->
+<!--      <p>--------------------------</p>-->
+      <form novalidate="novalidate" data-remote="true" action="/personal_workspace/analyse" accept-charset="UTF-8" method="post">
         <%= csrf_meta_tags %>
         <div class="form-group col-md-6">
-          <select name="dataset_invetigate_select" class="form-control">
-            <option value="" disabled selected>Select your dataset</option>
-            <%= options_for_select(@current_user.datasets.map(&:title)) %>
-          </select>
+          <input name="target_search" type="text" class="form-control" placeholder="Search for...">
         </div>
         <div class="form-group col-md-6">
-          <input name="query" type="text" class="form-control" placeholder="Search for...">
+          <select id="utilities_select" name="utilities_select" class="form-control" autocomplete="off">
+            <option value="" disabled selected>Select the utility to use</option>
+            <% utilities = api_list_utilities %>
+            <% puts utilities %>
+            <% utilities.each do |utility| %>
+              <option value="<%= utility['utility_name'] %>"><%= utility['utility_description'] %></option>
+            <% end %>
+          </select>
         </div>
-        <button type="submit" class="btn btn-primary">Investigate</button>
+        <button type="submit" class="btn btn-primary" name="submit" value="analyse">Analyse</button>
       </form>
     </div>
   </div>
 </div>
+
 <div class="col-sm-6">
   <div class="panel panel-default">
     <div class="panel-heading">Topic modelling</div>
     <div class="panel-body">
-      <form>
+      <form novalidate="novalidate" data-remote="true" action="/personal_workspace/tm_action" accept-charset="UTF-8" method="post">
+        <%= csrf_meta_tags %>
+<!--        <div class="form-group col-md-6">-->
+<!--          <select id="dataset_tm_select" name="dataset_tm_select" class="form-control" autocomplete="off">-->
+<!--            <option value="" disabled selected>Select your dataset</option>-->
+            <%#= options_for_select(@current_user.datasets.map(&:title)) %>
+<!--          </select>-->
+<!--        </div>-->
         <div class="form-group col-md-6">
-          <select id="dataset_tm_select" class="form-control">
-            <option value="" disabled selected>Select your dataset</option>
-            <%= options_for_select(@current_user.datasets.map(&:title)) %>
-          </select>
-        </div>
-        <div class="form-group col-md-6">
-          <select id="model_tm_select" class="form-control">
+          <select id="model_tm_select" name="model_tm_select" class="form-control" autocomplete="off">
             <option value="" disabled selected>Select the model to use</option>
             <% models = get_models %>
             <% models.keys.each do |model_type| %>
@@ -43,8 +63,22 @@
             <% end %>
           </select>
         </div>
-        <button type="submit" class="btn btn-primary">List topics</button>
+        <div class="form-group col-md-6">
+          <select id="topic_select" name="topic_select" class="form-control" autocomplete="off">
+            <option value="" disabled selected>Select a topic</option>
+            <%= options_for_select(0..9) %>
+          </select>
+        </div>
+<!--        <button type="submit" class="btn btn-primary" name="submit" value="list">List topics</button>-->
+        <button type="submit" class="btn btn-primary" name="submit" value="describe">Describe selected topic</button>
       </form>
+
+      <div id="modal-describe_topic" class="modal hide fade" role="dialog" aria-labelledby="describe_topic_label" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content"></div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>

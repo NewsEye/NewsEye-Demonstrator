@@ -1,5 +1,5 @@
 class DatasetsController < ApplicationController
-  before_action :set_dataset, only: [:show, :edit, :update, :destroy, :delete_searches]
+  before_action :set_dataset, only: [:show, :edit, :update, :destroy, :delete_elements]
 
   # GET /datasets
   # GET /datasets.json
@@ -62,6 +62,24 @@ class DatasetsController < ApplicationController
     respond_to do |format|
       format.html {redirect_to request.referer, alert: 'Dataset was successfully updated.'}
       format.json {redirect_to request.referer, alert: 'Dataset was successfully updated.'}
+    end
+  end
+
+  def delete_elements
+    @dataset.searches -= params[:searches]
+    @dataset.issues -= params[:issues]
+    @dataset.articles -= params[:articles]
+    @dataset.save
+    begin
+      @dataset.save!
+      message = "Items were removed successfully."
+      status = "success"
+    rescue
+      message = "Error removing items"
+      status = "warning"
+    end
+    respond_to do |format|
+      format.js { render partial: "datasets/confirm_delete", locals: {message: message, status: status}}
     end
   end
 

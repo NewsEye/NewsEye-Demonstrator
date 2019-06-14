@@ -2,14 +2,15 @@ parse_iob()
 
 BEGIN {
   def parse_iob
-    iob_file = "/home/axel/Bureau/test_doc3_output.txt"
+
+    iob_file = "/home/axel/data_l_oeuvre_ahmed/fr_outputs/l_oeuvre_12148-bpt6k4613644p.txt"
     content = File.read(iob_file)
     lines = content.split("\n")
     tokens = []
     lines.each { |line| tokens.push(*line.split(' ')) }
     puts tokens.size
 
-    fulltext = Issue.find('paivalehti_471957').all_text
+    fulltext = Issue.find('l_oeuvre_12148-bpt6k4613644p').all_text
 # puts fulltext
 
     chars_counter_begin = 0
@@ -17,7 +18,7 @@ BEGIN {
     named_entities = []
     ind = 0
     while ind < tokens.size
-      token, tag = tokens[ind].split(/__([IOB])/)
+      token, tag = tokens[ind].split(/__(?=[IOB])/)
       chars_counter_begin = ind == 0 ? 0 : chars_counter_end + 1
       chars_counter_end = chars_counter_begin + token.size
       # puts "(#{token})\t->\t\"#{fulltext[chars_counter_begin...chars_counter_end]}\"\t#{chars_counter_begin}..#{chars_counter_end}"
@@ -43,18 +44,29 @@ BEGIN {
       ind += 1
     end
 
-    word_annots = get_word_annots('paivalehti_471957')
-    named_entities.each do |ne|
-      puts ne[:mention]
-      ne_start = ne[:pos][:start]
-      ne_end = ne[:pos][:end]
-      puts fulltext[ne_start..ne_end]
-      annots = map_fulltext_iiif(word_annots, ne_start, ne_end)
-      puts annots
-      # entity_link = NamedEntity.where(ne_type: ne[:ne_type]).first
-      # NamedEntityMention.create(mention: ne[:mention], doc_id: 'paivalehti_471957', named_entity: entity_link,
-      #                           detection_confidence: 0, linking_confidence: 0, stance: 0, position: ne[:pos], iiif_annotations: annots)
-    end
+    word_annots = get_word_annots('l_oeuvre_12148-bpt6k4613644p')
+    doc_id = 'l_oeuvre_12148-bpt6k4613644p'
+    map_fulltext_iiif_all(word_annots, named_entities, doc_id)
+    # named_entities.each do |ne|
+    #   puts ne[:mention] + " [" + ne[:ne_type] + "]"
+    #   ne_start = ne[:pos][:start]
+    #   ne_end = ne[:pos][:end]
+    #   puts fulltext[ne_start..ne_end]
+    #   annots = map_fulltext_iiif(word_annots, ne_start, ne_end)
+    #   puts annots
+    #   #############################################################################################
+    #   case ne[:ne_type]
+    #   when 'LIEU'
+    #     entity_link = NamedEntity.where(ne_type: 'Location').first
+    #   when 'PERS'
+    #     entity_link = NamedEntity.where(ne_type: 'Person').first
+    #   when 'ORG'
+    #     entity_link = NamedEntity.where(ne_type: 'Organization').first
+    #   end
+    #   #############################################################################################
+    #   NamedEntityMention.create(mention: ne[:mention], doc_id: 'l_oeuvre_12148-bpt6k4613644p', named_entity: entity_link,
+    #                             detection_confidence: 0, linking_confidence: 0, stance: 0, position: ne[:pos], iiif_annotations: annots)
+    # end
   end
 
   def map_fulltext_iiif(word_annots, start_pos, end_pos)
@@ -69,11 +81,44 @@ BEGIN {
     return annots
   end
 
+  def map_fulltext_iiif_all(word_annots, named_entities, doc_id)
+    # sort ne by pos[start]
+    ne_ind = 0
+    cpt = 0
+    annots = []
+    word_annots.each do |wa|
+      if cpt > named_entities[ne_ind][:pos][:end]
+        case named_entities[ne_ind][:ne_type]
+        when 'LIEU'
+          entity_link = NamedEntity.where(ne_type: 'Location').first
+        when 'PERS'
+          entity_link = NamedEntity.where(ne_type: 'Person').first
+        when 'ORG'
+          entity_link = NamedEntity.where(ne_type: 'Organization').first
+        end
+        NamedEntityMention.create(mention: named_entities[ne_ind][:mention], doc_id: doc_id,
+                                  named_entity: entity_link, detection_confidence: 0, linking_confidence: 0, stance: 0,
+                                  position: named_entities[ne_ind][:pos], iiif_annotations: annots)
+        puts named_entities[ne_ind][:mention] + " [" + named_entities[ne_ind][:ne_type] + "]"
+        # puts fulltext[named_entities[ne_ind][:pos][:start]..named_entities[ne_ind][:pos][:end]]
+        puts annots
+        ne_ind += 1
+        annots = []
+        return if ne_ind > named_entities.size - 1
+      end
+      if cpt >= named_entities[ne_ind][:pos][:start] and cpt < named_entities[ne_ind][:pos][:end]
+        annots << wa['on']
+      end
+      cpt += wa['resource']['chars'].size+1
+    end
+  end
+
   def get_word_annots(issue_id)
     i = Issue.find(issue_id)
     word_annots = []
     i.pages.each do |p|
-      data = JSON.parse(p.ocr_word_level_annotation_list.content)
+      # data = JSON.parse(p.ocr_word_level_annotation_list.content)
+      data = p.generate_word_annotation_list
       word_annots.push(*data['resources'])
     end
     word_annots

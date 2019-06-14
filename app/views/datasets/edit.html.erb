@@ -9,43 +9,8 @@
     </form>
   </div>
 
-  <div class="row">
-    <div class="col-md-4">
-      <div class="panel panel-default">
-        <div class="panel-heading"><h3 class="panel-title">Searches</h3></div>
-        <div class="panel-body" style="height: 200px; overflow-y: scroll; padding: 0px;">
-          <ul class="list-group">
-            <% @dataset.searches.each do |search| %>
-              <li class="list-group-item"><input type="checkbox" value=""><%= search %></li>
-            <% end %>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="panel panel-default">
-        <div class="panel-heading"><h3 class="panel-title">Issues</h3></div>
-        <div class="panel-body" style="height: 200px; overflow-y: scroll;">
-          <ul class="list-group">
-            <% @dataset.issues.each do |issue| %>
-              <li class="list-group-item"><input type="checkbox" value=""><%= issue %></li>
-            <% end %>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="panel panel-default">
-        <div class="panel-heading"><h3 class="panel-title">Articles</h3></div>
-        <div class="panel-body" style="height: 200px; overflow-y: scroll;">
-          <ul class="list-group">
-            <% @dataset.articles.each do |article| %>
-              <li class="list-group-item"><input type="checkbox" value=""><%= article %></li>
-            <% end %>
-          </ul>
-        </div>
-      </div>
-    </div>
+  <div id="datasets_delete_selects">
+    <%= render partial: 'datasets/delete_select' %>
   </div>
 
   <%= link_to 'Show', @dataset %><% else %>
@@ -56,6 +21,29 @@
 <script type="application/javascript">
     $(function(){
         console.log('ready');
+
+        $('ul.list-group li input').toArray().forEach(function(element) {
+            element.checked = false;
+        });
+
+        $('#delete_form').submit(function() {
+            var searches = [];
+            $('ul#search_list li input:checked').toArray().forEach(function(element) {
+                searches.push(element.parentNode.textContent);
+            });
+            var issues = [];
+            $('ul#issue_list li input:checked').toArray().forEach(function(element) {
+                issues.push(element.parentNode.textContent);
+            });
+            var articles = [];
+            $('ul#article_list li input:checked').toArray().forEach(function(element) {
+                articles.push(element.parentNode.textContent);
+            });
+            $('input:hidden[name=\'searches[]\']').val(searches);
+            $('input:hidden[name=\'issues[]\']').val(issues);
+            $('input:hidden[name=\'articles[]\']').val(articles);
+            return true; // return false to cancel form action
+        });
 
         $('ul.list-group li').click(function(e) {
             e.preventDefault()

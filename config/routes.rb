@@ -67,11 +67,15 @@ Rails.application.routes.draw do
     post '/datasets/:id/delete_searches', to: 'datasets#delete_searches'
     post '/datasets/add', to: 'datasets#add'
     post '/datasets/create_and_add', to: 'datasets#create_and_add'
+    post '/datasets/delete_elements', to: 'datasets#delete_elements'
 
     get '/personal_workspace', to: 'personal_workspace#index'
     get '/personal_workspace/show_report/:task_uuid', to: 'personal_workspace#show_report'
     get '/personal_workspace/show_params/:task_uuid', to: 'personal_workspace#show_params'
-    get '/topic_models/list_models', to: 'topic_model#list_models'
+    get '/personal_workspace/describe_topics/', to: 'personal_workspace#describe_topics'
+    get '/personal_workspace/list_models', to: 'personal_workspace#list_models'
+    post '/personal_workspace/tm_action', to: 'personal_workspace#tm_action'
+    post '/personal_workspace/analyse', to: 'personal_workspace#analysis_task'
 
   end
 

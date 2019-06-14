@@ -6,7 +6,8 @@ class NamedEntityMention < ApplicationRecord
 
   def to_solr
     entity = {
-        id: "entity_#{self.id}",
+        id: "entity_mention_#{self.id}",
+        linked_entity_ssi: "entity_#{self.named_entity.id}",
         doc_id_ssi: self.doc_id,
         mention_ssi: self.mention,
         selector_ssim: self.iiif_annotations,

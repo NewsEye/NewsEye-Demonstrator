@@ -1,7 +1,7 @@
 require 'open-uri'
 puts "seeding..."
 
-main_directory = '/home/axel/newseye_data/onb/import_aze'
+main_directory = '/home/axel/Nextcloud/NewsEye/data/import_aze'
 
 
 ##### Create or get newspaper

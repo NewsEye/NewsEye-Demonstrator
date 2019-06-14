@@ -1,0 +1,6 @@
+$("div#main-flashes div:first-child").empty();
+$("div#main-flashes div:first-child").append(
+    '<div class="alert alert-<%= status %>"><%= message %>\
+      <a class="close" data-dismiss="alert" href="#">×</a>\
+     </div>');
+$('#datasets_delete_selects').html("<%= j render(:partial => 'datasets/delete_select') %>");

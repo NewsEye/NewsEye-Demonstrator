@@ -3,8 +3,7 @@
   <h4 class="modal-title" id="params_label">Parameters for task <%= @task_uuid %></h4>
 </div>
 <div class="modal-body">
-  *Modal content comes here*
+  <pre><%= JSON.pretty_generate @data %></pre>
 </div>
 <div class="modal-footer">
-  <button class="btn btn-primary">Save</button>
 </div>

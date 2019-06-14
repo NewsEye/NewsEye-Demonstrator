@@ -1,0 +1,13 @@
+var select = $('#utilities_select');
+select.empty();
+var default_option = new Option('Select the utility to use','',false,false);
+default_option.disabled = true;
+select.append(default_option);
+<% locals[:utils].each do |utility| %>
+  var optgroup = document.createElement('optgroup');
+  optgroup.label = <%= model_type %>;
+  <% locals[:models][model_type].each do |data| %>
+    select.append(new Option(<%= data['description'] %>, <%= data['name'] %>,false,false));
+  <% end %>
+  select.append(optgroup);
+<% end %>

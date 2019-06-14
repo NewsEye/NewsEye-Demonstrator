@@ -10,13 +10,13 @@
   <div class="panel-body">
 
     <ul class="list-group">
-      <% current_user.tasks.each do |t| %>
-        <% style = t.status == "finished" ? "list-group-item-success" : "list-group-item-warning" %>
+      <% api_get_tasks.sort_by { |t| DateTime.parse(t['task_started']) }.reverse.each do |t| %>
+        <% style = t['task_status'] == "finished" ? "list-group-item-success" : "list-group-item-warning" %>
         <li class="list-group-item <%= style %>">
-          Started at: <%= t.started %>
-          Task type: <%= t.task_type %>
+          Started at: <%= t['task_started'] %>
+          Task type: <%= t['task_type'] %>
 
-          <%= link_to "/personal_workspace/show_report/#{t.uuid}",  {:remote => true, 'data-toggle' =>  "modal", 'data-target' => '#modal-report', class: 'btn btn-link', style: 'float: right;'} do %>
+          <%= link_to "/personal_workspace/show_report/#{t['uuid']}",  {:remote => true, 'data-toggle' =>  "modal", 'data-target' => '#modal-report', class: 'btn btn-link', style: 'float: right;'} do %>
             <span class="glyphicon glyphicon-comment"></span>
           <% end %>
           <div id="modal-report" class="modal hide fade" role="dialog" aria-labelledby="report_label" aria-hidden="true">
@@ -25,7 +25,7 @@
             </div>
           </div>
 
-          <%= link_to "/personal_workspace/show_params/#{t.uuid}",  {:remote => true, 'data-toggle' =>  "modal", 'data-target' => '#modal-params', class: 'btn btn-link', style: 'float: right;'} do %>
+          <%= link_to "/personal_workspace/show_params/#{t['uuid']}",  {:remote => true, 'data-toggle' =>  "modal", 'data-target' => '#modal-params', class: 'btn btn-link', style: 'float: right;'} do %>
             <span class="glyphicon glyphicon-wrench"></span>
           <% end %>
           <div id="modal-params" class="modal hide fade" role="dialog" aria-labelledby="params_label" aria-hidden="true">
