@@ -1,10 +1,20 @@
 <div class="modal-header">
   <button type="button" class="close" data-dismiss="modal">x</button>
-  <h4 class="modal-title" id="report_label"><% puts @data %><%= @data['header'].html_safe %></h4>
+  <h4 class="modal-title" id="report_label">
+    <%= if @data['header']
+          @data['header'].html_safe
+        else
+          "Error"
+        end
+    %>
+  </h4>
 </div>
 <div class="modal-body">
-  <%= @data['body'].html_safe %>
+  <% if @data['body'] %>
+    <%= @data['body'].html_safe %>
+  <% else %>
+    <pre><%= JSON.pretty_generate @data %></pre>
+  <% end %>
 </div>
 <div class="modal-footer">
-  <button class="btn btn-primary">Save</button>
 </div>

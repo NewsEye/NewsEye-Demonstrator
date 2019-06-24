@@ -20,6 +20,7 @@ class Article# < ApplicationRecord
     solr_doc['has_model_ssim'] = 'Article'
     solr_doc['discover_access_group_ssim'] = ['admin', 'researcher']
     solr_doc['read_access_group_ssim'] = ['admin', 'researcher']
+    # solr_doc['bounds'] = "TODO"
     solr_doc
   end
 

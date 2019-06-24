@@ -16,7 +16,7 @@
   <%= link_to 'Show', @dataset %><% else %>
   <p>Access forbidden.</p>
 <% end %>
-<%= link_to 'Back to Personal workspace', '/personal_workspace' %>
+<%= link_to 'Back to Personal workspace', "/#{I18n.locale}/personal_workspace" %>
 
 <script type="application/javascript">
     $(function(){
@@ -46,7 +46,7 @@
         });
 
         $('ul.list-group li').click(function(e) {
-            e.preventDefault()
+            e.preventDefault();
             $that = $(this);
             var classlist = $that.attr('class').split(/\s+/);
             if(classlist.includes('active')){

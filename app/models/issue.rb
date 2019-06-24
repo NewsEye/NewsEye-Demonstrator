@@ -132,4 +132,8 @@ class Issue < ActiveFedora::Base
   def named_entities
     NamedEntity.joins(:named_entity_mentions).where('named_entity_mentions.doc_id': 'paivalehti_471957').group(:id)
   end
+
+  def self.get_text_from_id doc_id
+
+  end
 end

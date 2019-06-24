@@ -5,6 +5,7 @@ fi:
       en: 'Englanti'
       fi: 'Suomalainen'
       de: 'Saksa'
+      se: 'Ruotsalainen'
   blacklight:
     application_name: 'NewsEye'
     search:

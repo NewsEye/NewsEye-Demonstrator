@@ -22,5 +22,6 @@ module NewseyeSamvera
     #config.assets.paths << Rails.root.join('vendor')
 
     config.newseye_services = config_for('newseye_services')
+    config.solr = config_for('solr')
   end
 end

@@ -5,6 +5,7 @@ fr:
       en: 'Anglais'
       fi: 'Finlandais'
       de: 'Allemand'
+      se: 'Suédois'
   blacklight:
     application_name: 'NewsEye'
     search:

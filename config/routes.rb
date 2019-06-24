@@ -56,9 +56,6 @@ Rails.application.routes.draw do
 
     resources :feedbacks
 
-    post '/investigate', to: 'investigator#investigate'
-    get '/update_tasks_status', to: 'investigator#update_status'
-
     root to: "catalog#index"
     # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
@@ -72,10 +69,13 @@ Rails.application.routes.draw do
     get '/personal_workspace', to: 'personal_workspace#index'
     get '/personal_workspace/show_report/:task_uuid', to: 'personal_workspace#show_report'
     get '/personal_workspace/show_params/:task_uuid', to: 'personal_workspace#show_params'
+    get '/personal_workspace/tm_show_results/:task_uuid', to: 'personal_workspace#tm_show_results'
+    get '/personal_workspace/tm_show_params/:task_uuid', to: 'personal_workspace#tm_show_params'
     get '/personal_workspace/describe_topics/', to: 'personal_workspace#describe_topics'
     get '/personal_workspace/list_models', to: 'personal_workspace#list_models'
     post '/personal_workspace/tm_action', to: 'personal_workspace#tm_action'
     post '/personal_workspace/analyse', to: 'personal_workspace#analysis_task'
+    get '/update_tasks_status', to: 'personal_workspace#update_status'
 
   end
 

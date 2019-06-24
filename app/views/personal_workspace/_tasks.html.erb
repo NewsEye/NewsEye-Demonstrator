@@ -10,13 +10,22 @@
   <div class="panel-body">
 
     <ul class="list-group">
-      <% api_get_tasks.sort_by { |t| DateTime.parse(t['task_started']) }.reverse.each do |t| %>
-        <% style = t['task_status'] == "finished" ? "list-group-item-success" : "list-group-item-warning" %>
+      <% Task.where(user: current_user).sort_by { |t| t.started }.reverse.each do |t| %>
+        <% style = t.status == "finished" ? "list-group-item-success" : "list-group-item-warning" %>
         <li class="list-group-item <%= style %>">
-          Started at: <%= t['task_started'] %>
-          Task type: <%= t['task_type'] %>
+          Started at: <%= t.started %>
+          Task type: <%= t.task_type %>
 
-          <%= link_to "/personal_workspace/show_report/#{t['uuid']}",  {:remote => true, 'data-toggle' =>  "modal", 'data-target' => '#modal-report', class: 'btn btn-link', style: 'float: right;'} do %>
+          <% case t.task_type %>
+          <% when 'analysis' %>
+            <% link_address1 = "/personal_workspace/show_report/#{t.uuid}" %>
+            <% link_address2 = "/personal_workspace/show_params/#{t.uuid}" %>
+          <% when 'topic_model_query' %>
+            <% link_address1 = "/personal_workspace/tm_show_results/#{t.uuid}" %>
+            <% link_address2 = "/personal_workspace/tm_show_params/#{t.uuid}" %>
+          <% end %>
+
+          <%= link_to link_address1,  {:remote => true, 'data-toggle' =>  "modal", 'data-target' => '#modal-report', class: 'btn btn-link', style: 'float: right;'} do %>
             <span class="glyphicon glyphicon-comment"></span>
           <% end %>
           <div id="modal-report" class="modal hide fade" role="dialog" aria-labelledby="report_label" aria-hidden="true">
@@ -24,8 +33,7 @@
               <div class="modal-content"></div>
             </div>
           </div>
-
-          <%= link_to "/personal_workspace/show_params/#{t['uuid']}",  {:remote => true, 'data-toggle' =>  "modal", 'data-target' => '#modal-params', class: 'btn btn-link', style: 'float: right;'} do %>
+          <%= link_to link_address2,  {:remote => true, 'data-toggle' =>  "modal", 'data-target' => '#modal-params', class: 'btn btn-link', style: 'float: right;'} do %>
             <span class="glyphicon glyphicon-wrench"></span>
           <% end %>
           <div id="modal-params" class="modal hide fade" role="dialog" aria-labelledby="params_label" aria-hidden="true">

@@ -1,24 +1,24 @@
 require 'open-uri'
 puts "seeding..."
 
-main_directory = '/home/axel/Nextcloud/NewsEye/data/import_aze'
+main_directory = '/home/axel/data_bruxelles/arbeiter_zeitung'
 
 
 ##### Create or get newspaper
 npid = 'arbeiter_zeitung'
-nptitle = 'Arbeiter Zeitung'
-if Newspaper.exists?(npid)
-  puts "newspaper %s already exists" % nptitle
-  np = Newspaper.find(npid)
-else
-  puts "adding newspaper %s" % nptitle
-  np = Newspaper.new
-  np.id = npid
-  np.title = nptitle
-  # np.publisher = newspaper[:publisher]
-  np.language = 'de'
-  np.save
-end
+# nptitle = 'Arbeiter Zeitung'
+# if Newspaper.exists?(npid)
+#   puts "newspaper %s already exists" % nptitle
+#   np = Newspaper.find(npid)
+# else
+#   puts "adding newspaper %s" % nptitle
+#   np = Newspaper.new
+#   np.id = npid
+#   np.title = nptitle
+#   # np.publisher = newspaper[:publisher]
+#   np.language = 'de'
+#   np.save
+# end
 ############################
 
 ids_query = 'http://localhost:8983/solr/hydra-development/select?fl=id&q=has_model_ssim:Issue&wt=json&rows=1000000'
@@ -34,7 +34,7 @@ for json_issue in Dir[main_directory + "/*.json"]
     next
   end
 
-  issueid = np.id + '_' + issue_data[:id]
+  issueid = npid + '_' + issue_data[:id]
   if processed_ids.include? issueid
     puts " issue %s already exists" % issueid
     next
@@ -70,7 +70,7 @@ for json_issue in Dir[main_directory + "/*.json"]
     issue.nb_pages = issue_data[:pages].size
     issue.language = 'de' # issue_data[:language]
     # SHould I remove this save to prevent duplicates in solr index ?
-    issue.save
+    # issue.save
     issue_ocr_text = ''
     alto_pages = {}
     issue_data[:pages].each do |issue_page|
@@ -79,6 +79,7 @@ for json_issue in Dir[main_directory + "/*.json"]
       pfs = PageFileSet.new
       pfs.id = issue.id + '_' + issue_page[:id].split('_')[1..-1].join('_')
       pfs.page_number = issue_page[:page_number]
+      pfs.language = 'de'
 
       # pfs.iiif_url = "https://iiif-auth.onb.ac.at/images/ANNO/#{issue_data[:id]}/#{pfs.page_number.to_s.rjust(8,'0')}"
       info_json_url = "https://iiif-auth.onb.ac.at/images/ANNO/#{issue_data[:id]}/#{pfs.page_number.to_s.rjust(8,'0')}/info.json"
@@ -104,57 +105,274 @@ for json_issue in Dir[main_directory + "/*.json"]
       ###### IIIF Annotation generation ######
 
       scale_factor = pfs.height.to_f / ocr.xpath('//Page')[0]['HEIGHT'].to_f
-      solr_hierarchy, ocr_full_text, block_annots, line_annots, word_annots = parse_alto_index(ocr, issue.id, pfs.page_number, scale_factor)
+      # solr_hierarchy, ocr_full_text, block_annots, line_annots, word_annots = parse_alto_index(ocr, issue.id, pfs.page_number, scale_factor)
+      solr_hierarchy, ocr_full_text, block_texts = parse_alto_index2(main_directory + '/' + issue_page[:ocr_path][15..-1], issue.id, pfs.page_number, scale_factor)
 
-      annotation_file = Tempfile.new(%w(annotation_list_word_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
-      annotation_file.write(word_annots)
-      annotation_file.close
-      annotation_file = open(annotation_file.path, 'r')
-      Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_word_level_annotation_list)
-      annotation_file.close
-
-      annotation_file = Tempfile.new(%w(annotation_list_line_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
-      annotation_file.write(line_annots)
-      annotation_file.close
-      annotation_file = open(annotation_file.path, 'r')
-      Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_line_level_annotation_list)
-      annotation_file.close
-
-      annotation_file = Tempfile.new(%w(annotation_list_block_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
-      annotation_file.write(block_annots)
-      annotation_file.close
-      annotation_file = open(annotation_file.path, 'r')
-      Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_block_level_annotation_list)
-      annotation_file.close
+      # annotation_file = Tempfile.new(%w(annotation_list_word_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
+      # annotation_file.write(word_annots)
+      # annotation_file.close
+      # annotation_file = open(annotation_file.path, 'r')
+      # Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_word_level_annotation_list)
+      # annotation_file.close
+      #
+      # annotation_file = Tempfile.new(%w(annotation_list_line_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
+      # annotation_file.write(line_annots)
+      # annotation_file.close
+      # annotation_file = open(annotation_file.path, 'r')
+      # Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_line_level_annotation_list)
+      # annotation_file.close
+      #
+      # annotation_file = Tempfile.new(%w(annotation_list_block_level .json), Rails.root.to_s + '/tmp', encoding: 'UTF-8')
+      # annotation_file.write(block_annots)
+      # annotation_file.close
+      # annotation_file = open(annotation_file.path, 'r')
+      # Hydra::Works::AddFileToFileSet.call(pfs, annotation_file, :ocr_block_level_annotation_list)
+      # annotation_file.close
 
       ###### Finalize ######
-      pfs.to_solr_annots = false
+      pfs.to_solr_annots = true
       pfs.annot_hierarchy = solr_hierarchy
       # puts "######### seeds.rb"
       # puts pfs.annot_hierarchy.first
       # puts "######### seeds.rb"
       # pfs.save
       ActiveFedora::SolrService.instance.conn.delete_by_query("id:#{pfs.id} -level:[* TO *]") # delete duplicates without level field
+      ActiveFedora::SolrService.instance.conn.commit
+      # pfs.save
       issue.ordered_members << pfs # this saves pfs
       issue_ocr_text += ocr_full_text
+      issue_ocr_text += "\n"
     end
 
     ###### finalize ######
 
-    issue.all_text = issue_ocr_text
-    issue.member_of_collections << np
+    issue.all_text = issue_ocr_text.strip
+    issue.newspaper_id = npid
     issue.read_groups = ["admin", "researcher"]
     issue.discover_groups = ["admin", "researcher"]
     issue.edit_groups = ["admin", "researcher"]
     # issue.to_solr_articles = true
     # issue.save
-    np.members << issue # save issue
-    np.save # delete duplicates without all_text
+    # np.members << issue # save issue
+    # np.save # delete duplicates without all_text
+    begin
+      issue.save
+    rescue Exception
+      next
+    end
   end
 end  # Issue is processed
 
 
 BEGIN {
+  class MyParser < Nokogiri::XML::SAX::Document
+
+    attr_accessor :solr_hierarchy, :all_text, :block_annotation_list, :line_annotation_list, :word_annotation_list, :blocks_texts
+
+    # Replace #{Rails.configuration.newseye_services['host']}
+    # by #{Rails.configuration.newseye_services['host']}
+
+    def initialize(doc_id, page_num, scale_factor)
+      @doc_id = doc_id
+      @page_num = page_num
+      @scale_factor = scale_factor
+    end
+
+    def start_document
+      @all_text = []
+      @solr_hierarchy = []
+      @block_annotation_list = {}
+      @block_annotation_list['@context'] = 'http://iiif.io/api/presentation/2/context.json'
+      @block_annotation_list['@id'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{@doc_id}/list/page_#{@page_num}_ocr_block_level"
+      @block_annotation_list['@type'] = 'sc:AnnotationList'
+      @block_annotation_list['resources'] = []
+      @block_annotation_list['within'] = {}
+      @block_annotation_list['within']['@id'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{@doc_id}/layer/ocr_block_level"
+      @block_annotation_list['within']['@type'] = 'sc:Layer'
+      @block_annotation_list['within']['label'] = 'OCR Layer'
+      @word_annotation_list = {}
+      @word_annotation_list['@context'] = 'http://iiif.io/api/presentation/2/context.json'
+      @word_annotation_list['@id'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{@doc_id}/list/page_#{@page_num}_ocr_word_level"
+      @word_annotation_list['@type'] = 'sc:AnnotationList'
+      @word_annotation_list['resources'] = []
+      @word_annotation_list['within'] = {}
+      @word_annotation_list['within']['@id'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{@doc_id}/layer/ocr_word_level"
+      @word_annotation_list['within']['@type'] = 'sc:Layer'
+      @word_annotation_list['within']['label'] = 'OCR Layer'
+      @line_annotation_list = {}
+      @line_annotation_list['@context'] = 'http://iiif.io/api/presentation/2/context.json'
+      @line_annotation_list['@id'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{@doc_id}/list/page_#{@page_num}_ocr_line_level"
+      @line_annotation_list['@type'] = 'sc:AnnotationList'
+      @line_annotation_list['resources'] = []
+      @line_annotation_list['within'] = {}
+      @line_annotation_list['within']['@id'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{@doc_id}/layer/ocr_line_level"
+      @line_annotation_list['within']['@type'] = 'sc:Layer'
+      @line_annotation_list['within']['label'] = 'OCR Layer'
+
+      @in_page_word_index = 0
+      @in_page_line_index = 0
+      @in_block_line_index = 0
+      @blocks_texts = {}
+      @block_index = 0
+    end
+
+    def end_document
+      @all_text = @all_text.join("\n")
+      @block_annotation_list = @block_annotation_list.to_json
+      @line_annotation_list = @line_annotation_list.to_json
+      @word_annotation_list = @word_annotation_list.to_json
+    end
+
+    def start_element(name, attrs = [])
+      # Handle each element, expecting the name and any attributes
+      at = Hash[attrs]
+      case name
+      when 'TextBlock'
+        @block_text = []
+        @solr_block = {}
+        @solr_block['_childDocuments_'] = []
+        @block_id = "#{@doc_id}_#{@page_num}_block_#{@block_index}"
+        @block_text = []
+        @block_confidence = 0
+        @in_block_word_index = 0
+        @in_line_word_index = 0
+        @block_at = at
+        @nb_lines = 0
+        @block_id = at['ID']
+      when 'TextLine'
+        @line_text = []
+        @nb_lines += 1
+        @solr_line = {}
+        @solr_line['_childDocuments_'] = []
+        @line_index = @in_page_line_index + @in_block_line_index
+        @line_id = "#{@doc_id}_#{@page_num}_line_#{@line_index}"
+        @line_text = []
+        @line_confidence = 0
+        @nb_words = 0
+        @line_at = at
+      when 'String'
+        @word_text = at['CONTENT']
+        @line_text << @word_text
+        @nb_words += 1
+        @word_index = @in_page_word_index + @in_line_word_index
+        @word_id = "#{@doc_id}_#{@page_num}_word_#{@word_index}"
+        str_content = at['CONTENT']
+        @word_annot = {}
+        @word_annot['@type'] = 'oa:Annotation'
+        @word_annot['motivation'] = 'sc:painting'
+        @word_annot['resource'] = {}
+        @word_annot['resource']['@type'] = 'cnt:ContentAsText'
+        @word_annot['resource']['format'] = 'text/plain'
+        @word_annot['resource']['chars'] = str_content
+        @word_annot['metadata'] = {}
+        @word_annot['metadata']['word_confidence'] = at['WC'].to_f
+        word_selector = <<~HEREDOC.gsub(/^[\s\t]*|[\s\t]*\n/, '')
+            #xywh=
+            #{(at['HPOS'].to_i*@scale_factor).to_i},
+            #{(at['VPOS'].to_i*@scale_factor).to_i},
+            #{(at['WIDTH'].to_i*@scale_factor).to_i},
+            #{(at['HEIGHT'].to_i*@scale_factor).to_i}
+        HEREDOC
+        @word_annot['on'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{@doc_id}/canvas/page_#{@page_num}#{word_selector}"
+        # @word_annotation_list['resources'] << @word_annot
+
+        solr_word = {
+            'id': @word_id,
+            'selector': @word_annot['on'][@word_annot['on'].index('#')..-1],
+            'level': "4.pages.blocks.lines.words",
+            'level_reading_order': @word_index,
+            'text': str_content,
+            'confidence': @word_annot['metadata']['word_confidence']
+        }
+        solr_word.stringify_keys!
+
+        @solr_line['_childDocuments_'] << solr_word
+        @line_confidence += at['WC'].to_f
+      end
+    end
+
+    def characters(string)
+      # Any characters between the start and end element expected as a string
+    end
+
+    def end_element(name)
+      # Given the name of an element once its closing tag is reached
+      case name
+      when 'TextBlock'
+        @all_text << @block_text.join("\n")
+        @in_page_line_index += @nb_lines
+        @block_annot = {}
+        @block_annot['@type'] = 'oa:Annotation'
+        @block_annot['motivation'] = 'sc:painting'
+        @block_annot['resource'] = {}
+        @block_annot['resource']['@type'] = 'cnt:ContentAsText'
+        @block_annot['resource']['format'] = 'text/plain'
+        @block_annot['resource']['chars'] = @block_text.join("\n")
+        @block_annot['metadata'] = {}
+        @block_annot['metadata'] = {}
+        @block_annot['metadata']['word_confidence'] = @block_text.size == 0 ? 0 : @block_confidence / @block_text.size
+        block_selector = <<~HEREDOC.gsub(/^[\s\t]*|[\s\t]*\n/, '')
+        #xywh=
+        #{(@block_at['HPOS'].to_i*@scale_factor).to_i},
+        #{(@block_at['VPOS'].to_i*@scale_factor).to_i},
+        #{(@block_at['WIDTH'].to_i*@scale_factor).to_i},
+        #{(@block_at['HEIGHT'].to_i*@scale_factor).to_i}
+        HEREDOC
+        @block_annot['on'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{@doc_id}/canvas/page_#{@page_num}#{block_selector}"
+        @block_annotation_list['resources'] << @block_annot
+
+        @solr_block['id'] = @block_id
+        @solr_block['selector'] = @block_annot['on'][@block_annot['on'].index('#')..-1]
+        @solr_block['level'] = "2.pages.blocks"
+        @solr_block['level_reading_order'] = @block_index
+        @solr_block['text'] = @block_text.join("\n")
+        @solr_block['confidence'] = @block_annot['metadata']['word_confidence']
+        @solr_hierarchy << @solr_block
+        @blocks_texts[@block_id] = @block_text.join("\n")
+      when 'TextLine'
+        @block_text << @line_text.join(' ')
+        @in_page_word_index += @nb_words
+        @in_block_word_index += @nb_words
+        @line_annot = {}
+        @line_annot['@type'] = 'oa:Annotation'
+        @line_annot['motivation'] = 'sc:painting'
+        @line_annot['resource'] = {}
+        @line_annot['resource']['@type'] = 'cnt:ContentAsText'
+        @line_annot['resource']['format'] = 'text/plain'
+        @line_annot['resource']['chars'] = @line_text.join(' ')
+        @line_annot['metadata'] = {}
+        @line_annot['metadata']['word_confidence'] = @line_text.size == 0 ? 0 : @line_confidence / @line_text.size
+        line_selector = <<~HEREDOC.gsub(/^[\s\t]*|[\s\t]*\n/, '')
+          #xywh=
+          #{(@line_at['HPOS'].to_i*@scale_factor).to_i},
+          #{(@line_at['VPOS'].to_i*@scale_factor).to_i},
+          #{(@line_at['WIDTH'].to_i*@scale_factor).to_i},
+          #{(@line_at['HEIGHT'].to_i*@scale_factor).to_i}
+        HEREDOC
+        @line_annot['on'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{@doc_id}/canvas/page_#{@page_num}#{line_selector}"
+        @line_annotation_list['resources'] << @line_annot
+
+        @solr_line['id'] = @line_id
+        @solr_line['selector'] = @line_annot['on'][@line_annot['on'].index('#')..-1]
+        @solr_line['level'] = "3.pages.blocks.lines"
+        @solr_line['level_reading_order'] = @line_index
+        @solr_line['text'] = @line_text.join(' ')
+        @solr_line['confidence'] = @line_annot['metadata']['word_confidence']
+        @solr_block['_childDocuments_'] << @solr_line
+        @block_confidence += @line_annot['metadata']['word_confidence'].to_f
+      end
+    end
+
+  end
+
+  def parse_alto_index2(path, doc_id, page_num, scale_factor)
+    myparser = MyParser.new(doc_id, page_num, scale_factor)
+    parser = Nokogiri::XML::SAX::Parser.new(myparser)
+    parser.parse(File.open(path))
+    # return myparser.solr_hierarchy, myparser.all_text, myparser.block_annotation_list, myparser.line_annotation_list, myparser.word_annotation_list, myparser.blocks_texts
+    return myparser.solr_hierarchy, myparser.all_text, myparser.blocks_texts
+  end
+
   def parse_alto_index(doc, doc_id, page_num, scale_factor, generate_neo4j=false)
     solr_hierarchy = []
     page_ocr_text = ''

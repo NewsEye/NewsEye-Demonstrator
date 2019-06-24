@@ -1,8 +1,13 @@
 class NamedEntityMention < ApplicationRecord
   serialize :iiif_annotations, Array
   serialize :position, Hash
-  after_save :index_record
+  # after_save :index_record
   belongs_to :named_entity
+
+  def self.batch_index(nems)
+    nems.each { |nem| ActiveFedora::SolrService.instance.conn.add(nem.to_solr) }
+    ActiveFedora::SolrService.instance.conn.commit
+  end
 
   def to_solr
     entity = {

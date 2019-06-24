@@ -2,35 +2,31 @@
   <div class="panel panel-default">
     <div class="panel-heading">Personal Research Assistant</div>
     <div class="panel-body">
-<!--      <form novalidate="novalidate" data-remote="true" action="/investigate" accept-charset="UTF-8" method="post">-->
-        <%#= csrf_meta_tags %>
-<!--        <div class="form-group col-md-6">-->
-<!--          <select name="dataset_invetigate_select" class="form-control" autocomplete="off">-->
-<!--            <option value="" disabled selected>Select your dataset</option>-->
-            <%#= options_for_select(@current_user.datasets.map(&:title)) %>
-<!--          </select>-->
-<!--        </div>-->
-<!--        <div class="form-group col-md-6">-->
-<!--          <input name="query" type="text" class="form-control" placeholder="Search for...">-->
-<!--        </div>-->
-<!--        <button type="submit" class="btn btn-primary">Investigate</button>-->
-<!--      </form>-->
-<!--      <p>--------------------------</p>-->
-      <form novalidate="novalidate" data-remote="true" action="/personal_workspace/analyse" accept-charset="UTF-8" method="post">
+      <form novalidate="novalidate" data-remote="true" action="/personal_workspace/analyse" accept-charset="UTF-8" method="post" id="pra_form">
         <%= csrf_meta_tags %>
-        <div class="form-group col-md-6">
-          <input name="target_search" type="text" class="form-control" placeholder="Search for...">
+        <div class="form-group ">
+          <label for="dataset_pra_select">Select a dataset to process</label>
+          <select id="dataset_pra_select" name="dataset_pra_select" class="form-control" autocomplete="off">
+            <option value="" disabled selected>Select your dataset</option>
+            <%= options_for_select(@current_user.datasets.map(&:title)) %>
+          </select>
         </div>
-        <div class="form-group col-md-6">
+<!--        <div class="form-group col-md-6">-->
+<!--          <input name="target_search" type="text" class="form-control" placeholder="Search for...">-->
+<!--        </div>-->
+        <div class="form-group">
+          <label for="utilities_select">Select a utility to run</label>
           <select id="utilities_select" name="utilities_select" class="form-control" autocomplete="off">
             <option value="" disabled selected>Select the utility to use</option>
             <% utilities = api_list_utilities %>
             <% puts utilities %>
             <% utilities.each do |utility| %>
               <option value="<%= utility['utility_name'] %>"><%= utility['utility_description'] %></option>
-            <% end %>
+            <% end%>
           </select>
         </div>
+        <hr/>
+        <div class="form-group" id="utility_params_inputs"></div>
         <button type="submit" class="btn btn-primary" name="submit" value="analyse">Analyse</button>
       </form>
     </div>
@@ -43,13 +39,15 @@
     <div class="panel-body">
       <form novalidate="novalidate" data-remote="true" action="/personal_workspace/tm_action" accept-charset="UTF-8" method="post">
         <%= csrf_meta_tags %>
-<!--        <div class="form-group col-md-6">-->
-<!--          <select id="dataset_tm_select" name="dataset_tm_select" class="form-control" autocomplete="off">-->
-<!--            <option value="" disabled selected>Select your dataset</option>-->
-            <%#= options_for_select(@current_user.datasets.map(&:title)) %>
-<!--          </select>-->
-<!--        </div>-->
-        <div class="form-group col-md-6">
+        <label for="dataset_tm_select">Select a dataset to process</label>
+        <div class="form-group">
+          <select id="dataset_tm_select" name="dataset_tm_select" class="form-control" autocomplete="off">
+            <option value="" disabled selected>Select your dataset</option>
+            <%= options_for_select(@current_user.datasets.map(&:title)) %>
+          </select>
+        </div>
+        <label for="model_tm_select">Select a dataset to process</label>
+        <div class="form-group">
           <select id="model_tm_select" name="model_tm_select" class="form-control" autocomplete="off">
             <option value="" disabled selected>Select the model to use</option>
             <% models = get_models %>
@@ -63,13 +61,14 @@
             <% end %>
           </select>
         </div>
-        <div class="form-group col-md-6">
+        <button type="submit" class="btn btn-primary" name="submit" value="query">Get topics for selected dataset</button>
+        <hr/>
+        <div class="form-group col-md-9">
           <select id="topic_select" name="topic_select" class="form-control" autocomplete="off">
             <option value="" disabled selected>Select a topic</option>
             <%= options_for_select(0..9) %>
           </select>
         </div>
-<!--        <button type="submit" class="btn btn-primary" name="submit" value="list">List topics</button>-->
         <button type="submit" class="btn btn-primary" name="submit" value="describe">Describe selected topic</button>
       </form>
 
@@ -82,3 +81,47 @@
     </div>
   </div>
 </div>
+
+<script type="application/javascript">
+    $(function(){
+
+        $('#utilities_select').change(function() {
+            let utilities = JSON.parse("<%= j utilities.to_json.html_safe %>");
+            let obj = utilities.find(u => u.utility_name == $('#utilities_select option:selected').attr('value'));
+            $('#utility_params_inputs').html('');
+            if (obj.utility_name == 'query_topic_model') {
+                let label = document.createElement('label');
+                label.setAttribute('for', 'model_pra_select');
+                label.textContent = 'Select the model to use';
+                let select = $('#model_tm_select').clone();
+                select.attr('id', "model_pra_select");
+                select.attr('name', "model_pra_select");
+                $('#utility_params_inputs').append(label);
+                $('#utility_params_inputs').append(select);
+            }
+            else {
+              obj.utility_parameters.forEach(function(param){
+                let input_id = obj.utility_name + '_' + param.parameter_name + '_input';
+                let label = document.createElement('label');
+                label.setAttribute('for', input_id);
+                label.textContent = param.parameter_description;
+                let input = document.createElement('input');
+                input.setAttribute('id', input_id);
+                input.name = param.parameter_name;
+                input.value = param.parameter_default;
+                input.className = "form-control";
+                switch(param.parameter_type){
+                  case 'string':
+                    input.type = 'text';
+                    break;
+                  case 'integer':
+                    input.type = 'number';
+                    break;
+                }
+                $('#utility_params_inputs').append(label);
+                $('#utility_params_inputs').append(input);
+              });
+            }
+        });
+    })
+</script>

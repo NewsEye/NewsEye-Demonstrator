@@ -2,8 +2,12 @@
 * === Header ===
 */
 
-.navbar-inverse {
-  background-color: dodgerblue;
+#header-navbar {
+  background-color: lightgrey;
+  height: 60px;
+  display: flex; /* contexte sur le parent */
+  flex-direction: column; /* direction d'affichage verticale */
+  justify-content: center; /* alignement vertical */
 }
 
 .navbar-right a {

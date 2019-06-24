@@ -15,7 +15,7 @@
       <div class="form-group">
         <form accept-charset="UTF-8" action="/annotations/search" method="get">
           <label for="select_layer">Select list:</label>
-          <select class="form-control" id="select_layer" name="layer">
+          <select class="form-control" id="select_layer" name="layer" autocomplete="off">
             <option value="no" selected="selected">No layer</option>
 <!--            <option value="word">Word-level</option>-->
 <!--            <option value="line">Line-level</option>-->
@@ -28,10 +28,10 @@
   </div>
 </div>
 
-<div id="anno_content" class="panel panel-default">
-  <div class="panel-body">
-  </div>
-</div>
+<!--<div id="anno_content" class="panel panel-default">-->
+<!--  <div class="panel-body">-->
+<!--  </div>-->
+<!--</div>-->
 
 <div id="manage_tools" class="panel panel-default">
   <div class="panel-body">
@@ -39,55 +39,96 @@
   </div>
 </div>
 
-<div id="named_entities_list" class="panel panel-default">
-  <div class="panel-body">
-    <div>
-      <% named_entities = get_named_entities_for_doc(@document.id) %>
-      <h3>Persons</h3>
-      <ul>
-        <% named_entities[:PER].keys.each do |label| %>
-        <li><%= label %></li>
-        <ul>
-          <% named_entities[:PER][label].each do |ne| %>
-            <li><%= ne.mention %></li>
-          <% end %>
-        </ul>
-        <% end %>
-      </ul>
-    </div>
-    <div>
-      <h3>Locations</h3>
-      <ul>
-        <% named_entities[:LOC].keys.each do |label| %>
-          <li><%= label %></li>
-          <ul>
+<% named_entities = get_named_entities_for_doc(@document.id) %>
+<div id="named_entities_persons_list" class="panel panel-default">
+  <div class="panel-heading">
+    <h4 class="panel-title"><a data-toggle="collapse" href="#collapse1">Persons</a></h4>
+  </div>
+  <div id="collapse1" class="panel-collapse collapse">
+    <ul class="list-group">
+      <% named_entities[:PER].keys.each do |label| %>
+        <li class="list-group-item"><a data-toggle="collapse" href="#collapse1b"><%= label %></a></li>
+        <div id="collapse1b" class="panel-collapse collapse">
+          <ul class="list-group">
+            <% named_entities[:PER][label].each do |ne| %>
+              <li class="list-group-item ne_mention">
+                <%= ne['mention_ssi'] %>
+                <p style="display: none;">
+                  <%= get_bbox_from_annotations ne['selector_ssim'] %>
+                </p>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </ul>
+  </div>
+</div>
+<div id="named_entities_locations_list" class="panel panel-default">
+  <div class="panel-heading">
+    <h4 class="panel-title"><a data-toggle="collapse" href="#collapse2">Locations</a></h4>
+  </div>
+  <div id="collapse2" class="panel-collapse collapse">
+    <ul class="list-group">
+      <% named_entities[:LOC].keys.each do |label| %>
+        <li class="list-group-item"><a data-toggle="collapse" href="#collapse2b"><%= label %></a></li>
+        <div id="collapse2b" class="panel-collapse collapse">
+          <ul class="list-group">
             <% named_entities[:LOC][label].each do |ne| %>
-              <li><%= ne.mention %></li>
+              <li class="list-group-item ne_mention">
+                <%= ne['mention_ssi'] %>
+                <p style="display: none;">
+                  <%= get_bbox_from_annotations ne['selector_ssim'] %>
+                </p>
+              </li>
             <% end %>
           </ul>
-        <% end %>
-      </ul>
-    </div>
-    <div>
-      <h3>Organizations</h3>
-      <ul>
-        <% named_entities[:ORG].keys.each do |label| %>
-          <li><%= label %></li>
-          <ul>
+        </div>
+      <% end %>
+    </ul>
+  </div>
+</div>
+<div id="named_entities_organizations_list" class="panel panel-default">
+  <div class="panel-heading">
+    <h4 class="panel-title"><a data-toggle="collapse" href="#collapse3">Organizations</a></h4>
+  </div>
+  <div id="collapse3" class="panel-collapse collapse">
+    <ul class="list-group">
+      <% named_entities[:ORG].keys.each do |label| %>
+        <li class="list-group-item"><a data-toggle="collapse" href="#collapse3b"><%= label %></a></li>
+        <div id="collapse3b" class="panel-collapse collapse">
+          <ul class="list-group">
             <% named_entities[:ORG][label].each do |ne| %>
-              <li><%= ne.mention %></li>
+              <li class="list-group-item ne_mention">
+                <%= ne['mention_ssi'] %>
+                <p style="display: none;">
+                  <%= get_bbox_from_annotations ne['selector_ssim'] %>
+                </p>
+              </li>
             <% end %>
           </ul>
-        <% end %>
-      </ul>
-    </div>
+        </div>
+      <% end %>
+    </ul>
   </div>
 </div>
 
 <script type="text/javascript">
     $( document ).on('turbolinks:load', function() {
         document.getElementById('select_layer').addEventListener('change', function(event){select_layer_changed(event);}, false);
+
+
+        $('li.ne_mention').click(function(e) {
+            e.preventDefault();
+            let x, y, w, h;
+            [x, y, w, h] = e.target.children[0].textContent.split(',').map(val => parseInt(val.trim()));
+            console.log([x, y, w, h]);
+            let wid = mirador_instance.viewer.workspace.windows[0].id;
+            mirador_instance.eventEmitter.publish('fitBounds.'+wid, {'x': x, 'y': y,'width': w, 'height': h});
+        });
+
     });
+
 
     function select_layer_changed(event) {
         let mirador_window = mirador_instance.viewer.workspace.windows[0];

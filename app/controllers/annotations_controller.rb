@@ -5,8 +5,38 @@ class AnnotationsController < ApplicationController
   def search
     uri, sep, layer = params[:uri].rpartition('_')
     if not %w(word line block).include? layer
-      puts layer
-      render json: []
+      if layer == 'entities'
+        doc_id = uri[uri.index('iiif/')+5...uri.index('/canvas/')]
+        page_num = uri.rpartition('_')[2]
+
+        annotation_list = {}
+        annotation_list['@context'] = 'http://iiif.io/api/presentation/2/context.json'
+        annotation_list['@id'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/list/page_#{page_num}_entity_level"
+        annotation_list['@type'] = 'sc:AnnotationList'
+        annotation_list['resources'] = []
+        annotation_list['within'] = {}
+        annotation_list['within']['@id'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{doc_id}/layer/entity_level"
+        annotation_list['within']['@type'] = 'sc:Layer'
+        annotation_list['within']['label'] = 'OCR Layer'
+
+        entities = NewseyeSolrService.get_entities_annots_from_page "#{doc_id}_page_#{page_num}"
+        entities.each do |ent|
+          ent[:selectors].each do |sel|
+            block_annot = {}
+            block_annot['@type'] = 'oa:Annotation'
+            block_annot['motivation'] = 'sc:painting'
+            block_annot['resource'] = {}
+            block_annot['resource']['@type'] = 'cnt:ContentAsText'
+            block_annot['resource']['format'] = 'text/plain'
+            block_annot['resource']['chars'] =  ent[:mention]
+            block_annot['on'] = "#{uri+sel}"
+            annotation_list['resources'] << block_annot
+          end
+        end
+        render json: annotation_list['resources'].to_json
+      else
+        render json: []
+      end
     else
       doc_id = uri[uri.index('iiif/')+5...uri.index('/canvas/')]
       page_num = uri.rpartition('_')[2]
