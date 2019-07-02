@@ -2,7 +2,12 @@
   <button type="button" class="close" data-dismiss="modal">x</button>
   <h4 class="modal-title" id="report_label">
     <%= if @data['header']
-          @data['header'].html_safe
+          if @data['header'].size > 150
+            part_to_hide = @data['header'][100..-10]
+            "#{@data['header'][0..100]}...#{@data['header'][-10..-1]}".html_safe
+          else
+            @data['header'].html_safe
+          end
         else
           "Error"
         end
@@ -10,11 +15,15 @@
   </h4>
 </div>
 <div class="modal-body">
-  <% if @data['body'] %>
-    <%= @data['body'].html_safe %>
-  <% else %>
-    <pre><%= JSON.pretty_generate @data %></pre>
-  <% end %>
+  <%= if @data['body']
+        if part_to_hide
+          @data['body'].gsub(part_to_hide, ' ... ').html_safe
+        else
+          @data['body'].html_safe
+        end 
+      else
+        "<pre>#{JSON.pretty_generate @data}</pre>"
+      end %>
 </div>
 <div class="modal-footer">
 </div>

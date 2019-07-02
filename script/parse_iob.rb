@@ -4,10 +4,12 @@ BEGIN {
   def parse_iob
 
     ids = Issue.where(member_of_collection_ids_ssim: 'l_oeuvre').map(&:id)
+    # ids = Issue.where(member_of_collection_ids_ssim: 'arbeiter_zeitung').map(&:id)
     ids.each_with_index do |issueid, idx|
       puts "Importing named entities #{idx + 1} out of #{ids.size}"
 
       iob_file = "/home/axel/data_l_oeuvre_ahmed/fr_outputs/#{issueid}.txt"
+      # iob_file = "/home/axel/Téléchargements/data_german/data_german/#{issueid}.txt"
       content = File.read(iob_file)
       lines = content.split("\n")
       tokens = []
@@ -87,6 +89,10 @@ BEGIN {
 
   def map_fulltext_iiif_all(word_annots, named_entities, doc_id)
     # sort ne by pos[start]
+    entities = {loc: NamedEntity.where(ne_type: 'Location').first,
+                per: NamedEntity.where(ne_type: 'Person').first,
+                org: NamedEntity.where(ne_type: 'Organization').first,
+                misc: NamedEntity.where(ne_type: 'Miscellaneous').first}
     nems = []
     ne_ind = 0
     cpt = 0
@@ -94,12 +100,14 @@ BEGIN {
     word_annots.each do |wa|
       if cpt > named_entities[ne_ind][:pos][:end]
         case named_entities[ne_ind][:ne_type]
-        when 'LIEU'
-          entity_link = NamedEntity.where(ne_type: 'Location').first
-        when 'PERS'
-          entity_link = NamedEntity.where(ne_type: 'Person').first
+        when 'LIEU', 'LOC'
+          entity_link = entities[:loc]
+        when 'PERS', 'PER'
+          entity_link = entities[:per]
         when 'ORG'
-          entity_link = NamedEntity.where(ne_type: 'Organization').first
+          entity_link = entities[:org]
+        when 'MISC'
+          entity_link = entities[:misc]
         end
         nems << NamedEntityMention.create(mention: named_entities[ne_ind][:mention], doc_id: doc_id,
                                   named_entity: entity_link, detection_confidence: 0, linking_confidence: 0, stance: 0,

@@ -114,6 +114,7 @@ module PersonalWorkspaceHelper
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
     req = Net::HTTP::Post.new(uri.path, {'Content-Type' =>'application/json', 'Authorization' => "JWT #{generate_token}"})
+    puts "#{utility_name}\n#{search_terms}\n#{utility_params}"
     req.body = {utility: utility_name, target_search: search_terms, utility_parameters: utility_params}.to_json
     res = http.request(req)
     JSON.parse(res.body)
@@ -124,6 +125,7 @@ module PersonalWorkspaceHelper
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
     req = Net::HTTP::Post.new(uri.path, {'Content-Type' =>'application/json', 'Authorization' => "JWT #{generate_token}"})
+    puts "#{utility_name}\n#{task_uuid}\n#{utility_params}"
     req.body = {utility: utility_name, target_uuid: task_uuid, utility_parameters: utility_params}.to_json
     res = http.request(req)
     JSON.parse(res.body)
@@ -131,7 +133,7 @@ module PersonalWorkspaceHelper
 
   def generate_token
     secret = "PHs&xEjS5NaKeNnvMsn1Wvb6pY$384&Id*YOx9LIa6%9GUPKVF4v6FzquxoClcnV6&T!2x4V4E6b$dP3"
-    token = {'username' => current_user, 'exp' => (Time.now+10.seconds).to_i}
+    token = {'username' => 'axel.jeancaurant@gmail.com', 'exp' => (Time.now+10.seconds).to_i}
     JWT.encode token, secret, 'HS256', { typ: 'JWT' }
   end
 

@@ -67,7 +67,8 @@ class AnnotationsController < ApplicationController
         block_annot['resource'] = {}
         block_annot['resource']['@type'] = 'cnt:ContentAsText'
         block_annot['resource']['format'] = 'text/plain'
-        block_annot['resource']['chars'] =  annot[annot.find{|k, hash| k.start_with?('text_')}[0]]
+        # block_annot['resource']['chars'] =  annot[annot.find{|k, hash| k.start_with?('text_')}[0]]
+        block_annot['resource']['chars'] =  annot[annot.find{|k, hash| k.start_with?('text_')}[0]].gsub("\n","<br>").html_safe
         block_annot['metadata'] = {}
         block_annot['metadata'] = {}
         # block_annot['metadata']['word_confidence'] = block_text.size == 0 ? 0 : block_confidence / block_text.size

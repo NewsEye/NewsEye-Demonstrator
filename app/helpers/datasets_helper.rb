@@ -1,5 +1,7 @@
 module DatasetsHelper
 
+  include Blacklight::SearchHelper
+
   def classify_searches searches
     docs = []
     srchs = []
@@ -11,6 +13,11 @@ module DatasetsHelper
       end
     end
     return {docs: docs, searches: srchs}
+  end
+
+  def get_ids_from_search search_url
+    params = ActionController::Parameters.new(Rack::Utils.parse_nested_query URI(search_url).query)
+    get_opensearch_response :id, request_params=params, extra_controller_params={rows: 1000000}
   end
 
 end

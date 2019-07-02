@@ -12,20 +12,31 @@ class PersonalWorkspaceController < ApplicationController
 
   def analysis_task
     if params[:utilities_select] != ''
-      issues = Dataset.where(title: params[:dataset_pra_select])[0].issues
-      # puts issues
-      search_params = {q: "id:(#{issues.join(' ')})"}
+      if params['query_pra_input'] != ''
+        search_params = {q: params['query_pra_input']}
+      else
+        issues = Dataset.where(title: params[:dataset_pra_select])[0].issues
+        search_params = {q: "id:(#{issues.join(' ')})"}
+      end
       utility_opts = {}
-      params.keys.each { |p| utility_opts[p] = params[p] unless %w(dataset_pra_select utilities_select submit controller action).include? p }
+      params.keys.each { |p| utility_opts[p] = params[p] unless %w(query_pra_input find_steps_from_time_series_task_input dataset_pra_select utilities_select submit controller action).include? p }
       # puts utility_opts
       utility_opts['model_type'] = utility_opts['model_pra_select'].split('-')[-1] if utility_opts['model_pra_select']
       utility_opts['model_name'] = utility_opts.delete 'model_pra_select' if utility_opts['model_pra_select']
-      data = helpers.api_analysis_search(search_params, params[:utilities_select], utility_opts)
+
+      if params[:utilities_select] == 'find_steps_from_time_series'
+        # data = helpers.api_analysis_task(params['find_steps_from_time_series_task_input'], params[:utilities_select], utility_opts)
+        data = helpers.api_analysis_search(search_params, params[:utilities_select], {})
+      else
+        data = helpers.api_analysis_search(search_params, params[:utilities_select], utility_opts)
+      end
       # puts data
       if data['uuid']
         Task.create(user: current_user, status: data['task_status'], uuid: data['uuid'],
                     started: data['task_started'], finished: data['task_finished'],
                     task_type: data['task_type'], parameters: data['task_parameters'], results: data['task_results'])
+      else
+        puts data
       end
     end
     respond_to do |format|
@@ -57,7 +68,8 @@ class PersonalWorkspaceController < ApplicationController
     case params[:submit]
     when "query"
       @model = params[:model_tm_select]
-      @dataset = Dataset.where(title: params[:dataset_tm_select])[0].issues
+      d = Dataset.where(title: params[:dataset_tm_select])[0]
+      @dataset = d.issues
       @model_type = @model.split('-')[-1]
       data = helpers.tm_query(@model_type, @model, @dataset)
       Task.create(user: current_user, status: 'running', uuid: data['task_uuid'],

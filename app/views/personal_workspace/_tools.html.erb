@@ -4,13 +4,6 @@
     <div class="panel-body">
       <form novalidate="novalidate" data-remote="true" action="/personal_workspace/analyse" accept-charset="UTF-8" method="post" id="pra_form">
         <%= csrf_meta_tags %>
-        <div class="form-group ">
-          <label for="dataset_pra_select">Select a dataset to process</label>
-          <select id="dataset_pra_select" name="dataset_pra_select" class="form-control" autocomplete="off">
-            <option value="" disabled selected>Select your dataset</option>
-            <%= options_for_select(@current_user.datasets.map(&:title)) %>
-          </select>
-        </div>
 <!--        <div class="form-group col-md-6">-->
 <!--          <input name="target_search" type="text" class="form-control" placeholder="Search for...">-->
 <!--        </div>-->
@@ -20,10 +13,26 @@
             <option value="" disabled selected>Select the utility to use</option>
             <% utilities = api_list_utilities %>
             <% puts utilities %>
-            <% utilities.each do |utility| %>
-              <option value="<%= utility['utility_name'] %>"><%= utility['utility_description'] %></option>
+            <% utilities.select{ |utility| %w(query_topic_model find_steps_from_time_series).include? utility['utility_name'] }.each do |utility| %>
+              <option value="<%= utility['utility_name'] %>"><%= utility['utility_name'].gsub('_',' ').capitalize %></option>
             <% end%>
           </select>
+        </div>
+        <div id="utility_desc"></div>
+        <hr/>
+        <div id="input_selection" class="row">
+          <div class="form-group col-md-6">
+            <label for="dataset_pra_select">Select a dataset to process</label>
+            <select id="dataset_pra_select" name="dataset_pra_select" class="form-control" autocomplete="off">
+              <option value="" disabled selected>Select your dataset</option>
+              <%= options_for_select(@current_user.datasets.map(&:title)) %>
+            </select>
+          </div>
+<!--          <div class="form-group col-md-2">or</div>-->
+          <div class="form-group col-md-6">
+            <label for="query_pra_input">Select documents by query</label>
+            <input id="query_pra_input" name="query_pra_input" class="form-control" type="text"/>
+          </div>
         </div>
         <hr/>
         <div class="form-group" id="utility_params_inputs"></div>
@@ -46,7 +55,7 @@
             <%= options_for_select(@current_user.datasets.map(&:title)) %>
           </select>
         </div>
-        <label for="model_tm_select">Select a dataset to process</label>
+        <label for="model_tm_select">Select the model to use</label>
         <div class="form-group">
           <select id="model_tm_select" name="model_tm_select" class="form-control" autocomplete="off">
             <option value="" disabled selected>Select the model to use</option>
@@ -89,6 +98,12 @@
             let utilities = JSON.parse("<%= j utilities.to_json.html_safe %>");
             let obj = utilities.find(u => u.utility_name == $('#utilities_select option:selected').attr('value'));
             $('#utility_params_inputs').html('');
+            $('#utility_desc').html('');
+            $('#dataset_pra_select').val('');
+            $('#query_pra_input').val('');
+            let util_desc = document.createElement('p');
+            util_desc.textContent = obj.utility_description;
+            $('#utility_desc').append(util_desc);
             if (obj.utility_name == 'query_topic_model') {
                 let label = document.createElement('label');
                 label.setAttribute('for', 'model_pra_select');
@@ -100,27 +115,57 @@
                 $('#utility_params_inputs').append(select);
             }
             else {
-              obj.utility_parameters.forEach(function(param){
-                let input_id = obj.utility_name + '_' + param.parameter_name + '_input';
-                let label = document.createElement('label');
-                label.setAttribute('for', input_id);
-                label.textContent = param.parameter_description;
-                let input = document.createElement('input');
-                input.setAttribute('id', input_id);
-                input.name = param.parameter_name;
-                input.value = param.parameter_default;
-                input.className = "form-control";
-                switch(param.parameter_type){
-                  case 'string':
-                    input.type = 'text';
-                    break;
-                  case 'integer':
-                    input.type = 'number';
-                    break;
+                if (obj.utility_name == 'find_steps_from_time_series') {
+<!--                  let input_id = obj.utility_name + '_task_input';-->
+<!--                  let label = document.createElement('label');-->
+<!--                  label.setAttribute('for', input_id);-->
+<!--                  label.textContent = "Select a previous task";-->
+<!--                  let select = document.createElement('select');-->
+<!--                  select.setAttribute('id', input_id);-->
+<!--                  select.setAttribute('name', input_id);-->
+<!--                  select.setAttribute('autocomplete', 'off');-->
+<!--                  select.className = "form-control";-->
+<!--                  var opt = document.createElement('option');-->
+<!--                  opt.value = "";-->
+<!--                  opt.innerHTML = "Select a previous task";-->
+<!--                  opt.selected = true;-->
+<!--                  opt.disabled = true;-->
+<!--                  select.appendChild(opt);-->
+                  <%# Task.where(user: current_user).where("parameters->>'utility' = ?", "generate_time_series").each do |t| %>
+<!--                      var opt = document.createElement('option');-->
+<!--                      opt.value = "<%#= t.uuid %>";-->
+<!--                      opt.innerHTML = "<%#= t.started %>";-->
+<!--                      select.appendChild(opt);-->
+                  <%# end %>
+<!--                  $('#utility_params_inputs').append(label);-->
+<!--                  $('#utility_params_inputs').append(select);-->
                 }
-                $('#utility_params_inputs').append(label);
-                $('#utility_params_inputs').append(input);
-              });
+                obj.utility_parameters.forEach(function(param){
+                  let input_id = obj.utility_name + '_' + param.parameter_name + '_input';
+                  let label = document.createElement('label');
+                  label.setAttribute('for', input_id);
+
+                  // label.textContent = param.parameter_description;
+                  let textContent = param.parameter_name.split('_').join(' ');
+                  textContent = textContent.charAt(0).toUpperCase() + textContent.slice(1);
+                  label.textContent = textContent;
+
+                  let input = document.createElement('input');
+                  input.setAttribute('id', input_id);
+                  input.name = param.parameter_name;
+                  input.value = param.parameter_default;
+                  input.className = "form-control";
+                  switch(param.parameter_type){
+                    case 'string':
+                      input.type = 'text';
+                      break;
+                    case 'integer':
+                      input.type = 'number';
+                      break;
+                  }
+                  $('#utility_params_inputs').append(label);
+                  $('#utility_params_inputs').append(input);
+                });
             }
         });
     })

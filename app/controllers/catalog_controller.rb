@@ -155,6 +155,8 @@ class CatalogController < ApplicationController
     # end
 
     config.add_sort_field 'score desc, date_created_dtsi desc', label: 'relevance'
+    config.add_sort_field 'date_created_dtsi desc, score desc', label: 'date ⬆'
+    config.add_sort_field 'date_created_dtsi asc, score desc', label: 'date ⬇'
 
     # If there are more than this many search results, no spelling ("did you
     # mean") suggestion is offered.
@@ -163,7 +165,6 @@ class CatalogController < ApplicationController
 
   def index
     (@response, @document_list) = search_results(params)
-    @solr_query = search_builder.with(params).to_hash
     respond_to do |format|
       format.html { store_preferred_view }
       format.rss  { render :layout => false }

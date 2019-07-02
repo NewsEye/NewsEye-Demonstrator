@@ -13,8 +13,9 @@
       <% Task.where(user: current_user).sort_by { |t| t.started }.reverse.each do |t| %>
         <% style = t.status == "finished" ? "list-group-item-success" : "list-group-item-warning" %>
         <li class="list-group-item <%= style %>">
-          Started at: <%= t.started %>
-          Task type: <%= t.task_type %>
+          Started at: <%= t.started %> |
+          Task type: <%= t.task_type %> |
+          Utility: <%= t.parameters['utility'] %>
 
           <% case t.task_type %>
           <% when 'analysis' %>

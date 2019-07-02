@@ -1,4 +1,7 @@
 class DatasetsController < ApplicationController
+
+  include Blacklight::SearchHelper
+
   before_action :set_dataset, only: [:show, :edit, :update, :destroy, :delete_elements]
 
   # GET /datasets
@@ -66,9 +69,9 @@ class DatasetsController < ApplicationController
   end
 
   def delete_elements
-    @dataset.searches -= params[:searches]
-    @dataset.issues -= params[:issues]
-    @dataset.articles -= params[:articles]
+    @dataset.searches -= params[:searches][0].split(',')
+    @dataset.issues -= params[:issues][0].split(',')
+    @dataset.articles -= params[:articles][0].split(',')
     @dataset.save
     begin
       @dataset.save!

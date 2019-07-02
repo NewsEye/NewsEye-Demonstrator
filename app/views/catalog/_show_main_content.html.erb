@@ -24,7 +24,6 @@
         availableAnnotationDrawingTools: ['Rectangle', 'Ellipse'],
         availableAnnotationStylePickers: [],
         #['StrokeColor','FillColor','StrokeType'],
-        sidePanelVisible: false,
         windowSettings: {
             availableViews: ['ThumbnailsView', 'ImageView', 'ScrollView'],
             viewType: 'ImageView',
@@ -39,7 +38,7 @@
                 searchTabAvailable: false,
                 annotationTabAvailable: true
             },
-            sidePanelVisible: true,
+            sidePanelVisible: false,
             overlay: true,
             canvasControls: {
                 annotations: {
@@ -92,7 +91,15 @@
           }.merge(options)
     %>
     <div id="mirador_view" style="height: 600px; width: 100%; position: relative;"></div>
-    <script type="text/javascript">  $(function() { window.mirador_instance = Mirador(<%= config.to_json.html_safe %>); }); </script>
+    <script type="text/javascript">
+        $(function() {
+            window.mirador_instance = Mirador(<%= config.to_json.html_safe %>);
+            // while(window.mirador_instance.viewer.workspace == null){
+            //     //console.log('wait');
+            // }
+            window.mirador_instance.viewer.workspace.windows[0].sidePanelVisibility(false);
+        });
+    </script>
 
 
   </div>
