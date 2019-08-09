@@ -238,7 +238,7 @@ BEGIN {
         @in_line_word_index = 0
         @block_at = at
         @nb_lines = 0
-        @block_id = at['ID']
+        # @block_id = at['ID']
       when 'TextLine'
         @line_text = []
         @nb_lines += 1

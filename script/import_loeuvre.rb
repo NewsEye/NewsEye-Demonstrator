@@ -343,7 +343,7 @@ BEGIN {
         @in_line_word_index = 0
         @block_at = at
         @nb_lines = 0
-        @block_id = at['ID']
+        # @block_id = at['ID']
       when 'TextLine'
         @line_text = []
         @nb_lines += 1
@@ -386,6 +386,7 @@ BEGIN {
             'selector': @word_annot['on'][@word_annot['on'].index('#')..-1],
             'level': "4.pages.blocks.lines.words",
             'level_reading_order': @word_index,
+            'pagenum_isi': @page_num,
             'text': str_content,
             'confidence': @word_annot['metadata']['word_confidence']
         }
@@ -430,6 +431,7 @@ BEGIN {
         @solr_block['selector'] = @block_annot['on'][@block_annot['on'].index('#')..-1]
         @solr_block['level'] = "2.pages.blocks"
         @solr_block['level_reading_order'] = @block_index
+        @solr_block['pagenum_isi'] = @page_num
         @solr_block['text'] = @block_text.join("\n")
         @solr_block['confidence'] = @block_annot['metadata']['word_confidence']
         @solr_hierarchy << @solr_block
@@ -461,6 +463,7 @@ BEGIN {
         @solr_line['selector'] = @line_annot['on'][@line_annot['on'].index('#')..-1]
         @solr_line['level'] = "3.pages.blocks.lines"
         @solr_line['level_reading_order'] = @line_index
+        @solr_block['pagenum_isi'] = @page_num
         @solr_line['text'] = @line_text.join(' ')
         @solr_line['confidence'] = @line_annot['metadata']['word_confidence']
         @solr_block['_childDocuments_'] << @solr_line
