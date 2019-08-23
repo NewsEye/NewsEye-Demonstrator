@@ -14,7 +14,7 @@ class NamedEntity < ApplicationRecord
   end
 
   def index_record
-    ActiveFedora::SolrService.instance.conn.add(self.to_solr)
-    ActiveFedora::SolrService.instance.conn.commit
+    NewseyeSolrService.add(self.to_solr)
+    NewseyeSolrService.commit
   end
 end

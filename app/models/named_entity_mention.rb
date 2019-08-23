@@ -5,8 +5,8 @@ class NamedEntityMention < ApplicationRecord
   belongs_to :named_entity
 
   def self.batch_index(nems)
-    nems.each { |nem| ActiveFedora::SolrService.instance.conn.add(nem.to_solr) }
-    ActiveFedora::SolrService.instance.conn.commit
+    NewseyeSolrService.add(nems.map(&:to_solr))
+    NewseyeSolrService.commit
   end
 
   def to_solr
@@ -26,7 +26,7 @@ class NamedEntityMention < ApplicationRecord
   end
 
   def index_record
-    ActiveFedora::SolrService.instance.conn.add(self.to_solr)
-    ActiveFedora::SolrService.instance.conn.commit
+    NewseyeSolrService.add(self.to_solr)
+    NewseyeSolrService.commit
   end
 end

@@ -3,27 +3,12 @@ class PageFileSet2
   # include Hydra::Works::FileSetBehavior
 
   attr_accessor :id, :page_number, :width, :height, :mime_type, :iiif_url, :level,
-                :to_solr_annots, :annot_hierarchy, :language
+                :to_solr_annots, :annot_hierarchy, :language, :ocr_path, :image_path
 
   def initialize
     super
     self.to_solr_annots = false
     self.annot_hierarchy = []
-  end
-
-  def self.load_page_file_set(id)
-    Rails.cache.fetch(id) do
-      page_file_set_json = NewseyeSolrService.get_by_id id
-      page_file_set = PageFileSet2.new
-      page_file_set.id = id
-      page_file_set.page_number = page_file_set_json['page_number_isi']
-      page_file_set.width = page_file_set_json['width_is']
-      page_file_set.height = page_file_set_json['height_is']
-      page_file_set.mime_type = page_file_set_json['mime_type_ssi']
-      page_file_set.iiif_url = page_file_set_json['iiif_url_ss']
-      page_file_set.level = page_file_set_json['level']
-      page_file_set
-    end
   end
 
   def canvas(host, issue_id, with_annotations)
@@ -81,7 +66,7 @@ class PageFileSet2
               '*'
             end
     flarg = "*, [child parentFilter=level:1.* childFilter=level:#{level} limit=1000000]"
-    ActiveFedora::SolrService.query("id:#{doc_id}_page_#{page_num}", {fl: flarg}).first['_childDocuments_'].each do |annot|
+    NewseyeSolrService.query({q: "id:#{self.id}", fl: flarg}).first['_childDocuments_'].each do |annot|
       block_annot = {}
       block_annot['@type'] = 'oa:Annotation'
       block_annot['motivation'] = 'sc:painting'
@@ -98,7 +83,19 @@ class PageFileSet2
   end
 
   def to_solr
-    solr_doc = super
+    solr_doc = {}
+    solr_doc['id'] = self.id
+    solr_doc['has_model_ssim'] = 'PageFileSet'
+    solr_doc['page_number_isi'] = self.page_number
+    solr_doc['width_isi'] = self.width
+    solr_doc['height_isi'] = self.height
+    solr_doc['mime_type_ssi'] = self.mime_type
+    solr_doc['iiif_url_ss'] = self.iiif_url
+    solr_doc['ocr_path_ss'] = self.ocr_path
+    solr_doc['image_path_ss'] = self.image_path
+    # solr_doc['member_ids'] = []
+    # solr_doc['member_of_collection_ids'] = self.news
+
     if self.to_solr_annots
       solr_doc['level'] = '1.pages'
       solr_doc['_childDocuments_'] = []
@@ -115,6 +112,20 @@ class PageFileSet2
       end
     end
     solr_doc
+  end
+
+  def self.from_solr id
+    attrs = NewseyeSolrService.get_by_id id
+    p = PageFileSet2.new
+    p.id = attrs['id']
+    p.page_number = attrs['page_number_isi']
+    p.width = attrs['width_isi']
+    p.height = attrs['height_isi']
+    p.mime_type = attrs['mime_type_ssi']
+    p.iiif_url = attrs['iiif_url_ss']
+    p.ocr_path = attrs['ocr_path_ss']
+    p.image_path = attrs['image_path_ss'] if attrs['image_path_ss']
+    p
   end
 
 end

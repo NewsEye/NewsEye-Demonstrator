@@ -64,6 +64,7 @@
               <% next if models[model_type].is_a? String %>
               <optgroup label="<%= model_type %>">
                 <% models[model_type].each do |data| %>
+                  <% next if data.instance_of? Array %>
                   <option value="<%= data['name'] %>"><%= data['description'] %></option>
                 <% end %>
               </optgroup>

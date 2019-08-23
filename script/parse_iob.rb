@@ -3,7 +3,8 @@ parse_iob()
 BEGIN {
   def parse_iob
 
-    ids = Issue.where(member_of_collection_ids_ssim: 'l_oeuvre').map(&:id)
+    # ids = Issue.where(member_of_collection_ids_ssim: 'l_oeuvre').map(&:id)
+    ids = NewseyeSolrService.get_issues_ids_from_newspaper_id 'l_oeuvre'
     # ids = Issue.where(member_of_collection_ids_ssim: 'arbeiter_zeitung').map(&:id)
     ids.each_with_index do |issueid, idx|
       puts "Importing named entities #{idx + 1} out of #{ids.size}"
@@ -16,7 +17,7 @@ BEGIN {
       lines.each { |line| tokens.push(*line.split(' ')) }
       # puts tokens.size
 
-      fulltext = Issue.find(issueid).all_text
+      fulltext = Issue2.from_solr(issueid).all_text
   # puts fulltext
 
       chars_counter_begin = 0
@@ -129,7 +130,7 @@ BEGIN {
   end
 
   def get_word_annots(issue_id)
-    i = Issue.find(issue_id)
+    i = Issue2.from_solr(issue_id)
     word_annots = []
     i.pages.each do |p|
       # data = JSON.parse(p.ocr_word_level_annotation_list.content)

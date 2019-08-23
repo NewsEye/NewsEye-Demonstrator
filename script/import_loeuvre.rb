@@ -343,7 +343,7 @@ BEGIN {
         @in_line_word_index = 0
         @block_at = at
         @nb_lines = 0
-        # @block_id = at['ID']
+        @block_original_id = at['ID']
       when 'TextLine'
         @line_text = []
         @nb_lines += 1
@@ -435,7 +435,8 @@ BEGIN {
         @solr_block['text'] = @block_text.join("\n")
         @solr_block['confidence'] = @block_annot['metadata']['word_confidence']
         @solr_hierarchy << @solr_block
-        @blocks_texts[@block_id] = @block_text.join("\n")
+        # @blocks_texts[@block_id] = @block_text.join("\n")
+        @blocks_texts[@block_original_id] = @block_text.join("\n")
       when 'TextLine'
         @block_text << @line_text.join(' ')
         @in_page_word_index += @nb_words
@@ -463,7 +464,7 @@ BEGIN {
         @solr_line['selector'] = @line_annot['on'][@line_annot['on'].index('#')..-1]
         @solr_line['level'] = "3.pages.blocks.lines"
         @solr_line['level_reading_order'] = @line_index
-        @solr_block['pagenum_isi'] = @page_num
+        @solr_line['pagenum_isi'] = @page_num
         @solr_line['text'] = @line_text.join(' ')
         @solr_line['confidence'] = @line_annot['metadata']['word_confidence']
         @solr_block['_childDocuments_'] << @solr_line

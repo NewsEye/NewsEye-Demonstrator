@@ -1,3 +1,5 @@
+# Riiif::Image.file_resolver.base_path = '/home/axel/data_bruxelles/'
+
 # Tell RIIIF to get files via HTTP (not from the local disk)
 # Riiif::Image.file_resolver = Riiif::HTTPFileResolver.new
 #

@@ -5,17 +5,18 @@ module Riiif
     extend Deprecation
 
     class_attribute :file_resolver, :info_service, :authorization_service, :cache
-    self.file_resolver = Riiif::HTTPFileResolver.new
-    self.file_resolver.id_to_uri = lambda do |id|
-      pfs = PageFileSet.find(id)
-      if pfs.original_file
-        pfs.original_file.uri.to_s
-      else
-        pfs.iiif_url
-      end
-    end
+    self.file_resolver = Riiif::MyFileSystemFileResolver.new
     self.authorization_service = NilAuthorizationService
     self.cache = Rails.cache
+    self.info_service = lambda do |id, file|
+      pfs = PageFileSet2.from_solr id
+      raise "Unable to find solr document with id:#{fs_id}" unless pfs
+      {
+          height: pfs.height || 100,
+          width: pfs.width || 100,
+          format: pfs.mime_type,
+      }
+    end
 
     # this is the default info service
     # returns a hash with the original image dimensions.
@@ -27,18 +28,17 @@ module Riiif
     #     image.info
     #   end
     # end
-
-    self.info_service = lambda do |id, file|
-      fs_id = id.sub(/\A([^\/]*)\/.*/, '\1')
-      resp = ActiveFedora::SolrService.get("id:#{fs_id}")
-      doc = resp['response']['docs'].first
-      raise "Unable to find solr document with id:#{fs_id}" unless doc
-      {
-          height: doc["height_is"] || 100,
-          width: doc["width_is"] || 100,
-          format: doc["mime_type_ssi"],
-      }
-    end
+    # self.info_service = lambda do |id, file|
+    #   fs_id = id.sub(/\A([^\/]*)\/.*/, '\1')
+    #   resp = ActiveFedora::SolrService.get("id:#{fs_id}")
+    #   doc = resp['response']['docs'].first
+    #   raise "Unable to find solr document with id:#{fs_id}" unless doc
+    #   {
+    #       height: doc["height_is"] || 100,
+    #       width: doc["width_is"] || 100,
+    #       format: doc["mime_type_ssi"],
+    #   }
+    # end
 
     attr_reader :id
 

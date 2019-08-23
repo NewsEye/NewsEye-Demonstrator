@@ -5,8 +5,8 @@ module NamedEntitiesHelper
 
   def get_named_entities_for_doc doc_id
     output = {LOC: {}, PER: {}, ORG: {}}
-    nems = ActiveFedora::SolrService.query("doc_id_ssi:#{doc_id}", rows: 100000)
-    mapping_id_ne = Hash[ActiveFedora::SolrService.query("entity_type_ssi:*", rows:10000).map{|ne| [ne['id'], {label: ne['label_ssi'], type: ne['entity_type_ssi']}]}]
+    nems = NewseyeSolrService.query({q:"doc_id_ssi:#{doc_id}", rows: 1000000})
+    mapping_id_ne = Hash[ActiveFedora::SolrService.query("entity_type_ssi:*", rows:1000000).map{|ne| [ne['id'], {label: ne['label_ssi'], type: ne['entity_type_ssi']}]}]
     nems.select {|ne| mapping_id_ne[ne['linked_entity_ssi']][:type] == "Location"}.each do |ne|
       label = mapping_id_ne[ne['linked_entity_ssi']][:label]
       output[:LOC][label] = [] unless output[:LOC].has_key? label

@@ -1,4 +1,4 @@
-#require 'open-uri '
+require 'open-uri'
 module Riiif
   class ImagesController < ::ApplicationController
     before_action :link_header, only: [:show, :info]
@@ -8,7 +8,7 @@ module Riiif
     end
 
     def self.onb_newpapers
-      ['neue_freie_presse', 'arbeiter_zeitung']
+      ['neue_freie_presse', 'arbeiter_zeitung', 'illustrierte_kronen_zeitung', 'innsbrucker_nachrichten']
     end
 
     def show
