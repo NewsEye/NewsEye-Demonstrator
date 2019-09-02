@@ -1,5 +1,5 @@
 class NamedEntity < ApplicationRecord
-  has_many :named_entity_mentions
+  # has_many :named_entity_mentions
 
   after_save :index_record
 

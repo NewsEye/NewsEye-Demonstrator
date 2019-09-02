@@ -7,12 +7,12 @@ class NewseyeSolrService
 
   def self.get_articles_ids_from_issue_id id
     connect unless @@connection
-    @@connection.get('select', params: {q:"id:#{id}_article_*", fl:"id", rows:100000000})['response']['docs'].map {|o| o['id']}
+    @@connection.get('select', params: {q:"from_issue_ssi:#{id} AND has_model_ssim:Article", fl:"id", rows:100000000})['response']['docs'].map {|o| o['id']}
   end
 
   def self.get_issues_ids_from_newspaper_id id
     connect unless @@connection
-    @@connection.get('select', params: {q:"id:#{id}* AND has_model_ssim:Issue", fl:"id", rows:100000000})['response']['docs'].map {|o| o['id']}
+    @@connection.get('select', params: {q:"member_of_collection_ids_ssim:#{id} AND has_model_ssim:Issue", fl:"id", rows:100000000})['response']['docs'].map {|o| o['id']}
   end
 
   # def self.get_annots_from_page(id, level)

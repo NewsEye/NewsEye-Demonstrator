@@ -4,14 +4,20 @@ BEGIN {
   def parse_iob
 
     # ids = Issue.where(member_of_collection_ids_ssim: 'l_oeuvre').map(&:id)
-    ids = NewseyeSolrService.get_issues_ids_from_newspaper_id 'l_oeuvre'
+    ids = NewseyeSolrService.get_issues_ids_from_newspaper_id 'arbeiter_zeitung'
     # ids = Issue.where(member_of_collection_ids_ssim: 'arbeiter_zeitung').map(&:id)
     ids.each_with_index do |issueid, idx|
       puts "Importing named entities #{idx + 1} out of #{ids.size}"
 
-      iob_file = "/home/axel/data_l_oeuvre_ahmed/fr_outputs/#{issueid}.txt"
-      # iob_file = "/home/axel/Téléchargements/data_german/data_german/#{issueid}.txt"
-      content = File.read(iob_file)
+      # iob_file = "/home/axel/data_l_oeuvre_ahmed/fr_outputs/#{issueid}.txt"
+      # iob_file = "/home/axel/Téléchargements/data_german/#{issueid}.txt"
+      iob_file = "/home/axel/data_bruxelles/aze_2018/new/#{issueid}.txt"
+      begin
+        content = File.read(iob_file)
+      rescue => e
+        puts "no file..."
+        next
+      end
       lines = content.split("\n")
       tokens = []
       lines.each { |line| tokens.push(*line.split(' ')) }
@@ -110,9 +116,17 @@ BEGIN {
         when 'MISC'
           entity_link = entities[:misc]
         end
-        nems << NamedEntityMention.create(mention: named_entities[ne_ind][:mention], doc_id: doc_id,
-                                  named_entity: entity_link, detection_confidence: 0, linking_confidence: 0, stance: 0,
-                                  position: named_entities[ne_ind][:pos], iiif_annotations: annots)
+        nem = NamedEntityMention.new
+        nem.id = "#{doc_id}_#{ne_ind}"
+        nem.mention = named_entities[ne_ind][:mention]
+        nem.doc_id = doc_id
+        nem.linked_entity_id = entity_link.id
+        nem.detection_confidence = 0
+        nem.linking_confidence = 0
+        nem.stance = 0
+        nem.position = named_entities[ne_ind][:pos]
+        nem.iiif_annotations = annots
+        nems << nem
         # puts named_entities[ne_ind][:mention] + " [" + named_entities[ne_ind][:ne_type] + "]"
         # # puts fulltext[named_entities[ne_ind][:pos][:start]..named_entities[ne_ind][:pos][:end]]
         # puts annots

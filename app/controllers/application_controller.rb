@@ -8,7 +8,8 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception, unless: :json_request
   protect_from_forgery with: :null_session, if: :json_request
   # before_action :authenticate_user!, unless: :json_request
-  before_action :authorize_api_request, except: [:authenticate]
+  before_action :authorize_api_request, except: [:authenticate], if: :json_request
+  before_action :authorize_api_request, if: :controller_is_iiif
   before_action :set_locale, unless: :json_request
   before_action :create_feedback, unless: :json_request
   #TODO not set locale before every action to avoid ?locale=fr in url sometimes (iiif for exemple)
@@ -36,6 +37,10 @@ class ApplicationController < ActionController::Base
 
   def json_request
     request.content_type == 'application/json'
+  end
+
+  def controller_is_iiif
+    self.controller_name == 'iiif'
   end
 
   def authorize_api_request

@@ -87,7 +87,7 @@ class Issue2
     i.language = attrs['language_ssi']
     i.newspaper_id = attrs['member_of_collection_ids_ssim'][0]
     i.title = attrs['title_ssi']
-    i.date_created = attrs['date_created_ssi'][0]
+    i.date_created = attrs['date_created_ssi']
     i.original_uri = attrs['original_uri_ss']
     i.nb_pages = attrs['nb_pages_isi']
     i.thumbnail_url = attrs['thumbnail_url_ss']

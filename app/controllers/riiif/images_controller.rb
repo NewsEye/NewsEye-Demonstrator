@@ -8,7 +8,7 @@ module Riiif
     end
 
     def self.onb_newpapers
-      ['neue_freie_presse', 'arbeiter_zeitung', 'illustrierte_kronen_zeitung', 'innsbrucker_nachrichten']
+      ['neue_freie_presse', 'arbeiter_zeitung', 'illustrierte_kronen_zeitung', 'krz', 'innsbrucker_nachrichten']
     end
 
     def show

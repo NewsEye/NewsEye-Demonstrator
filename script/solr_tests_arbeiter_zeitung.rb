@@ -26,114 +26,120 @@ processed_ids = JSON.parse(open(ids_query).read)['response']['docs'].map{|h| h['
 nbissues = Dir[main_directory + "/*.json"].size
 i = 0
 for json_issue in Dir[main_directory + "/*.json"]
-  i += 1
-  time_start = Time.now
   begin
-    json_content = File.read(json_issue)
-    issue_data = JSON.parse(json_content).with_indifferent_access
-  rescue JSON::ParserError
-    next
-  end
-
-  issueid = npid + '_' + issue_data[:id]
-  if processed_ids.include? issueid
-    puts " issue %s already exists" % issueid
-    next
-  end
-  # should_process = false
-  # if Issue.exists?(issueid)
-  #   issue = Issue.find(issueid)
-  #   if issue.all_text.nil?
-  #     should_process = true
-  #     issue_data[:pages].each do |issue_page|
-  #       fpath = main_directory + '/' + issue_page[:ocr_path][15..-1]
-  #       should_process = File.file?(fpath)
-  #     end
-  #     puts " issue %s is missing files" % issue_data[:id] unless should_process
-  #   else
-  #     puts " issue %s already exists" % issue_data[:id]
-  #   end
-  # else
-  #   should_process = true
-  #   issue_data[:pages].each do |issue_page|
-  #     fpath = main_directory + '/' + issue_page[:ocr_path][15..-1]
-  #     should_process = File.file?(fpath)
-  #   end
-  #   puts " issue %s is missing files" % issue_data[:id] unless should_process
-  #   issue = Issue2.new
-  #   issue.id = issueid
-  # end
-  issue = Issue2.new
-  issue.id = issueid
-  should_process = true
-
-  if should_process
-    puts " adding issue #{issue_data[:id]} (#{i} out of #{nbissues})"
-    issue.original_uri = issue_data[:original_uri]
-    issue.title = issue_data[:title]
-    issue.date_created = issue_data[:date_created]
-    issue.nb_pages = issue_data[:pages].size
-    issue.language = 'de' # issue_data[:language]
-    issue.pages = []
-    issue_ocr_text = []
-    alto_pages = {}
-    all_blocks_texts = {}
-    issue_data[:pages].each do |issue_page|
-      puts "  adding page %i out of %i" % [issue_page[:page_number], issue_data[:pages].length]
-
-      pfs = PageFileSet2.new
-      pfs.id = issue.id + '_' + issue_page[:id].split('_')[1..-1].join('_')
-      pfs.page_number = issue_page[:page_number]
-      pfs.language = 'de'
-
-      # pfs.iiif_url = "https://iiif-auth.onb.ac.at/images/ANNO/#{issue_data[:id]}/#{pfs.page_number.to_s.rjust(8,'0')}"
-      info_json_url = "https://iiif-auth.onb.ac.at/images/ANNO/#{issue_data[:id]}/#{pfs.page_number.to_s.rjust(8,'0')}/info.json"
-      pfs.iiif_url = "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}_page_#{pfs.page_number}"
-      info_json = JSON.load(open(info_json_url))
-      pfs.height = info_json['height'].to_i
-      pfs.width = info_json['width'].to_i
-      pfs.mime_type = 'image/jpeg'
-      if issue_page[:page_number] == 1
-        issue.thumbnail_url = "#{pfs.iiif_url}/full/,200/0/default.jpg"
-      end
-
-      ###### Parse OCR and add full text property ######
-
-      pfs.ocr_path = main_directory + '/' + issue_page[:ocr_path][15..-1]
-      ocr_file = open(pfs.ocr_path, 'r')
-      ocr = Nokogiri::XML(ocr_file) #, nil, encoding)
-      ocr.remove_namespaces!
-      alto_pages[issue_page[:page_number]] = ocr
-
-      ###### IIIF Annotation generation ######
-
-      scale_factor = pfs.height.to_f / ocr.xpath('//Page')[0]['HEIGHT'].to_f
-      # solr_hierarchy, ocr_full_text, block_annots, line_annots, word_annots = parse_alto_index(ocr, issue.id, pfs.page_number, scale_factor)
-      solr_hierarchy, ocr_full_text, blocks_texts = parse_alto_index2(main_directory + '/' + issue_page[:ocr_path][15..-1], issue.id, pfs.page_number, scale_factor)
-      all_blocks_texts = all_blocks_texts.merge(blocks_texts)
-
-      ###### Finalize ######
-      pfs.to_solr_annots = true
-      pfs.annot_hierarchy = solr_hierarchy
-      issue.pages << pfs
-      issue_ocr_text << ocr_full_text
-    end
-
-    ###### finalize ######
-
-    issue.all_text = issue_ocr_text.join("\n")
-    issue.newspaper_id = npid
-
+    i += 1
+    time_start = Time.now
     begin
-      puts NewseyeSolrService.add issue.pages.map(&:to_solr)+[issue.to_solr]
-      puts NewseyeSolrService.commit
-    rescue => e
-      puts "Error during processing: #{$!}"
-      puts "Backtrace:\n\t#{e.backtrace.join("\n\t")}"
+      json_content = File.read(json_issue)
+      issue_data = JSON.parse(json_content).with_indifferent_access
+    rescue JSON::ParserError
       next
     end
-    time_end = Time.now
-    puts "Issue was processed in #{(time_end-time_start).seconds} seconds."
+
+    issueid = npid + '_' + issue_data[:id]
+    if processed_ids.include? issueid
+      puts " issue %s already exists" % issueid
+      next
+    end
+    # should_process = false
+    # if Issue.exists?(issueid)
+    #   issue = Issue.find(issueid)
+    #   if issue.all_text.nil?
+    #     should_process = true
+    #     issue_data[:pages].each do |issue_page|
+    #       fpath = main_directory + '/' + issue_page[:ocr_path][15..-1]
+    #       should_process = File.file?(fpath)
+    #     end
+    #     puts " issue %s is missing files" % issue_data[:id] unless should_process
+    #   else
+    #     puts " issue %s already exists" % issue_data[:id]
+    #   end
+    # else
+    #   should_process = true
+    #   issue_data[:pages].each do |issue_page|
+    #     fpath = main_directory + '/' + issue_page[:ocr_path][15..-1]
+    #     should_process = File.file?(fpath)
+    #   end
+    #   puts " issue %s is missing files" % issue_data[:id] unless should_process
+    #   issue = Issue2.new
+    #   issue.id = issueid
+    # end
+    issue = Issue2.new
+    issue.id = issueid
+    should_process = true
+
+    if should_process
+      puts " adding issue #{issue_data[:id]} (#{i} out of #{nbissues})"
+      issue.original_uri = issue_data[:original_uri]
+      issue.title = issue_data[:title]
+      issue.date_created = issue_data[:date_created]
+      issue.nb_pages = issue_data[:pages].size
+      issue.language = 'de' # issue_data[:language]
+      issue.pages = []
+      issue_ocr_text = []
+      alto_pages = {}
+      all_blocks_texts = {}
+      issue_data[:pages].each do |issue_page|
+        puts "  adding page %i out of %i" % [issue_page[:page_number], issue_data[:pages].length]
+
+        pfs = PageFileSet2.new
+        pfs.id = issue.id + '_' + issue_page[:id].split('_')[1..-1].join('_')
+        pfs.page_number = issue_page[:page_number]
+        pfs.language = 'de'
+
+        # pfs.iiif_url = "https://iiif-auth.onb.ac.at/images/ANNO/#{issue_data[:id]}/#{pfs.page_number.to_s.rjust(8,'0')}"
+        info_json_url = "https://iiif-auth.onb.ac.at/images/ANNO/#{issue_data[:id]}/#{pfs.page_number.to_s.rjust(8,'0')}/info.json"
+        pfs.iiif_url = "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}_page_#{pfs.page_number}"
+        info_json = JSON.load(open(info_json_url))
+        pfs.height = info_json['height'].to_i
+        pfs.width = info_json['width'].to_i
+        pfs.mime_type = 'image/jpeg'
+        if issue_page[:page_number] == 1
+          issue.thumbnail_url = "#{pfs.iiif_url}/full/,200/0/default.jpg"
+        end
+
+        ###### Parse OCR and add full text property ######
+
+        pfs.ocr_path = main_directory + '/' + issue_page[:ocr_path][15..-1]
+        ocr_file = open(pfs.ocr_path, 'r')
+        ocr = Nokogiri::XML(ocr_file) #, nil, encoding)
+        ocr.remove_namespaces!
+        alto_pages[issue_page[:page_number]] = ocr
+
+        ###### IIIF Annotation generation ######
+
+        scale_factor = pfs.height.to_f / ocr.xpath('//Page')[0]['HEIGHT'].to_f
+        # solr_hierarchy, ocr_full_text, block_annots, line_annots, word_annots = parse_alto_index(ocr, issue.id, pfs.page_number, scale_factor)
+        solr_hierarchy, ocr_full_text, blocks_texts = parse_alto_index2(main_directory + '/' + issue_page[:ocr_path][15..-1], issue.id, pfs.page_number, scale_factor)
+        all_blocks_texts = all_blocks_texts.merge(blocks_texts)
+
+        ###### Finalize ######
+        pfs.to_solr_annots = true
+        pfs.annot_hierarchy = solr_hierarchy
+        issue.pages << pfs
+        issue_ocr_text << ocr_full_text
+      end
+
+      ###### finalize ######
+
+      issue.all_text = issue_ocr_text.join("\n")
+      issue.newspaper_id = npid
+
+      begin
+        puts NewseyeSolrService.add issue.pages.map(&:to_solr)+[issue.to_solr]
+        puts NewseyeSolrService.commit
+      rescue => e
+        puts "Error during processing: #{$!}"
+        puts "Backtrace:\n\t#{e.backtrace.join("\n\t")}"
+        next
+      end
+      time_end = Time.now
+      puts "Issue was processed in #{(time_end-time_start).seconds} seconds."
+    end
+  rescue => e
+    puts "Error during processing: #{$!}"
+    puts "Backtrace:\n\t#{e.backtrace.join("\n\t")}"
+    next
   end
 end  # Issue is processed
 

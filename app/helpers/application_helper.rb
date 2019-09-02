@@ -27,6 +27,18 @@ module ApplicationHelper
   end
 
   def get_collection_title_from_id(options={})
+    mapping = {'la_fronde': "La Fronde", 'marie_claire': 'Marie Claire', 'l_oeuvre': "L'Œuvre",
+               'la_presse': "La Presse", 'le_gaulois': "Le Gaulois", 'le_matin': "Le Matin",
+
+               'aura': "Aura", 'helsingin_sanomat': "Helsingin Sanomat", 'paivalehti': "Paivalehti",
+               'sanomia_turusta': "Sanomia Turusta", 'suometar': "Suometar", 'uusi_aura': "Uusi Aura",
+               'uusi_suometar': "Uusi Suometar",
+
+               'abo_underrattelser': "Åbo Underrättelser", 'hufvudstadsbladet': "Hufvudstadsbladet", 'vastra_finland': "Vastra Finland",
+
+               'arbeiter_zeitung': "Arbeiter Zeitung", 'illustrierte_kronen_zeitung': "Illustrierte Kronen Zeitung",
+               'innsbrucker_nachrichten': "Innsbrucker Nachrichten", 'neue_frei_presse': "Neue Frei Presse"
+      }
     case options
     when String
       npid = options
@@ -36,19 +48,7 @@ module ApplicationHelper
       npid = nil
     end
     if npid
-      # ActiveFedora::SolrService.instance.conn.get('select', params: {q: "id:#{npid}"})['response']['docs'][0]['title_ssi']
-      case npid
-      when 'l_oeuvre'
-        "L'Œuvre"
-      when 'paivalehti'
-        "Paivalehti"
-      when 'arbeiter_zeitung'
-        "Arbeiter Zeitung"
-      when 'uusi_suometar'
-        "Uusi Suometar"
-      when 'abo_underrattelser'
-        "Åbo Underrättelser"
-      end
+      mapping[npid.to_sym]
     else
       "placeholder newspaper title"
     end

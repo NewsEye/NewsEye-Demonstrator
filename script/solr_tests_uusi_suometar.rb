@@ -12,94 +12,100 @@ processed_ids = JSON.parse(open(ids_query).read)['response']['docs'].map{|h| h['
 nbissues = Dir[main_directory + "/*.json"].size
 i = 0
 for json_issue in Dir[main_directory + "/*.json"]
-  i += 1
-  time_start = Time.now
-  json_content = File.read(json_issue)
-  next if json_content == ''
-  issue_data = JSON.parse(File.read(json_issue)).with_indifferent_access
-  issue_data[:id] = issue_data[:id][9..-1]
+  begin
+    i += 1
+    time_start = Time.now
+    json_content = File.read(json_issue)
+    next if json_content == ''
+    issue_data = JSON.parse(File.read(json_issue)).with_indifferent_access
+    issue_data[:id] = issue_data[:id][9..-1]
 
-  issueid = npid + '_' + issue_data[:id]
-  if processed_ids.include? issueid
-    puts " issue %s already exists" % issueid
-    next
-  end
-  issue = Issue2.new
-  issue.id = issueid
-  should_process = true
-
-  if should_process
-    puts " adding issue #{issue_data[:id]} (#{i} out of #{nbissues})"
-    issue.original_uri = issue_data[:original_uri]
-    issue.title = issue_data[:title]
-    issue.date_created = issue_data[:date_created]
-    issue.nb_pages = issue_data[:pages].size
-    issue.language = 'fi' # issue_data[:language]
-    issue.pages = []
-    # SHould I remove this save to prevent duplicates in solr index ?
-    # issue.save
-    issue_ocr_text = []
-    alto_pages = {}
-    all_blocks_texts = {}
-    issue_data[:pages].each do |issue_page|
-      puts "  adding page %i out of %i" % [issue_page[:page_number], issue_data[:pages].length]
-
-      pfs = PageFileSet2.new
-      pfs.id = issue.id + '_' + issue_page[:id].split('_')[1..-1].join('_')
-      pfs.page_number = issue_page[:page_number]
-      pfs.language = 'fi'
-
-      pfs.image_path = main_directory + '/' + np_orig_id + issue_page[:id] + '.jpg'
-
-      width, height = FastImage.size(pfs.image_path)
-      pfs.iiif_url = "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}_page_#{pfs.page_number}"
-      pfs.height = height
-      pfs.width = width
-      pfs.mime_type = 'image/jpeg'
-      if issue_page[:page_number] == 1
-        issue.thumbnail_url = "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}_page_1/full/,200/0/default.jpg"
-      end
-
-      ###### Parse OCR and add full text property ######
-
-      pfs.ocr_path = main_directory + '/' + np_orig_id + issue_page[:id] + '.xml'
-      ocr_file = open(pfs.ocr_path)
-      ocr = Nokogiri::XML(ocr_file)
-      ocr.remove_namespaces!
-      alto_pages[issue_page[:page_number]] = ocr
-
-      ###### IIIF Annotation generation ######
-
-      scale_factor = pfs.height.to_f / ocr.xpath('//Page')[0]['HEIGHT'].to_f
-      # solr_hierarchy, ocr_full_text, block_annots, line_annots, word_annots = parse_alto_index(ocr, issue.id, pfs.page_number, scale_factor)
-      solr_hierarchy, ocr_full_text, block_texts = parse_alto_index2(pfs.ocr_path, issue.id, pfs.page_number, scale_factor)
-      all_blocks_texts = all_blocks_texts.merge(block_texts)
-
-      pfs.to_solr_annots = true
-      pfs.annot_hierarchy = solr_hierarchy
-
-      issue.pages << pfs
-
-      issue_ocr_text << ocr_full_text
-    end
-
-    ###### finalize ######
-
-    issue.all_text = issue_ocr_text.join("\n")
-    # issue.member_of_collections << np
-    issue.newspaper_id = npid
-    begin
-      puts NewseyeSolrService.add issue.pages.map(&:to_solr)+[issue.to_solr]
-      puts NewseyeSolrService.commit
-    rescue => e
-      puts "Error during processing: #{$!}"
-      puts "Backtrace:\n\t#{e.backtrace.join("\n\t")}"
+    issueid = npid + '_' + issue_data[:id]
+    if processed_ids.include? issueid
+      puts " issue %s already exists" % issueid
       next
     end
-  end
+    issue = Issue2.new
+    issue.id = issueid
+    should_process = true
 
-  time_end = Time.now
-  puts "Issue was processed in #{(time_end-time_start).seconds} seconds."
+    if should_process
+      puts " adding issue #{issue_data[:id]} (#{i} out of #{nbissues})"
+      issue.original_uri = issue_data[:original_uri]
+      issue.title = issue_data[:title]
+      issue.date_created = issue_data[:date_created]
+      issue.nb_pages = issue_data[:pages].size
+      issue.language = 'fi' # issue_data[:language]
+      issue.pages = []
+      # SHould I remove this save to prevent duplicates in solr index ?
+      # issue.save
+      issue_ocr_text = []
+      alto_pages = {}
+      all_blocks_texts = {}
+      issue_data[:pages].each do |issue_page|
+        puts "  adding page %i out of %i" % [issue_page[:page_number], issue_data[:pages].length]
+
+        pfs = PageFileSet2.new
+        pfs.id = issue.id + '_' + issue_page[:id].split('_')[1..-1].join('_')
+        pfs.page_number = issue_page[:page_number]
+        pfs.language = 'fi'
+
+        pfs.image_path = main_directory + '/' + np_orig_id + issue_page[:id] + '.jpg'
+
+        width, height = FastImage.size(pfs.image_path)
+        pfs.iiif_url = "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}_page_#{pfs.page_number}"
+        pfs.height = height
+        pfs.width = width
+        pfs.mime_type = 'image/jpeg'
+        if issue_page[:page_number] == 1
+          issue.thumbnail_url = "#{Rails.configuration.newseye_services['host']}/iiif/#{issue.id}_page_1/full/,200/0/default.jpg"
+        end
+
+        ###### Parse OCR and add full text property ######
+
+        pfs.ocr_path = main_directory + '/' + np_orig_id + issue_page[:id] + '.xml'
+        ocr_file = open(pfs.ocr_path)
+        ocr = Nokogiri::XML(ocr_file)
+        ocr.remove_namespaces!
+        alto_pages[issue_page[:page_number]] = ocr
+
+        ###### IIIF Annotation generation ######
+
+        scale_factor = pfs.height.to_f / ocr.xpath('//Page')[0]['HEIGHT'].to_f
+        # solr_hierarchy, ocr_full_text, block_annots, line_annots, word_annots = parse_alto_index(ocr, issue.id, pfs.page_number, scale_factor)
+        solr_hierarchy, ocr_full_text, block_texts = parse_alto_index2(pfs.ocr_path, issue.id, pfs.page_number, scale_factor)
+        all_blocks_texts = all_blocks_texts.merge(block_texts)
+
+        pfs.to_solr_annots = true
+        pfs.annot_hierarchy = solr_hierarchy
+
+        issue.pages << pfs
+
+        issue_ocr_text << ocr_full_text
+      end
+
+      ###### finalize ######
+
+      issue.all_text = issue_ocr_text.join("\n")
+      # issue.member_of_collections << np
+      issue.newspaper_id = npid
+      begin
+        puts NewseyeSolrService.add issue.pages.map(&:to_solr)+[issue.to_solr]
+        puts NewseyeSolrService.commit
+      rescue => e
+        puts "Error during processing: #{$!}"
+        puts "Backtrace:\n\t#{e.backtrace.join("\n\t")}"
+        next
+      end
+    end
+
+    time_end = Time.now
+    puts "Issue was processed in #{(time_end-time_start).seconds} seconds."
+  rescue => e
+    puts "Error during processing: #{$!}"
+    puts "Backtrace:\n\t#{e.backtrace.join("\n\t")}"
+    next
+  end
 end  # Issue is processed
 
 

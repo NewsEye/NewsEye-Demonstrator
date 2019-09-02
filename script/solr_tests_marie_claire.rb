@@ -4,9 +4,9 @@
 require 'open-uri'
 
 alto = 'alto'
-main_directory = '/home/axel/data_bruxelles/l_oeuvre'
+main_directory = '/home/axel/data_bruxelles/marie_claire'
 
-npid = 'l_oeuvre'
+npid = 'marie_claire'
 
 ids_query = 'http://localhost:8983/solr/hydra-development/select?fl=id&q=has_model_ssim:Issue&wt=json&rows=1000000'
 processed_ids = JSON.parse(open(ids_query).read)['response']['docs'].map{|h| h['id']}
@@ -29,7 +29,7 @@ for issue_dir in Dir[main_directory + "/*"]
     issueid = npid + '_' + ark.split('/')[1..-1].join('-')
     # next
     if processed_ids.include? issueid
-      puts " issue #{issueid} already exists (#{issue_ind} out of #{nb_issues_dir})"
+      puts " issue %s already exists" % issueid
       next
     end
     issue = Issue2.new

@@ -4,8 +4,6 @@ class ApiAuthenticationController < ApplicationController
   skip_before_action :verify_authenticity_token
 
   def authenticate
-    puts "####"
-    puts params
     command = AuthenticateApiUser.call(params[:email], params[:password])
 
     if command.success?

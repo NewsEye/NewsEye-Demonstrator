@@ -12,7 +12,11 @@
       <%= ERB::Util.html_escape(@document[:title_ssi]).gsub("\n","<br>").html_safe %>
     </b>
     <p>
+      <%= ERB::Util.html_escape(@document[:all_text_tde_siv]).gsub("\n","<br>").html_safe %>
       <%= ERB::Util.html_escape(@document[:all_text_tfr_siv]).gsub("\n","<br>").html_safe %>
+      <%= ERB::Util.html_escape(@document[:all_text_tfi_siv]).gsub("\n","<br>").html_safe %>
+      <%= ERB::Util.html_escape(@document[:all_text_tse_siv]).gsub("\n","<br>").html_safe %>
+      <%= ERB::Util.html_escape(@document[:all_text_ten_siv]).gsub("\n","<br>").html_safe %>
     </p>
 
   </div>
