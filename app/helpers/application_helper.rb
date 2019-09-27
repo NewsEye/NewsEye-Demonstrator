@@ -70,11 +70,11 @@ module ApplicationHelper
   end
 
   def get_manifest(issue_id)
-    man = JSON.parse(Issue2.from_solr(issue_id).manifest(Rails.configuration.newseye_services['host']).to_json)
-    man['service'] = {}
-    man['service']['@context'] = "http://iiif.io/api/search/1/context.json"
-    man['service']['@id'] = "http://localhost:8888/search-api/#{params[:id]}/search"
-    man['service']['@profile'] = "http://iiif.io/api/search/1/search"
+    man = JSON.parse(Issue2.from_solr(issue_id, with_articles: false).manifest(Rails.configuration.newseye_services['host']).to_json)
+    # man['service'] = {}
+    # man['service']['@context'] = "http://iiif.io/api/search/1/context.json"
+    # man['service']['@id'] = "http://localhost:8888/search-api/#{params[:id]}/search"
+    # man['service']['@profile'] = "http://iiif.io/api/search/1/search"
     man
   end
 end

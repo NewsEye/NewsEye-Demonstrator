@@ -5,14 +5,14 @@ class Issue2
 
 
   attr_accessor :id, :title, :date_created, :language, :original_uri, :nb_pages, :all_text, :thumbnail_url, :newspaper_id, :pages, :articles,
-                :to_solr_articles, :articles, :newspaper_id, :mets_path
+                :to_solr_articles, :articles, :newspaper_id, :mets_path, :word_annots
 
   # after_initialize do |issue|
   #   self.to_solr_articles = false
   #   self.articles = []
   # end
 
-  def manifest(host, with_annotations=false)
+  def manifest(host, with_annotations: false)
     seed = {
         '@id' => "#{host}/iiif/#{self.id}/manifest.json",
         'label' => "Issue #{self.id} manifest"
@@ -25,14 +25,15 @@ class Issue2
       sequence.canvases << pfs.canvas(host, self.id, with_annotations)
     end
     manifest.sequences << sequence
-
-    articles.each do |article|
-      range = IIIF::Presentation::Range.new
-      range['@id'] = "#{host}/iiif/#{self.id}/range/#{article.id}"
-      range['label'] = article.title
-      range.canvases.push(*article.canvases_parts)
-      range['contentLayer'] = "#{host}/iiif/#{self.id}/layer/#{article.id}"
-      manifest.structures << range
+    unless articles.nil?
+      articles.each do |article|
+        range = IIIF::Presentation::Range.new
+        range['@id'] = "#{host}/iiif/#{self.id}/range/#{article.id}"
+        range['label'] = article.title
+        range.canvases.push(*article.canvases_parts)
+        range['contentLayer'] = "#{host}/iiif/#{self.id}/layer/#{article.id}"
+        manifest.structures << range
+      end
     end
     manifest.metadata << {'label': 'Title', 'value': self.title}
     manifest.metadata << {'label': 'Date created', 'value': self.date_created}
@@ -80,7 +81,7 @@ class Issue2
     solr_doc
   end
 
-  def self.from_solr(id, with_pages=true, with_articles=true)
+  def self.from_solr(id, with_pages: true, with_articles: true, with_word_annots: false)
     attrs = NewseyeSolrService.get_by_id id
     i = Issue2.new
     i.id = attrs['id']
@@ -103,6 +104,25 @@ class Issue2
       i.articles = []
       NewseyeSolrService.get_articles_ids_from_issue_id(i.id).each do |art_id|
         i.articles << Article2.from_solr(art_id)
+      end
+    end
+    if with_word_annots
+      i.word_annots = []
+      (1..i.nb_pages).each do |pagenum|
+        puts pagenum
+        NewseyeSolrService.query({q: "id:#{id}_#{pagenum}_word*", rows: 9999999}).each do |annot|
+          block_annot = {}
+          block_annot['@type'] = 'oa:Annotation'
+          block_annot['motivation'] = 'sc:painting'
+          block_annot['resource'] = {}
+          block_annot['resource']['@type'] = 'cnt:ContentAsText'
+          block_annot['resource']['format'] = 'text/plain'
+          block_annot['resource']['chars'] =  annot[annot.find{|k, hash| k.start_with?('text_')}[0]]
+          block_annot['metadata'] = {}
+          # block_annot['metadata']['word_confidence'] = block_text.size == 0 ? 0 : block_confidence / block_text.size
+          block_annot['on'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{id}/canvas/page_#{pagenum}#{annot['selector']}"
+          i.word_annots << block_annot
+        end
       end
     end
     i

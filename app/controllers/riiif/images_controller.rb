@@ -46,6 +46,8 @@ module Riiif
                   status: status,
                   type: Mime::Type.lookup_by_extension(params[:format]),
                   disposition: 'inline'
+      else
+        puts "no user"
       end
     end
 

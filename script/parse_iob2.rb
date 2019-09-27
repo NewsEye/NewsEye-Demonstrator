@@ -13,7 +13,7 @@ BEGIN {
       # iob_file = "/home/axel/data_l_oeuvre_ahmed/fr_outputs/#{issueid}.txt"
       iob_file = "/home/axel/data_bruxelles/l_oeuvre/#{issueid}.txt"
       # iob_file = "/home/axel/Téléchargements/data_german/#{issueid}.txt"
-      # iob_file = "/home/axel/data_bruxelles/aze_2018/new/#{issueid}.txt"
+      # iob_file = "/home/axel/data_bruxelles/aze_2https://newseye-wp5.cs.helsinki.fi/api/analysis/utilities018/new/#{issueid}.txt"
       begin
         content = File.read(iob_file)
       rescue => e
@@ -27,6 +27,12 @@ BEGIN {
       end_preprocess = Time.now
       puts "Preprocessed in #{(end_preprocess-start_preprocess).seconds} seconds."
       # puts tokens.size
+
+      # separate issue all_text in pages text.
+      # verify that the first word is the same as the one in solr ()id: ZZZZZZ_1_word_0)
+      # if so I can count words in the IOB file and index named_entities directly
+
+
 
       # fulltext = Issue2.from_solr(issueid).all_text
   # puts fulltext

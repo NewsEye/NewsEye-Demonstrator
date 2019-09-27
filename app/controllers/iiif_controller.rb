@@ -1,9 +1,9 @@
 # -*- encoding : utf-8 -*-
 
 class IiifController < ApplicationController
-  def manifest
+  def manifest(with_articles: false)
     # man = JSON.parse(Issue.find(params[:id]).manifest(request.protocol+request.host_with_port).to_json)
-    man = JSON.parse(Issue2.from_solr(params[:id]).manifest(request.protocol+request.host_with_port).to_json)
+    man = JSON.parse(Issue2.from_solr(params[:id], with_pages: true, with_articles: with_articles).manifest(request.protocol+request.host_with_port).to_json)
     # man['service'] = {}
     # man['service']['@context'] = "http://iiif.io/api/search/1/context.json"
     # man['service']['@id'] = "http://localhost:8888/search-api/#{params[:id]}/search"
@@ -11,16 +11,16 @@ class IiifController < ApplicationController
     render json: man
   end
 
-  def manifest_with_annotations
-    render json: JSON.parse(Issue2.from_solr(params[:id]).manifest(request.protocol+request.host_with_port, with_annotations=true).to_json)
-  end
+  # def manifest_with_annotations
+  #   render json: JSON.parse(Issue2.from_solr(params[:id]).manifest(request.protocol+request.host_with_port, with_annotations: true).to_json)
+  # end
 
   def annotation_list
     if params[:name].include? "page_" and params[:name].include? "_ocr_"
       pfs_id = params[:id] + '_page_' + params[:name].split('_')[1]
       case params[:name].split('_')[2..-1].join('_')
       when 'ocr_word_level'
-        render json: JSON.parse(PageFileSet2.from_solr(pfs_id).ocr_word_level_annotation_list.content)
+        render json: PageFileSet2.from_solr(pfs_id).generate_word_annotation_list
       when 'ocr_line_level'
         render json: JSON.parse(PageFileSet2.from_solr(pfs_id).ocr_line_level_annotation_list.content)
       when 'ocr_block_level'

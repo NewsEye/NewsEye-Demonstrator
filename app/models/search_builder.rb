@@ -13,25 +13,7 @@ class SearchBuilder < Blacklight::SearchBuilder
   # Filter unwanted model in search results
   def exclude_unwanted_models(solr_parameters)
     solr_parameters[:fq] ||= []
-    params = []
-    to_exclude = %w(
-        ActiveFedora::IndirectContainer
-        ActiveFedora::Aggregation::Proxy
-        ActiveFedora::DirectContainer
-        ActiveFedora::Aggregation::ListSource
-        Hydra::AccessControl
-        Hydra::AccessControls::Permission
-        PageFileSet
-        Newspaper
-    )
-    to_exclude.each do |model|
-      params << "-has_model_ssim:\"#{model}\""
-    end
-    params << "-level:2.pages.blocks"
-    params << "-level:3.pages.blocks.lines"
-    params << "-level:4.pages.blocks.lines.words"
-    # params << "-level:0.articles"
-    solr_parameters[:fq] << "(#{params.join(' AND ')})"
+    solr_parameters[:fq] << "(#{%w(Article Issue).map{ |model| "has_model_ssim:#{model}"}.join(' OR ')})"
   end
 
   def add_highlight(solr_parameters)

@@ -15,7 +15,7 @@
       <%= csrf_meta_tags %>
       <select name="dataset[id]" class="form-control form-control-sm">
       <option value="" disabled selected>Select your dataset</option>
-      <%= options_for_select(@current_user.datasets.map{|d| [d.title, d.id]}) %>
+      <%= options_for_select(current_user.datasets.map{|d| [d.title, d.id]}) %>
       </select>
       <input type="hidden" name="dataset[search]" value="<%= request.original_url %>">
       <button type="submit" class="btn btn-primary btn-sm">Add</button>

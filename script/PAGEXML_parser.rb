@@ -5,19 +5,22 @@ aze_2018_issues_ids.each do |issue_id|
   ind += 1
   begin
     puts "Processing issue #{ind} out of #{aze_2018_issues_ids.size}"
-    i = Issue2.from_solr(issue_id, false, false)
+    i = Issue2.from_solr(issue_id, with_pages: false, with_articles: false, with_word_annots: false)
     articles_to_save = []
+    id_start_from = 0
     (1...i.nb_pages).each do |pagenum|
-      myparser = MyParser.new i.id, i.date_created, i.language, i.newspaper_id, pagenum
+      myparser = MyParser.new i.id, i.date_created, i.language, i.newspaper_id, pagenum, id_start_from
       parser = Nokogiri::XML::SAX::Parser.new(myparser)
       path = "#{pagexml_path}/ANNO__Arbeiter_Zeitung__#{i.date_created.to_date.to_s}__Seite_#{pagenum}.xml"
       File.open(path) do |f|
         parser.parse f
       end
-      puts myparser.page_all_text
+      # puts myparser.page_all_text
       articles_to_save.concat myparser.articles.values
+      id_start_from = myparser.last_id
     end
     puts "Adding #{articles_to_save.size} articles..."
+    # puts articles_to_save.map(&:id)
     puts NewseyeSolrService.add articles_to_save.map(&:to_solr)
     puts NewseyeSolrService.commit
   rescue => e
@@ -30,14 +33,16 @@ end
 BEGIN {
   class MyParser < Nokogiri::XML::SAX::Document
 
-    attr_accessor :articles, :page_all_text
+    attr_accessor :articles, :page_all_text, :last_id, :id_start_from
 
-    def initialize(issue_id, date_created, lang, npid, page)
+    def initialize(issue_id, date_created, lang, npid, page, id_start_from)
       @issue_id = issue_id
       @date_created = date_created
       @language = lang
       @newspaper_id = npid
       @pagenum = page
+      @id_start_from = id_start_from
+      @last_id = id_start_from
     end
 
     def start_document
@@ -72,6 +77,9 @@ BEGIN {
         @in_line = true
         if (match = at['custom'].match(/readingOrder {index:([0-9]+);} structure {id:a([0-9]+); type:article;}/i))
           @current_reading_order, @current_article_id = match.captures
+          @current_article_id = @current_article_id.to_i
+          @current_article_id += @id_start_from
+          @last_id = @current_article_id if @current_article_id > @last_id
         end
         if @articles[@current_article_id] == nil and @current_article_id != nil
           @articles[@current_article_id] = Article2.new

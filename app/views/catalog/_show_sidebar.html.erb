@@ -106,7 +106,6 @@
     <h4 class="panel-title"><a data-toggle="collapse" href="#collapse3">
       Organizations
       <span style="color: grey">
-        <% console %>
         (<%= named_entities[:ORG].keys.size %> entities,
         <%= named_entities[:ORG].keys.map{ |nel| named_entities[:ORG][nel].size }.reduce(:+) %> mentions)
       </span>

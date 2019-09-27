@@ -12,7 +12,7 @@
   <%= csrf_meta_tags %>
   <select name="dataset[id]" class="form-control">
     <option value="" disabled selected>Select your dataset</option>
-    <%= options_for_select(@current_user.datasets.map{|d| [d.title, d.id]}) %>
+    <%= options_for_select(current_user.datasets.map{|d| [d.title, d.id]}) %>
   </select>
   <input type="hidden" name="dataset[article]" value="<%= request.original_url[request.original_url.rindex('/')+1..-1] %>">
   <button type="submit" class="btn btn-primary">Add</button>

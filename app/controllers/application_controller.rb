@@ -7,7 +7,7 @@ class ApplicationController < ActionController::Base
 
   protect_from_forgery with: :exception, unless: :json_request
   protect_from_forgery with: :null_session, if: :json_request
-  # before_action :authenticate_user!, unless: :json_request
+  before_action :authenticate_user!, unless: :json_request
   before_action :authorize_api_request, except: [:authenticate], if: :json_request
   before_action :authorize_api_request, if: :controller_is_iiif
   before_action :set_locale, unless: :json_request
@@ -40,7 +40,7 @@ class ApplicationController < ActionController::Base
   end
 
   def controller_is_iiif
-    self.controller_name == 'iiif'
+    self.controller_name == 'iiif' || self.controller_name == 'images'
   end
 
   def authorize_api_request

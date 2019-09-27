@@ -1,5 +1,4 @@
 # -*- encoding : utf-8 -*-
-require 'blacklight/catalog'
 
 class CatalogController < ApplicationController
   # include BlacklightAdvancedSearch::Controller
@@ -18,24 +17,12 @@ class CatalogController < ApplicationController
 
   # TODO add image part in "see extracts" + add position to hl : https://issues.apache.org/jira/browse/SOLR-4722
   # TODO mapping between fultext and iiif annotations (for point above + named entities)
-  # TODO handle hyphenated words (information already in alto, to be checked)
   # TODO advanced search
-  # TODO authorize_api_request in ApplicationController : check if query is json, else return
-  # TODO check and debug import process... (check to_solr, multiple times fulltext for languages...)
-  # TODO remove wiipuri
   # TODO check uusisuometar ocr data (new or old ?)
   # TODO integrate named entities inside solr as facets
   # TODO add comparison of subsets in personnal workspace for topics
   # TODO wait list of tasks (pending, partial results, finished)
-  # TODO named entities on arbeiter zeitung
-  # TODO see with ahmed for named entities in german
   # TODO newspaper context api (maybe explore controller ? which issue are available, calendar, etc)
-  # TODO import one swedish newspaper
-  # TODO open and secure solr to helsinki CS
-  # TODO check OCR newlines
-  #
-  #
-  # TODO send sarah small description of platform + images
 
   after_action :track_action
 
