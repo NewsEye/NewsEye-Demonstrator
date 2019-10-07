@@ -1,0 +1,206 @@
+<form id="analysis_data_source_form" novalidate="novalidate" data-remote="true" action="/personal_research_assistant/analyse" accept-charset="UTF-8" method="post" id="pra_analysis_form">
+  <%= csrf_meta_tags %>
+  <div class="form-group">
+    <label for="utilities_select">Select a utility to run</label>
+    <select id="utilities_select" name="utilities_select" class="form-control" autocomplete="off">
+      <option value="" disabled selected>Select the utility to use</option>
+      <% utilities = PersonalResearchAssistantService.list_utilities %>
+      <%# puts utilities %>
+      <%# utilities.select{ |utility| %w(query_topic_model find_steps_from_time_series).include? utility['utility_name'] }.each do |utility| %>
+      <% utilities.each do |utility| %>
+        <option value="<%= utility['utility_name'] %>"><%= utility['utility_name'].gsub('_',' ').capitalize %></option>
+      <% end%>
+    </select>
+  </div>
+  <div id="utility_desc"></div>
+  <div class="form-group" id="utility_params_inputs"></div>
+  <hr/>
+  
+<!--  Source selection -->
+<!--  <div class="row">-->
+<!--    <div class="col-md-3">-->
+<!--      <label for="analysis_search_query">Make a new search:</label>-->
+<!--    </div>-->
+<!--    <div class="form-group col-md-7">-->
+<!--      <input id="analysis_search_query" name="analysis_query_pra_input" class="form-control" type="text"/>-->
+<!--    </div>-->
+<!--    <div class="form-group col-md-2">-->
+<!--      <button id="analysis_query_submit" type="submit" class="btn btn-primary" name="analysis_query_submit" value="analysis_query">Analyse</button>-->
+<!--      <input class="btn btn-primary" name="analysis_query_submit" type="submit" value="Analyse"/>-->
+<!--    </div>-->
+<!--  </div>-->
+  <div class="row">
+    <div class="col-md-3">
+      <label for="analysis_search_task_select">Select an existing search task:</label>
+    </div>
+    <div class="form-group col-md-7">
+      <select id="analysis_search_task_select" name="analysis_search_task_pra_input" class="form-control" autocomplete="off">
+        <option value="" disabled selected>Select a search task</option>
+        <%= options_for_select(current_user.tasks.where(task_type: 'search').map(&:uuid)) %>
+      </select>
+    </div>
+    <div class="form-group col-md-2">
+<!--      <button type="submit" class="btn btn-primary" name="analysis_search_task_submit" value="analysis_search_task">Analyse</button>-->
+      <input class="btn btn-primary" name="analysis_search_task_submit" type="submit" value="Analyse"/>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-3">
+      <label for="analysis_dataset_pra_select">or select a dataset to process:</label>
+    </div>
+    <div class="form-group col-md-7">
+      <select id="analysis_dataset_select" name="analysis_dataset_pra_select_pra_input" class="form-control" autocomplete="off">
+        <option value="" disabled selected>Select your dataset</option>
+        <%= options_for_select(current_user.datasets.map{ |d| [d.title, d.id] }) %>
+      </select>
+    </div>
+    <div class="form-group col-md-2">
+<!--      <button type="submit" class="btn btn-primary" name="analysis_dataset_submit" value="analysis_dataset">Analyse</button>-->
+      <input class="btn btn-primary" name="analysis_dataset_submit" type="submit" value="Analyse"/>
+    </div>
+  </div>
+
+</form>
+
+<script type="application/javascript">
+    $(function(){
+    
+        //$('input[name="analysis_query_submit"]').click(function(e) {
+        //    e.preventDefault();
+        //    let select = $("#utilities_select")[0];
+        //    if(select.selectedIndex == 0) {
+        //        alert('Please select a utility to run');
+        //    }
+        //    else {
+        //        if($('#analysis_search_query').val().trim() === "") {
+        //            alert('Please enter a query');
+        //        }
+        //        else {
+        //            var input = document.createElement("input");
+        //            input.setAttribute("type", "hidden");
+        //            input.setAttribute("name", "source_select");
+        //            input.setAttribute("value", "query");
+        //            $("#analysis_data_source_form").append(input);
+        //            Rails.fire($("#analysis_data_source_form")[0], 'submit');
+        //        }
+        //    }
+        //});
+
+        $('input[name="analysis_search_task_submit"]').click(function(e) {
+            e.preventDefault();
+            let select = $("#utilities_select")[0];
+            if(select.selectedIndex == 0) {
+                alert('Please select a utility to run');
+            }
+            else {
+                if($('#analysis_search_task_select')[0].selectedIndex == 0) {
+                    alert('Please select a search task');
+                }
+                else {
+                    var input = document.createElement("input");
+                    input.setAttribute("type", "hidden");
+                    input.setAttribute("name", "source_select");
+                    input.setAttribute("value", "search_task");
+                    $("#analysis_data_source_form").append(input);
+                    Rails.fire($("#analysis_data_source_form")[0], 'submit');
+                }
+            }
+        });
+
+        $('input[name="analysis_dataset_submit"]').click(function(e) {
+            e.preventDefault();
+            let select = $("#utilities_select")[0];
+            if(select.selectedIndex == 0) {
+                alert('Please select a utility to run');
+            }
+            else {
+                if($('#analysis_dataset_select')[0].selectedIndex == 0) {
+                    alert('Please select a dataset');
+                }
+                else {
+                    var input = document.createElement("input");
+                    input.setAttribute("type", "hidden");
+                    input.setAttribute("name", "source_select");
+                    input.setAttribute("value", "dataset");
+                    $("#analysis_data_source_form").append(input);
+                    Rails.fire($("#analysis_data_source_form")[0], 'submit');
+                }
+            }
+        });
+
+        $('#utilities_select').change(function() {
+            let utilities = JSON.parse("<%= j utilities.to_json.html_safe %>");
+            let obj = utilities.find(u => u.utility_name == $('#utilities_select option:selected').attr('value'));
+            $('#utility_params_inputs').html('');
+            $('#utility_desc').html('');
+            $('#dataset_pra_select').val('');
+            $('#query_pra_input').val('');
+            let util_desc = document.createElement('p');
+            util_desc.textContent = obj.utility_description;
+            $('#utility_desc').append(util_desc);
+            if (obj.utility_name == 'query_topic_model') {
+                let label = document.createElement('label');
+                label.setAttribute('for', 'model_pra_select');
+                label.textContent = 'Select the model to use';
+                let select = $('#model_tm_select').clone();
+                select.attr('id', "model_pra_select");
+                select.attr('name', "model_pra_select");
+                $('#utility_params_inputs').append(label);
+                $('#utility_params_inputs').append(select);
+            }
+            else {
+                if (obj.utility_name == 'find_steps_from_time_series') {
+<!--                  let input_id = obj.utility_name + '_task_input';-->
+<!--                  let label = document.createElement('label');-->
+<!--                  label.setAttribute('for', input_id);-->
+<!--                  label.textContent = "Select a previous task";-->
+<!--                  let select = document.createElement('select');-->
+<!--                  select.setAttribute('id', input_id);-->
+<!--                  select.setAttribute('name', input_id);-->
+<!--                  select.setAttribute('autocomplete', 'off');-->
+<!--                  select.className = "form-control";-->
+<!--                  var opt = document.createElement('option');-->
+<!--                  opt.value = "";-->
+<!--                  opt.innerHTML = "Select a previous task";-->
+<!--                  opt.selected = true;-->
+<!--                  opt.disabled = true;-->
+<!--                  select.appendChild(opt);-->
+                  <%# Task.where(user: current_user).where("parameters->>'utility' = ?", "generate_time_series").each do |t| %>
+<!--                      var opt = document.createElement('option');-->
+<!--                      opt.value = "<%#= t.uuid %>";-->
+<!--                      opt.innerHTML = "<%#= t.started %>";-->
+<!--                      select.appendChild(opt);-->
+                  <%# end %>
+<!--                  $('#utility_params_inputs').append(label);-->
+<!--                  $('#utility_params_inputs').append(select);-->
+                }
+                obj.utility_parameters.forEach(function(param){
+                  let input_id = obj.utility_name + '_' + param.parameter_name + '_input';
+                  let label = document.createElement('label');
+                  label.setAttribute('for', input_id);
+
+                  // label.textContent = param.parameter_description;
+                  let textContent = param.parameter_name.split('_').join(' ');
+                  textContent = textContent.charAt(0).toUpperCase() + textContent.slice(1);
+                  label.textContent = textContent;
+
+                  let input = document.createElement('input');
+                  input.setAttribute('id', input_id);
+                  input.name = "utility_params[" + param.parameter_name + "]";
+                  input.value = param.parameter_default;
+                  input.className = "form-control";
+                  switch(param.parameter_type){
+                    case 'string':
+                      input.type = 'text';
+                      break;
+                    case 'integer':
+                      input.type = 'number';
+                      break;
+                  }
+                  $('#utility_params_inputs').append(label);
+                  $('#utility_params_inputs').append(input);
+                });
+            }
+        });
+    })
+</script>

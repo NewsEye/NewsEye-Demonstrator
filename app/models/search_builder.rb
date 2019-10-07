@@ -27,4 +27,8 @@ class SearchBuilder < Blacklight::SearchBuilder
     solr_parameters[:'hl.maxAnalyzedChars'] = 10000000
   end
 
+  def set_fl_id(solr_parameters)
+    solr_parameters[:fl] = "id"
+  end
+
 end

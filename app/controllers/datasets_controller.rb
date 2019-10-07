@@ -143,8 +143,39 @@ class DatasetsController < ApplicationController
   def destroy
     @dataset.destroy
     respond_to do |format|
-      format.html { redirect_to '/personal_workspace', notice: 'Dataset was successfully destroyed.' }
+      format.html { redirect_to '/personal_research_assistant', notice: 'Dataset was successfully destroyed.' }
       format.json { head :no_content }
+    end
+  end
+
+  def get_ids
+    (@response, @document_list) = search_results(params) do |builder|
+      builder = SearchBuilderIds.new(self)
+      builder.with(params)
+      # builder.with(params)
+      # puts "# begin : #{SearchBuilder.default_processor_chain}"
+      # methods = Array(SearchBuilder.default_processor_chain)
+      # methods.each do |method|
+      #   SearchBuilder.default_processor_chain = [method]
+      #   puts "# #{method} : #{SearchBuilder.default_processor_chain}"
+      #   builder = search_builder.with(params)
+      #
+      # end
+      # SearchBuilder.default_processor_chain += [:set_fl_id]
+      # SearchBuilder.default_processor_chain -= [:add_highlight]
+      # SearchBuilder.default_processor_chain -= [:add_facet_fq_to_solr]
+      # SearchBuilder.default_processor_chain -= [:add_facetting_to_solr]
+      # SearchBuilder.default_processor_chain -= [:add_sorting_to_solr]
+      # SearchBuilder.default_processor_chain -= [:add_facet_paging_to_solr]
+      # puts SearchBuilder.default_processor_chain
+      # builder = search_builder.with(params)
+      # puts builder
+      builder
+    end
+    respond_to do |format|
+      format.json do
+        render json: @response
+      end
     end
   end
 

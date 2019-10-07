@@ -1,28 +1,7 @@
 <p id="notice"><%= notice %></p>
 
-<h1>Datasets</h1>
-
-<table>
-  <thead>
-    <tr>
-      <th>Title</th>
-      <th colspan="3"></th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <% current_user.dataset_ids.each do |dataset_id| %>
-      <% dataset = Dataset.find(dataset_id) %>
-      <tr>
-        <td><%= dataset.title %></td>
-        <td><%= link_to 'Show', dataset %></td>
-        <td><%= link_to 'Edit', edit_dataset_path(dataset) %></td>
-        <td><%= link_to 'Destroy', dataset, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
-
-<br>
-
-<%= link_to 'New Dataset', new_dataset_path %>
+<div class="row">
+  <div class="col-sm">
+    <%= render 'datasets' %>
+  </div>
+</div>

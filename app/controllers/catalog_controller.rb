@@ -13,7 +13,7 @@ class CatalogController < ApplicationController
   before_action :handle_empty_query, only: :index
 
   # This applies appropriate access controls to all solr queries
-  Hydra::SearchBuilder.default_processor_chain += [:add_access_controls_to_solr_params]
+  # Hydra::SearchBuilder.default_processor_chain += [:add_access_controls_to_solr_params]
 
   # TODO add image part in "see extracts" + add position to hl : https://issues.apache.org/jira/browse/SOLR-4722
   # TODO mapping between fultext and iiif annotations (for point above + named entities)
@@ -157,15 +157,22 @@ class CatalogController < ApplicationController
       format.rss  { render :layout => false }
       format.atom { render :layout => false }
       format.json do
-        @presenter = Blacklight::JsonPresenter.new(@response,
-                                                   @document_list,
-                                                   facets_from_request,
-                                                   blacklight_config)
+        if params['fl'] == 'id'
+          @document_list.map!(&:id)
+          @presenter = Blacklight::JsonPresenter.new(@response,
+                                                     @document_list,
+                                                     facets_from_request,
+                                                     blacklight_config)
+        else
+          @presenter = Blacklight::JsonPresenter.new(@response,
+                                                     @document_list,
+                                                     facets_from_request,
+                                                     blacklight_config)
+        end
       end
       additional_response_formats(format)
       document_export_formats(format)
     end
-
   end
 
   def show

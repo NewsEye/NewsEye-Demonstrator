@@ -37,7 +37,7 @@ module ApplicationHelper
                'abo_underrattelser': "Åbo Underrättelser", 'hufvudstadsbladet': "Hufvudstadsbladet", 'vastra_finland': "Vastra Finland",
 
                'arbeiter_zeitung': "Arbeiter Zeitung", 'illustrierte_kronen_zeitung': "Illustrierte Kronen Zeitung",
-               'innsbrucker_nachrichten': "Innsbrucker Nachrichten", 'neue_frei_presse': "Neue Frei Presse"
+               'innsbrucker_nachrichten': "Innsbrucker Nachrichten", 'neue_freie_presse': "Neue Freie Presse"
       }
     case options
     when String

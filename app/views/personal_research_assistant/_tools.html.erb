@@ -1,0 +1,55 @@
+<div class="col-sm-6">
+  <div class="panel-group">
+<!--    <div class="panel panel-default">-->
+<!--      <div class="panel-heading">-->
+<!--        <h4 class="panel-title">-->
+<!--          <a data-toggle="collapse" href="#collapse_search">Search task</a>-->
+<!--        </h4>-->
+<!--      </div>-->
+<!--      <div id= "collapse_search" class="panel-collapse collapse">-->
+<!--        <div class="panel-body">-->
+          <%#= render 'search_tasks' %>
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title">
+          <a data-toggle="collapse" href="#collapse_analysis">Analysis task</a>
+        </h4>
+      </div>
+      <div id= "collapse_analysis" class="panel-collapse collapse">
+        <div class="panel-body">
+          <%= render 'analysis_tasks' %>
+        </div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title">
+          <a data-toggle="collapse" href="#collapse_investigate">Investigate task</a>
+        </h4>
+      </div>
+      <div id= "collapse_investigate" class="panel-collapse collapse">
+        <div class="panel-body">
+          <%= render 'investigate_tasks' %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="col-sm-6">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <a data-toggle="collapse" href="#collapse_topic_modelling">Topic Modelling</a>
+      </h4>
+    </div>
+    <div id= "collapse_topic_modelling" class="panel-collapse collapse">
+      <div class="panel-body">
+        <%= render 'topic_modelling' %>
+      </div>
+    </div>
+  </div>
+</div>

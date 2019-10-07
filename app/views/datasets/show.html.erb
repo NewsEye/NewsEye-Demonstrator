@@ -4,7 +4,7 @@
     <p><%= @dataset.title %></p>
     <strong>Searches</strong>
     <% @dataset.searches.each do |search| %>
-    <p><%= search %></p>
+    <p><%= CGI::unescape search %></p>
     <% end %>
     <strong>Documents</strong>
     <% @dataset.issues.each do |doc| %>
@@ -20,4 +20,4 @@
 <% else %>
   <p>Access forbidden.</p>
 <% end %>
-<%= link_to 'Back', "/#{I18n.locale}/personal_workspace" %>
+<%= link_to 'Back', "/#{I18n.locale}/personal_research_assistant" %>

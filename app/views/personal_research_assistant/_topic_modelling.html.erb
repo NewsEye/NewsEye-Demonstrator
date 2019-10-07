@@ -1,0 +1,41 @@
+<form novalidate="novalidate" data-remote="true" action="/personal_research_assistant/tm_action" accept-charset="UTF-8" method="post">
+  <%= csrf_meta_tags %>
+  <label for="dataset_tm_select">Select a dataset to process</label>
+  <div class="form-group">
+    <select id="dataset_tm_select" name="dataset_tm_select" class="form-control" autocomplete="off">
+      <option value="" disabled selected>Select your dataset</option>
+      <%= options_for_select(current_user.datasets.map(&:title)) %>
+    </select>
+  </div>
+  <label for="model_tm_select">Select the model to use</label>
+  <div class="form-group">
+    <select id="model_tm_select" name="model_tm_select" class="form-control" autocomplete="off">
+      <option value="" disabled selected>Select the model to use</option>
+      <% models = get_models %>
+      <% models.keys.each do |model_type| %>
+        <% next if models[model_type].is_a? String %>
+        <optgroup label="<%= model_type %>">
+          <% models[model_type].each do |data| %>
+            <% next if data.instance_of? Array %>
+            <option value="<%= data['name'] %>"><%= data['description'] %></option>
+          <% end %>
+        </optgroup>
+      <% end %>
+    </select>
+  </div>
+  <button type="submit" class="btn btn-primary" name="submit" value="query">Get topics for selected dataset</button>
+  <hr/>
+  <div class="form-group col-md-9">
+    <select id="topic_select" name="topic_select" class="form-control" autocomplete="off">
+      <option value="" disabled selected>Select a topic</option>
+      <%= options_for_select(0..9) %>
+    </select>
+  </div>
+  <button type="submit" class="btn btn-primary" name="submit" value="describe">Describe selected topic</button>
+</form>
+
+<div id="modal-describe_topic" class="modal hide fade" role="dialog" aria-labelledby="describe_topic_label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content"></div>
+  </div>
+</div>
