@@ -118,6 +118,21 @@ class PersonalResearchAssistantController < ApplicationController
     end
   end
 
+  def delete_task
+    task = Task.where(uuid: params[:uuid]).first
+    unless task.nil?
+      if task.user == current_user
+        task.subtasks.each do |subtask|
+          subtask.delete
+        end
+        task.delete
+      end
+    end
+    respond_to do |format|
+      format.js { render file: "personal_research_assistant/update_tasks", layout: false}
+    end
+  end
+
   def update_status
     Task.where(user: current_user, status: "running").each do |t|
       if t.task_type == "topic_model_query"

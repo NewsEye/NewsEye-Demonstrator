@@ -81,6 +81,8 @@ Rails.application.routes.draw do
     post '/personal_research_assistant/investigate', to: 'personal_research_assistant#investigate_task'
     get '/update_tasks_status', to: 'personal_research_assistant#update_status'
 
+    get '/delete_task/:uuid', to: 'personal_research_assistant#delete_task'
+
   end
 
   mount Riiif::Engine => '/iiif', as: 'riiif'

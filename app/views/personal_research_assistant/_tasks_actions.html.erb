@@ -16,6 +16,7 @@
   <% link_address2 = "/personal_research_assistant/tm_show_results/#{task.uuid}" %>
   <% link_address3 = nil %>
 <% end %>
+<% link_address4 = "/delete_task/#{task.uuid}" %>
 
 <% if link_address3 %>
   <%= link_to link_address3,  {:remote => true, 'data-toggle' =>  "modal", 'data-target' => '#modal-params', class: 'btn btn-link'} do %>
@@ -43,3 +44,6 @@
     <div class="modal-content"></div>
   </div>
 </div>
+<%= link_to link_address4,  {remote: true, 'data-confirm': "Are you sure you want to delete this task ?", class: 'btn btn-link'} do %>
+  <span class="glyphicon glyphicon-remove" style="color: red"></span>
+<% end %>
