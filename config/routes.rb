@@ -65,7 +65,6 @@ Rails.application.routes.draw do
     post '/datasets/add', to: 'datasets#add'
     post '/datasets/create_and_add', to: 'datasets#create_and_add'
     post '/datasets/delete_elements', to: 'datasets#delete_elements'
-    get '/datasets/:id/get_ids', to: 'datasets#get_ids'
 
     get '/personal_research_assistant', to: 'personal_research_assistant#index'
     get '/personal_research_assistant/show_results/:task_uuid', to: 'personal_research_assistant#show_results'

@@ -4,12 +4,17 @@
 
 <%= render 'add_search_to_dataset_dropdown' %>
 
-<!--<button id="create_task" class="btn btn-primary btn-sm">Create task from search</button>-->
 <%
   search_parameters = @response['responseHeader']['params'].deep_dup
   search_parameters.except! *search_parameters.keys.select{ |k| k.index('hl') == 0 }
   search_parameters.except! *search_parameters.keys.select{ |k| k.index('stats') == 0 }
+
   # puts search_parameters
 %>
-<%= button_to("Create task from search", "/personal_research_assistant/create_search_task", {class: "btn btn-primary btn-sm", method: :post, params: search_parameters, remote: true}) %>
+<%= button_to("Create task from search", "/personal_research_assistant/create_search_task", {class: "btn btn-primary btn-sm",
+                                                                                             method: :post,
+                                                                                             params: search_parameters,
+                                                                                             remote: true,
+                                                                                             'data-disable-with': 'Creating task...'}) %>
+
 <%= render 'sort_and_per_page' %>

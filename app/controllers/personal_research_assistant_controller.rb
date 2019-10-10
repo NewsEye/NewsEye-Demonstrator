@@ -15,7 +15,7 @@ class PersonalResearchAssistantController < ApplicationController
     if data['uuid']
       Task.create(user: current_user, status: data['task_status'], uuid: data['uuid'],
                   started: data['task_started'], finished: data['task_finished'],
-                  task_type: data['task_type'], parameters: data['task_parameters'], results: data['task_results'])
+                  task_type: data['task_type'], parameters: data['task_parameters'], results: data['task_result'])
     else
       puts data
     end
@@ -30,12 +30,16 @@ class PersonalResearchAssistantController < ApplicationController
     if data['uuid']
       Task.create(user: current_user, status: data['task_status'], uuid: data['uuid'],
                   started: data['task_started'], finished: data['task_finished'],
-                  task_type: data['task_type'], parameters: data['task_parameters'], results: data['task_results'])
+                  task_type: data['task_type'], parameters: data['task_parameters'], results: data['task_result'])
+      message = "Search task was successfully created."
+      status = 'success'
     else
       puts data
+      message = "A problem occured while creating the search task."
+      status = 'warning'
     end
     respond_to do |format|
-      format.js { render js: ''}#file: "personal_research_assistant/update_tasks", layout: false}
+      format.js { render partial: "catalog/confirm_add_search", locals: {message: message, status: status}}
     end
   end
 
@@ -77,12 +81,13 @@ class PersonalResearchAssistantController < ApplicationController
       data = PersonalResearchAssistantService.api_analyse(params[:analysis_search_task_pra_input], params[:utilities_select], utility_opts)
     when 'dataset'
       dataset_ids = Dataset.find(params[:analysis_dataset_pra_select_pra_input]).get_ids
-      #data = PersonalResearchAssistantService.api_analyse({q: "id:#{dataset_ids.join(' ')}"}, params[:utilities_select], utility_opts)
+      query = dataset_ids.map { |id| "id:#{id}" }.join(' OR ')
+      data = PersonalResearchAssistantService.api_analyse({q: query}, params[:utilities_select], utility_opts)
     end
     if data['uuid']
       Task.create(user: current_user, status: data['task_status'], uuid: data['uuid'],
                   started: data['task_started'], finished: data['task_finished'],
-                  task_type: data['task_type'], parameters: data['task_parameters'], results: data['task_results'])
+                  task_type: data['task_type'], parameters: data['task_parameters'], results: data['task_result'])
     else
       puts data
     end
@@ -97,12 +102,14 @@ class PersonalResearchAssistantController < ApplicationController
     when 'search_task'
       data = PersonalResearchAssistantService.api_investigate(params[:investigate_search_task_pra_input])
     when 'dataset'
-      data = {}
+      dataset_ids = Dataset.find(params[:investigate_dataset_pra_select_pra_input]).get_ids
+      query = dataset_ids.map { |id| "id:#{id}" }.join(' OR ')
+      data = PersonalResearchAssistantService.api_investigate({q: query})
     end
     if data['uuid']
       Task.create(user: current_user, status: data['task_status'], uuid: data['uuid'],
                   started: data['task_started'], finished: data['task_finished'],
-                  task_type: data['task_type'], parameters: data['task_parameters'], results: data['task_results'])
+                  task_type: data['task_type'], parameters: data['task_parameters'], results: data['task_result'])
     else
       puts data
     end
@@ -112,7 +119,7 @@ class PersonalResearchAssistantController < ApplicationController
   end
 
   def update_status
-    Task.where(user: current_user).each do |t|
+    Task.where(user: current_user, status: "running").each do |t|
       if t.task_type == "topic_model_query"
         data = helpers.tm_query_results(t.uuid)
         if data['doc_weights']
@@ -125,6 +132,7 @@ class PersonalResearchAssistantController < ApplicationController
           data = PersonalResearchAssistantService.get_search_task t.uuid
         when 'analysis'
           data = PersonalResearchAssistantService.get_analysis_task t.uuid
+          puts data
         when 'investigator'
           data = PersonalResearchAssistantService.get_investigate_task t.uuid
         else

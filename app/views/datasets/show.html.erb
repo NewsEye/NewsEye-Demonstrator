@@ -3,21 +3,27 @@
     <strong>Title:</strong>
     <p><%= @dataset.title %></p>
     <strong>Searches</strong>
-    <% @dataset.searches.each do |search| %>
-    <p><%= CGI::unescape search %></p>
-    <% end %>
+    <p>
+      <% @dataset.searches.each do |search| %>
+      <p><%= CGI::unescape search %></p>
+      <% end %>
+    </p>
     <strong>Documents</strong>
-    <% @dataset.issues.each do |doc| %>
-      <p><%= doc %></p>
-    <% end %>
+    <p>
+      <% @dataset.issues.each do |doc| %>
+        <p><%= doc %></p>
+      <% end %>
+    </p>
     <strong>Articles</strong>
-    <% @dataset.articles.each do |doc| %>
-      <p><%= doc %></p>
-    <% end %>
+    <p>
+      <% @dataset.articles.each do |doc| %>
+        <p><%= doc %></p>
+      <% end %>
+    </p>
   </div>
 
   <%= link_to 'Edit', edit_dataset_path(@dataset) %>
 <% else %>
   <p>Access forbidden.</p>
 <% end %>
-<%= link_to 'Back', "/#{I18n.locale}/personal_research_assistant" %>
+<%= link_to 'Back', "/#{I18n.locale}/datasets" %>

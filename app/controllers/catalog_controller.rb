@@ -16,12 +16,9 @@ class CatalogController < ApplicationController
   # Hydra::SearchBuilder.default_processor_chain += [:add_access_controls_to_solr_params]
 
   # TODO add image part in "see extracts" + add position to hl : https://issues.apache.org/jira/browse/SOLR-4722
-  # TODO mapping between fultext and iiif annotations (for point above + named entities)
   # TODO advanced search
   # TODO check uusisuometar ocr data (new or old ?)
-  # TODO integrate named entities inside solr as facets
   # TODO add comparison of subsets in personnal workspace for topics
-  # TODO wait list of tasks (pending, partial results, finished)
   # TODO newspaper context api (maybe explore controller ? which issue are available, calendar, etc)
 
   after_action :track_action

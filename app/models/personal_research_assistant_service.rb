@@ -84,6 +84,7 @@ class PersonalResearchAssistantService
     end
     begin
       res = http.request(req)
+      Rails.logger.info "response:  #{res.body}"
       return JSON.parse(res.body)
     rescue SocketError => e
       puts "Error connecting to PRA API."

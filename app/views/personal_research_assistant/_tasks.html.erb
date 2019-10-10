@@ -1,7 +1,6 @@
 <div class="panel panel-default">
   <div class="panel-heading">
     Tasks
-<!--    <a data-remote="true" href="/update_tasks_status" style="float: right;"><span class="glyphicon glyphicon-refresh"></span></a>-->
     <form  style="float: right;" novalidate="novalidate" data-remote="true" action="/update_tasks_status" accept-charset="UTF-8" method="get">
       <%= csrf_meta_tags %>
       <button type="submit" class="btn btn-link"><span class="glyphicon glyphicon-refresh"></span></button>
@@ -9,66 +8,70 @@
   </div>
   <div class="panel-body">
 
-    <ul class="list-group">
-      <% Task.where(user: current_user).sort_by { |t| t.started }.reverse.each do |t| %>
-        <% style = t.status == "finished" ? "list-group-item-success" : "list-group-item-warning" %>
-        <li class="list-group-item <%= style %>">
-          Started at: <%= t.started %> |
-          Task type: <%= t.task_type %> |
-          uuid: <%= t.uuid %>
-          <%# if t.parameters %>
-<!--            Utility: <%#= t.parameters['utility'] %>-->
-          <%# end %>
-
-          <% case t.task_type %>
-          <% when 'search' %>
-            <% link_address1 = "/personal_research_assistant/show_params/#{t.uuid}" %>
-            <% link_address2 = "/personal_research_assistant/show_results/#{t.uuid}" %>
-            <% link_address3 = nil %>
-          <% when 'analysis' %>
-            <% link_address1 = "/personal_research_assistant/show_params/#{t.uuid}" %>
-            <% link_address2 = "/personal_research_assistant/show_results/#{t.uuid}" %>
-            <% link_address3 = "/personal_research_assistant/show_report/#{t.uuid}" %>
-          <% when 'investigator' %>
-            <% link_address1 = "/personal_research_assistant/show_params/#{t.uuid}" %>
-            <% link_address2 = "/personal_research_assistant/show_results/#{t.uuid}" %>
-            <% link_address3 = "/personal_research_assistant/show_report/#{t.uuid}" %>
-          <% when 'topic_model_query' %>
-            <% link_address1 = "/personal_research_assistant/tm_show_params/#{t.uuid}" %>
-            <% link_address2 = "/personal_research_assistant/tm_show_results/#{t.uuid}" %>
-            <% link_address3 = nil %>
-          <% end %>
-
-          <%= link_to link_address1,  {:remote => true, 'data-toggle' =>  "modal", 'data-target' => '#modal-report', class: 'btn btn-link', style: 'float: right;'} do %>
-            <span class="glyphicon glyphicon-wrench"></span>
-          <% end %>
-          <div id="modal-report" class="modal hide fade" role="dialog" aria-labelledby="report_label" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-              <div class="modal-content"></div>
-            </div>
-          </div>
-          <%= link_to link_address2,  {:remote => true, 'data-toggle' =>  "modal", 'data-target' => '#modal-params', class: 'btn btn-link', style: 'float: right;'} do %>
-            <span class="glyphicon glyphicon-list-alt"></span>
-          <% end %>
-          <div id="modal-params" class="modal hide fade" role="dialog" aria-labelledby="params_label" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-              <div class="modal-content"></div>
-            </div>
-          </div>
-          <% if link_address3 %>
-            <%= link_to link_address3,  {:remote => true, 'data-toggle' =>  "modal", 'data-target' => '#modal-params', class: 'btn btn-link', style: 'float: right;'} do %>
-              <span class="glyphicon glyphicon-comment"></span>
-            <% end %>
-            <div id="modal-params" class="modal hide fade" role="dialog" aria-labelledby="results_label" aria-hidden="true">
-              <div class="modal-dialog" role="document">
-                <div class="modal-content"></div>
+    <div class="list-group">
+      <% Task.where(user: current_user, subtask: false).sort_by { |t| t.started }.reverse.each do |t| %>
+        <% case t.task_type %>
+        <% when 'investigator', 'investigate' %>
+          <% style = t.status == "finished" ? "list-group-item-success" : "list-group-item-warning" %>
+          <li class="list-group-item <%= style %>">
+            <div style="position: relative">
+              <div class="clearfix">
+                <span style="float: left">
+                  <a class="" id="task_<%= t.uuid %>" data-toggle="collapse" href="#subtasks_<%= t.uuid %>">
+                      Started at: <%= t.started %> |
+                      Task type: <%= t.task_type %> |
+                      uuid: <%= t.uuid %>
+                  </a>
+                </span>
+                <span style="float: right">
+                  <%= render partial: 'personal_research_assistant/tasks_actions', locals: {task: t} %>
+                </span>
               </div>
             </div>
-          <% end %>
+          </li>
+          <div class="collapse list-group-submenu" id="subtasks_<%= t.uuid %>">
+            <ul>
+              <% t.subtasks.each do |subtask| %>
+                <% style = t.status == "finished" ? "list-group-item-success" : "list-group-item-warning" %>
+                <li class="list-group-item sub-item <%= style %>" style="padding-left: 30px">
+                  <div class="clearfix">
+                    <span style="float: left">
+                      Started at: <%= subtask.started %> |
+                      Task type: <%= subtask.task_type %> |
+                      <% if subtask.task_type == 'analysis' %>
+                        [<%= subtask.parameters['utility'] %>] |
+                      <% end %>
+                      uuid: <%= subtask.uuid %>
+                    </span>
+                    <span style="float: right">
+                      <%= render partial: 'personal_research_assistant/tasks_actions', locals: {task: subtask} %>
+                    </span>
+                  </div>
+                </li>
+              <% end %>
+            </ul>
+          </div>
 
-        </li>
+        <% when 'search', 'analysis'%>
+          <% style = t.status == "finished" ? "list-group-item-success" : "list-group-item-warning" %>
+          <li class="list-group-item <%= style %>">
+            <div class="clearfix">
+              <span style="float: left">
+                Started at: <%= t.started %> |
+                Task type: <%= t.task_type %> |
+                <% if t.task_type == 'analysis' %>
+                  [<%= t.parameters['utility'] %>] |
+                <% end %>
+                uuid: <%= t.uuid %>
+              </span>
+              <span style="float:right">
+                <%= render partial: 'personal_research_assistant/tasks_actions', locals: {task: t} %>
+              </span>
+            </div>
+          </li>
+        <% end %>
       <% end %>
-    </ul>
+    </div>
 
   </div>
 </div>

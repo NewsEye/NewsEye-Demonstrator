@@ -6,11 +6,6 @@ class NamedEntityMention #< ApplicationRecord
 
   attr_accessor :id, :linked_entity_id, :doc_id, :mention, :iiif_annotations, :position, :detection_confidence, :linking_confidence, :stance
 
-  def self.batch_index(nems)
-    NewseyeSolrService.add(nems.map(&:to_solr))
-    NewseyeSolrService.commit
-  end
-
   def to_solr
     entity = {
         id: "entity_mention_#{self.id}",
@@ -27,8 +22,4 @@ class NamedEntityMention #< ApplicationRecord
     entity.stringify_keys!
   end
 
-  def index_record
-    NewseyeSolrService.add(self.to_solr)
-    NewseyeSolrService.commit
-  end
 end

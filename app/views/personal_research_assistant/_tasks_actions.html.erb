@@ -1,0 +1,45 @@
+<% case task.task_type %>
+<% when 'search' %>
+  <% link_address1 = "/personal_research_assistant/show_params/#{task.uuid}" %>
+  <% link_address2 = "/personal_research_assistant/show_results/#{task.uuid}" %>
+  <% link_address3 = nil %>
+<% when 'analysis' %>
+  <% link_address1 = "/personal_research_assistant/show_params/#{task.uuid}" %>
+  <% link_address2 = "/personal_research_assistant/show_results/#{task.uuid}" %>
+  <% link_address3 = "/personal_research_assistant/show_report/#{task.uuid}" %>
+<% when 'investigator' %>
+  <% link_address1 = "/personal_research_assistant/show_params/#{task.uuid}" %>
+  <% link_address2 = "/personal_research_assistant/show_results/#{task.uuid}" %>
+  <% link_address3 = "/personal_research_assistant/show_report/#{task.uuid}" %>
+<% when 'topic_model_query' %>
+  <% link_address1 = "/personal_research_assistant/tm_show_params/#{task.uuid}" %>
+  <% link_address2 = "/personal_research_assistant/tm_show_results/#{task.uuid}" %>
+  <% link_address3 = nil %>
+<% end %>
+
+<% if link_address3 %>
+  <%= link_to link_address3,  {:remote => true, 'data-toggle' =>  "modal", 'data-target' => '#modal-params', class: 'btn btn-link'} do %>
+    <span class="glyphicon glyphicon-comment"></span>
+  <% end %>
+  <div id="modal-params" class="modal hide fade" role="dialog" aria-labelledby="results_label" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content"></div>
+    </div>
+  </div>
+<% end %>
+<%= link_to link_address2,  {:remote => true, 'data-toggle' =>  "modal", 'data-target' => '#modal-params', class: 'btn btn-link'} do %>
+  <span class="glyphicon glyphicon-list-alt"></span>
+<% end %>
+<div id="modal-params" class="modal hide fade" role="dialog" aria-labelledby="params_label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content"></div>
+  </div>
+</div>
+<%= link_to link_address1,  {:remote => true, 'data-toggle' =>  "modal", 'data-target' => '#modal-report', class: 'btn btn-link'} do %>
+  <span class="glyphicon glyphicon-wrench"></span>
+<% end %>
+<div id="modal-report" class="modal hide fade" role="dialog" aria-labelledby="report_label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content"></div>
+  </div>
+</div>
