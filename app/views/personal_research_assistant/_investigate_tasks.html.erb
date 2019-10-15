@@ -1,6 +1,5 @@
 <form id="investigate_data_source_form" novalidate="novalidate" data-remote="true" action="/personal_research_assistant/investigate" accept-charset="UTF-8" method="post" id="pra_investigate_form">
   <%= csrf_meta_tags %>
-  <!--  Source selection -->
   <div class="row">
     <div class="col-md-3">
       <label for="investigate_search_task_select">Select an existing search task:</label>
@@ -12,7 +11,6 @@
       </select>
     </div>
     <div class="form-group col-md-2">
-      <!--      <button type="submit" class="btn btn-primary" name="investigate_search_task_submit" value="investigate_search_task">Analyse</button>-->
       <input class="btn btn-primary" name="investigate_search_task_submit" type="submit" data-disable-with="Creating task..." value="Investigate"/>
     </div>
   </div>
@@ -27,44 +25,8 @@
       </select>
     </div>
     <div class="form-group col-md-2">
-      <!--      <button type="submit" class="btn btn-primary" name="investigate_dataset_submit" value="investigate_dataset">Analyse</button>-->
       <input class="btn btn-primary" name="investigate_dataset_submit" type="submit" data-disable-with="Creating task..." value="Investigate"/>
     </div>
   </div>
 
 </form>
-
-<script type="application/javascript">
-    $(function(){
-
-        $('input[name="investigate_search_task_submit"]').click(function(e) {
-            e.preventDefault();
-            if($('#investigate_search_task_select')[0].selectedIndex == 0) {
-                alert('Please select a search task');
-            }
-            else {
-                var input = document.createElement("input");
-                input.setAttribute("type", "hidden");
-                input.setAttribute("name", "source_select");
-                input.setAttribute("value", "search_task");
-                $("#investigate_data_source_form").append(input);
-                Rails.fire($("#investigate_data_source_form")[0], 'submit');
-            }
-        });
-
-        $('input[name="investigate_dataset_submit"]').click(function(e) {
-            e.preventDefault();
-            if($('#investigate_dataset_select')[0].selectedIndex == 0) {
-                alert('Please select a dataset');
-            }
-            else {
-                var input = document.createElement("input");
-                input.setAttribute("type", "hidden");
-                input.setAttribute("name", "source_select");
-                input.setAttribute("value", "dataset");
-                $("#investigate_data_source_form").append(input);
-                Rails.fire($("#investigate_data_source_form")[0], 'submit');
-            }
-        });
-    })
-</script>

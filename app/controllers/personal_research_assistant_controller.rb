@@ -1,6 +1,11 @@
 class PersonalResearchAssistantController < ApplicationController
 
   def index
+    @utilities = PersonalResearchAssistantService.list_utilities
+    @user_tasks_uuids = current_user.tasks.select{ |t| t.task_type == 'analysis' }.map do |t|
+      input_type = @utilities.select { |u| u['utility_name'] == t.parameters['utility'] }[0]['input_type']
+      {uuid: t.uuid, input_type: input_type}
+    end
   end
 
   def list_models
@@ -44,34 +49,6 @@ class PersonalResearchAssistantController < ApplicationController
   end
 
   def analysis_task
-    # if params[:utilities_select] != ''
-    #   if params['analyse_query_pra_input'] != ''
-    #     search_params = {q: params['analyse_query_pra_input']}
-    #   else
-    #     issues = Dataset.where(title: params[:analyse_dataset_pra_select])[0].issues
-    #     search_params = {q: "id:(#{issues.join(' ')})"}
-    #   end
-    #   utility_opts = {}
-    #   params.keys.each { |p| utility_opts[p] = params[p] unless %w(analyse_query_pra_input find_steps_from_time_series_task_input analyse_dataset_pra_select utilities_select submit controller action).include? p }
-    #   # puts utility_opts
-    #   utility_opts['model_type'] = utility_opts['model_pra_select'].split('-')[-1] if utility_opts['model_pra_select']
-    #   utility_opts['model_name'] = utility_opts.delete 'model_pra_select' if utility_opts['model_pra_select']
-    #
-    #   if params[:utilities_select] == 'find_steps_from_time_series'
-    #     # data = helpers.api_analysis_task(params['find_steps_from_time_series_task_input'], params[:utilities_select], utility_opts)
-    #     data = helpers.api_analysis_search(search_params, params[:utilities_select], {})
-    #   else
-    #     data = helpers.api_analysis_search(search_params, params[:utilities_select], utility_opts)
-    #   end
-    #   # puts data
-    #   if data['uuid']
-    #     Task.create(user: current_user, status: data['task_status'], uuid: data['uuid'],
-    #                 started: data['task_started'], finished: data['task_finished'],
-    #                 task_type: data['task_type'], parameters: data['task_parameters'], results: data['task_results'])
-    #   else
-    #     puts data
-    #   end
-    # end
     utility_opts = params[:utility_params].nil? ? {} : params[:utility_params].to_unsafe_hash
 
     case params[:source_select]
@@ -83,6 +60,11 @@ class PersonalResearchAssistantController < ApplicationController
       dataset_ids = Dataset.find(params[:analysis_dataset_pra_select_pra_input]).get_ids
       query = dataset_ids.map { |id| "id:#{id}" }.join(' OR ')
       data = PersonalResearchAssistantService.api_analyse({q: query}, params[:utilities_select], utility_opts)
+    when 'none'
+      puts utility_opts
+      utility_opts['task_uuids'] = utility_opts['task_uuids'][0].split(',')
+      puts utility_opts
+      data = PersonalResearchAssistantService.api_analyse(nil, params[:utilities_select], utility_opts)
     end
     if data['uuid']
       Task.create(user: current_user, status: data['task_status'], uuid: data['uuid'],

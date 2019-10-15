@@ -46,6 +46,9 @@ class PersonalResearchAssistantService
     when Hash
       body = {utility: utility_name, search_query: data_source, utility_parameters: utility_params}
       query_api url, body
+    when nil
+      body = {utility: utility_name, utility_parameters: utility_params}
+      query_api url, body
     else
       puts "Wrong data soruce used."
       []

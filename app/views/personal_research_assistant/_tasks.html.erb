@@ -69,6 +69,20 @@
               </span>
             </div>
           </li>
+        <% when 'topic_model_query' %>
+          <% style = t.status == "finished" ? "list-group-item-success" : "list-group-item-warning" %>
+          <li class="list-group-item <%= style %>">
+            <div class="clearfix">
+              <span style="float: left">
+                Started at: <%= t.started %> |
+                Task type: <%= t.task_type %> |
+                uuid: <%= t.uuid %>
+              </span>
+              <span style="float:right">
+                <%= render partial: 'personal_research_assistant/tasks_actions', locals: {task: t} %>
+              </span>
+            </div>
+          </li>
         <% end %>
       <% end %>
     </div>
