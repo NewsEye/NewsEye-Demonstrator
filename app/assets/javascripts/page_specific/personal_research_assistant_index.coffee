@@ -1,15 +1,15 @@
 class @PersonalResearchAssistantIndex
     constructor: ->
         console.log "PRA index specific"
-        @setup_analysis_submit("analysis", "search_task")
-        @setup_analysis_submit("analysis", "dataset")
-        @setup_analysis_submit("investigate", "search_task")
-        @setup_analysis_submit("investigate", "dataset")
+        @setup_submit("analysis", "search_task")
+        @setup_submit("analysis", "dataset")
+        @setup_submit("investigate", "search_task")
+        @setup_submit("investigate", "dataset")
         @utilities = JSON.parse $("#utilities").text()
         @user_tasks_uuids = JSON.parse $("#user_tasks_uuids").text()
         @setup_utilities()
 
-    setup_analysis_submit: (task_type, data_source)->
+    setup_submit: (task_type, data_source)->
         $("input[name=\"#{task_type}_#{data_source}_submit\"]").click (e) ->
             e.preventDefault()
             if task_type == "analysis"
