@@ -6,6 +6,7 @@ class @PersonalResearchAssistantIndex
         @setup_submit("investigate", "search_task")
         @setup_submit("investigate", "dataset")
         @utilities = JSON.parse $("#utilities").text()
+        @topic_models= JSON.parse $("#topic_models").text()
         @user_tasks_uuids = JSON.parse $("#user_tasks_uuids").text()
         @setup_utilities()
 
@@ -68,6 +69,31 @@ class @PersonalResearchAssistantIndex
             $('input:hidden[name=\'utility_params[task_uuids][]\']').val(tasks)
             return true
 
+    render_topic_model_task: ->
+        container_node = $("<div></div>")
+        row = $("<div class=\"row\"></div>")
+        col1 = $("<div class=\"col-md-3\"></div>")
+        col2 = $("<div class=\"col-md-9\"></div>")
+        label = $("<label for=\"model_pra_select\">Select the model to use</label>")
+        select = $('<select id="model_pra_select" name="model_pra_select" class="form-control" autocomplete="off"></select>')
+        describe_topic_div = $('<div id=\"describe_topic_div\" class=\"row\"></div>')
+        opt = $('<option value="" disabled selected>Select the model to use</option>')
+        select.append opt
+        for model_type, available_models of @topic_models
+            optgroup = $("<optgroup label=\"#{model_type}\"></optgroup>")
+            if typeof available_models != "string"
+                for data in available_models
+                    opt = $("<option value=\"#{model_type}|#{data['name']}\">#{data['description']}</option>")
+                    optgroup.append opt
+                select.append optgroup
+        col1.append label
+        col2.append select
+        row.append col1
+        row.append col2
+        container_node.append row
+        container_node.append describe_topic_div
+        $('#utility_params_inputs').html(container_node.html())
+
     setup_utilities: ->
         self = @
         $('#utilities_select').change ->
@@ -81,14 +107,36 @@ class @PersonalResearchAssistantIndex
             util_desc.textContent = obj.utility_description
             $('#utility_desc').append(util_desc)
             if obj.utility_name == 'query_topic_model'
-                label = document.createElement('label')
-                label.setAttribute('for', 'model_pra_select')
-                label.textContent = 'Select the model to use'
-                select = $('#model_tm_select').clone()
-                select.attr('id', "model_pra_select")
-                select.attr('name', "model_pra_select")
-                $('#utility_params_inputs').append(label)
-                $('#utility_params_inputs').append(select)
+                self.render_topic_model_task()
+                $('#model_pra_select').change ->
+                    $('#describe_topic_div').html('')
+                    col1 = $('<div class=\"col-md-3\"></div>')
+                    col2= $('<div class=\"col-md-7\"></div>')
+                    col3 = $('<div class=\"col-md-2\"></div>')
+                    label = $('<label for=\"topic_select\">Select a topic to describe:</label>')
+                    col1.append label
+                    select_topic = $('<select id=\"topic_select\" name=\"topic_select\" class=\"form-control\"></select>')
+                    opt = $('<option value="" disabled selected>Select a topic</option>')
+                    select_topic.append opt
+                    for i in [0...10] by 1
+                        select_topic.append $("<option value=\"#{i}\">Topic #{i}</option>")
+                    col2.append select_topic
+                    model_type = $('#model_pra_select option:selected').attr('value').split('|')[0]
+                    model_name = $('#model_pra_select option:selected').attr('value').split('|')[1]
+                    button = $("<a class=\"btn btn-info\">Describe</a>")
+                    button.click (e)->
+                        form = $('<form id="temp_topic_form" method="post" action="/personal_research_assistant/tm_action" data-remote="true"></form>')
+                        form.append $("<input type=\"hidden\" name=\"model_type\" value=\"#{model_type}\"></input>")
+                        form.append $("<input type=\"hidden\" name=\"model_name\" value=\"#{model_name}\"></input>")
+                        topic_id = $('#topic_select option:selected').attr('value')
+                        form.append $("<input type=\"hidden\" name=\"topic_id\" value=\"#{topic_id}\"></input>")
+                        $(document.body).append(form)
+                        Rails.fire($('#temp_topic_form')[0], 'submit')
+                        form.remove()
+                    col3.append button
+                    $('#describe_topic_div').append col1
+                    $('#describe_topic_div').append col2
+                    $('#describe_topic_div').append col3
             else
                 for param in obj.utility_parameters
                     if !(obj.utility_name == "comparison" && param.parameter_name == "task_ids")
@@ -113,7 +161,7 @@ class @PersonalResearchAssistantIndex
                                 return true
                         else
                             parameter_container = document.createElement('div')
-                            parameter_container.className = "utility_parameter_container"
+                            parameter_container.className = "utility_parameter_container row"
                             input_id = obj.utility_name + '_' + param.parameter_name + '_input'
                             label = document.createElement('label')
                             label.setAttribute('for', input_id)

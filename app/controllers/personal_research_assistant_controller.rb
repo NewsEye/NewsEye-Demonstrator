@@ -6,10 +6,11 @@ class PersonalResearchAssistantController < ApplicationController
       input_type = @utilities.select { |u| u['utility_name'] == t.parameters['utility'] }[0]['input_type']
       {uuid: t.uuid, input_type: input_type}
     end
+    @topic_models = PersonalResearchAssistantService.get_models
   end
 
   def list_models
-    models = helpers.get_models
+    models = PersonalResearchAssistantService.get_models
     respond_to do |format|
       format.js { render partial: "personal_research_assistant/update_topic_model_list", locals: models}
     end
@@ -50,6 +51,10 @@ class PersonalResearchAssistantController < ApplicationController
 
   def analysis_task
     utility_opts = params[:utility_params].nil? ? {} : params[:utility_params].to_unsafe_hash
+    if params[:utilities_select] == "query_topic_model"
+      model_type, model_name = params[:model_pra_select].split('|')
+      utility_opts = {model_type: model_type, model_name: model_name}
+    end
 
     case params[:source_select]
     when 'query'
@@ -148,28 +153,15 @@ class PersonalResearchAssistantController < ApplicationController
   end
 
   def tm_action
-    case params[:submit]
-    when "query"
-      @model = params[:model_tm_select]
-      d = Dataset.where(title: params[:dataset_tm_select])[0]
-      @dataset = d.issues
-      @model_type = @model.split('-')[-1]
-      data = helpers.tm_query(@model_type, @model, @dataset)
-      Task.create(user: current_user, status: 'running', uuid: data['task_uuid'],
-                  started: DateTime.now, finished: nil,
-                  task_type: 'topic_model_query', parameters: {model: @model, dataset: @dataset, model_type: @model_type}, results: nil)
-      respond_to do |format|
-        format.js { render file: "personal_research_assistant/update_tasks", layout: false}
-      end
-    when "describe"
-      @topic_number = params[:topic_select]
-      tm_type = params[:model_tm_select].split('-')[-1]
-      @model = params[:model_tm_select]
-      @topic = helpers.describe_topic(tm_type, @model, @topic_number)
-      @wordcloud = helpers.wordcloud_base64(tm_type, @model, @topic_number)
-      respond_to do |format|
-        format.js {render file: 'personal_research_assistant/describe_topics'}
-      end
+    @topic_number = params[:topic_id]
+    tm_type = params[:model_type]
+    @model = params[:model_name]
+    @topic = PersonalResearchAssistantService.describe_topic(tm_type, @model, @topic_number)
+    @wordcloud = PersonalResearchAssistantService.wordcloud_base64(tm_type, @model, @topic_number)
+    puts "done"
+    respond_to do |format|
+      format.html { }
+      format.js {render file: 'personal_research_assistant/describe_topics'}
     end
   end
 

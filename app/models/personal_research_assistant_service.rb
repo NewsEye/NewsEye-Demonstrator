@@ -1,5 +1,9 @@
 class PersonalResearchAssistantService
 
+  ################################################
+  # WP5
+  ################################################
+
   def self.get_search_task(task_uuid)
     url = "https://newseye-wp5.cs.helsinki.fi/api/search/#{task_uuid}"
     query_api url, nil
@@ -71,29 +75,63 @@ class PersonalResearchAssistantService
   end
 
   ################################################
+  # WP4
   ################################################
 
-  def self.query_api(url, body)
+  def self.get_models
+    out = {}
+    %w(lda dtm pltm hlda pldtm).each do |model_type|
+      url = "https://newseye-wp4.cs.helsinki.fi/#{model_type}/list-models"
+      out[model_type] = query_api url, nil, auth: false
+    end
+    out
+  end
+
+  def self.describe_topic(tm_type, model, topic_number)
+    url = "https://newseye-wp4.cs.helsinki.fi/#{tm_type}/describe-topic"
+    body = {model_name: model, topic_id: "#{topic_number}"}
+    out = query_api url, body, auth: false
+    out['topic_desc'] unless out.empty?
+  end
+
+  def self.wordcloud_base64(tm_type, model, topic_number)
+    url = "https://newseye-wp4.cs.helsinki.fi/#{tm_type}/word-cloud"
+    body = {model_name: model, topic_id: "#{topic_number}"}
+    out = query_api url, body, auth: false, parse: false
+    Base64.strict_encode64(out)
+  end
+
+  ################################################
+  # Common
+  ################################################
+
+  def self.query_api(url, body, auth: true, parse: true)
     Rails.logger.info "querying #{url}"
     Rails.logger.info "body is:  #{body.inspect}"
     uri = URI(url)
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
+    headers = {}
+    if auth
+      headers['Authorization'] = "JWT #{generate_token}"
+    end
     if body.nil?
-      req = Net::HTTP::Get.new(uri.path, {'Authorization' => "JWT #{generate_token}"})
+      req = Net::HTTP::Get.new(uri.path, headers)
     else
-      req = Net::HTTP::Post.new(uri.path, {'Content-Type' =>'application/json', 'Authorization' => "JWT #{generate_token}"})
+      headers["Content-Type"] = 'application/json'
+      req = Net::HTTP::Post.new(uri.path, headers)
       req.body = body.to_json
     end
+    Rails.logger.info "headers are:  #{headers.inspect}"
     begin
       res = http.request(req)
-      Rails.logger.info "response:  #{res.body}"
+      # Rails.logger.info "response:  #{res.body}"
+      return res.body unless parse
       return JSON.parse(res.body)
     rescue SocketError => e
       puts "Error connecting to PRA API."
-      return []
+      return nil
     end
-
   end
 
   def self.generate_token

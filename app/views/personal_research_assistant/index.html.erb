@@ -1,12 +1,18 @@
 <div class="container-fluid">
   <div style="display: none;" id="utilities"><%= @utilities.to_json %></div>
   <div style="display: none;" id="user_tasks_uuids"><%= @user_tasks_uuids.to_json %></div>
+  <div style="display: none;" id="topic_models"><%= @topic_models.to_json %></div>
   <div class="row">
     <%= render 'tools' %>
   </div>
   <div class="row">
     <div class="col-sm" id="tasks_column">
       <%= render 'tasks' %>
+    </div>
+  </div>
+  <div id="modal-describe_topic" class="modal hide fade" role="dialog" aria-labelledby="describe_topic_label" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content"></div>
     </div>
   </div>
 </div>

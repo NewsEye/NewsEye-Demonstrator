@@ -13,7 +13,7 @@ class SearchBuilderIds < Blacklight::SearchBuilder
 
   def set_fl_id(solr_parameters)
     solr_parameters[:fl] = "id"
-    solr_parameters[:rows] = 10000
+    solr_parameters[:rows] = 50
   end
 
 end
