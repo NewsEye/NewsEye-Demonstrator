@@ -91,5 +91,6 @@ Rails.application.routes.draw do
   get '/iiif/:id/annotated_manifest.json', to: 'iiif#manifest_with_annotations'
   get '/iiif/:id/list/:name', to: 'iiif#annotation_list'
   get '/iiif/:id/layer/:name', to: 'iiif#layer'
+  get '/iiif/:id/alto', to: 'iiif#alto'
 
 end

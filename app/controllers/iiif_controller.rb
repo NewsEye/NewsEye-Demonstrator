@@ -52,6 +52,15 @@ class IiifController < ApplicationController
     render json: l
   end
 
+  def alto
+    path = NewseyeSolrService.query({q: "id:#{params['id']}", fl: "ocr_path_ss", rows: 1})[0]
+    if path['ocr_path_ss']
+      send_file path['ocr_path_ss'],
+                filename: "#{params['id']}.xml",
+                type: "application/xml"
+    end
+  end
+
   def get_image_resource_proxy
     # https://iiif-auth.onb.ac.at/images/ANNO/nfp19160707/00000001
     # http://localhost:3000/iiif/Neue_freie_Presse_nfp19160707_page_1
