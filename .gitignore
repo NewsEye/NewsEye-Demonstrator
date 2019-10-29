@@ -27,7 +27,7 @@
 /yarn-error.log
 
 .byebug_history
-.env
+/.env
 /docker/docker_data_postgres
 /docker/docker_data_fcrepo
 /docker/docker_data_solr
