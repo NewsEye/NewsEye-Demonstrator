@@ -15,6 +15,10 @@ class NewseyeSolrService
     @@connection.get('select', params: {q:"member_of_collection_ids_ssim:#{id} AND has_model_ssim:Issue", fl:"id", rows:100000000})['response']['docs'].map {|o| o['id']}
   end
 
+  def self.get_url_from_id id
+    NewseyeSolrService.query({q: "*:*", fq: ["id:#{id}"], fl: "original_uri_ss", rows: 1})[0]['original_uri_ss']
+  end
+
   # def self.get_annots_from_page(id, level)
   #   flarg = "*, [child parentFilter=level:1.* childFilter=level:#{level} limit=1000000]"
   #   ActiveFedora::SolrService.query("id:#{id}", {fl: flarg}).first['_childDocuments_']

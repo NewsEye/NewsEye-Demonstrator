@@ -54,7 +54,7 @@ class Issue2
     solr_doc['thumbnail_url_ss'] =  self.thumbnail_url
     solr_doc['member_ids_ssim'] =  self.pages.map(&:id)
     solr_doc['mets_path_ss'] = self.mets_path if self.mets_path
-    solr_doc['discover_access_group_ssim'] = ['admin', 'researcher']
+    solr_doc['discover_access_group_ssim'] = ['admin', 'researcher', 'registered']
     solr_doc['read_access_group_ssim'] = ['admin', 'researcher']
 
     solr_doc['year_isi'] = solr_doc['date_created_ssi'][0..3].to_i

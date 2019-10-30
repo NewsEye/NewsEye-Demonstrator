@@ -8,7 +8,7 @@ class CatalogController < ApplicationController
   include Hydra::Catalog
 
   # These before_filters apply the hydra access controls
-  before_action :enforce_show_permissions, only: :show
+  # before_action :enforce_show_permissions, only: :show
 
   before_action :handle_empty_query, only: :index
 
@@ -21,7 +21,7 @@ class CatalogController < ApplicationController
   # TODO add comparison of subsets in personnal workspace for topics
   # TODO newspaper context api (maybe explore controller ? which issue are available, calendar, etc)
 
-  after_action :track_action
+  # after_action :track_action
 
   configure_blacklight do |config|
     # default advanced config values
