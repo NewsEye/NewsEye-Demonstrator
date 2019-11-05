@@ -81,7 +81,13 @@ Rails.application.routes.draw do
     post '/personal_research_assistant/investigate', to: 'personal_research_assistant#investigate_task'
     get '/update_tasks_status', to: 'personal_research_assistant#update_status'
 
+    get '/personal_research_assistant/utilities', to: 'personal_research_assistant#get_utilities'
+    post '/personal_research_assistant/user_tasks', to: 'personal_research_assistant#get_user_tasks'
+    get '/personal_research_assistant/topic_models', to: 'personal_research_assistant#get_topic_models'
+    post '/personal_research_assistant/render_utility', to: 'personal_research_assistant#render_utility'
     get '/delete_task/:uuid', to: 'personal_research_assistant#delete_task'
+
+    get '/search_help', to: 'catalog#help'
 
   end
 

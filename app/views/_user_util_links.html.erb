@@ -54,6 +54,12 @@
         </div>
       </li>
 
+      <li id="help_modal">
+        <%= link_to '/search_help',  {:remote => true, 'data-toggle' =>  "modal", 'data-target' => '#modal-help', class: 'btn btn-middle-gray'} do %>
+          ?
+        <% end %>
+      </li>
+
     </ul>
   <% end %>
 </div>

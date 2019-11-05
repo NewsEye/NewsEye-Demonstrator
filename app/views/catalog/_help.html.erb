@@ -1,0 +1,56 @@
+<div class="modal-header">
+  <button type="button" class="close" data-dismiss="modal">x</button>
+  <h4 class="modal-title" id="params_label">Search Help</h4>
+</div>
+<div class="modal-body">
+  <dl class="row">
+    <dt class="col-md-3">Phrase search</dt>
+    <dd class="col-md-9">
+      When you want to query a document for multiple terms appearing next to each other, you can add quotes.
+      For example, the query
+      <span class="code-style">washington&nbsp;dc</span>
+      will match documents containing those two terms next to each other, in the same order.
+    </dd>
+  </dl>
+  <dl class="row">
+    <dt class="col-md-3">Wildcards</dt>
+    <dd class="col-md-9">
+      "?" matches a single character. For example, <span class="code-style">wom?n</span> will match documents containing "women" or "woman".
+      "*" matches one or several characters. For example, <span class="code-style">balti*</span> will match documents containing "baltic", "baltique" or "baltikum"
+    </dd>
+  </dl>
+  <dl class="row">
+    <dt class="col-md-3">Fuzzy search</dt>
+    <dd class="col-md-9">
+      It is based on the Damereau-Levenshtein distance and allows the querying of syntaxically similar terms.
+      The maximum default distance is set to 2. For example, the query <span class="code-style">roam~</span> will match documents containing terms like "roam" and "foam" but not "roast".
+      The distance between "roast" and "roam" is 3 (two deletions and one addition).
+      It is possible to set the maximum distance to 1 using the following syntax : <span class="code-style">roam~1</span>
+    </dd>
+  </dl>
+  <dl class="row">
+    <dt class="col-md-3">Proximity search</dt>
+    <dd class="col-md-9">
+      It is sometimes useful to query documents for words appearing close to one another.
+      For example, the query <span class="code-style">"woman&nbsp;pants"~10</span> will match documents containing those two terms, separated by 10 words at most.
+    </dd>
+  </dl>
+  <dl class="row">
+    <dt class="col-md-3">Term boosting</dt>
+    <dd class="col-md-9">
+      You can affect the way the pertinence of documents is computed (and thus the order of the results) by specifying the importance of the terms in the query.
+      For example, the query <span class="code-style">president&nbsp;roosevelt^2</span> will affect the score by giving the term "roosevelt" twice as much importance as the term "president".
+      It is also possible to negatively affect the importance of a term by specifying a number between 0 and 1 (for example <span class="code-style">president^0.5&nbsp;roosevelt</span> is the equivalent to the previous query).
+    </dd>
+  </dl>
+  <dl class="row">
+    <dt class="col-md-3">Boolean NOT</dt>
+    <dd class="col-md-9">
+      To query for documents that should not contain a particular term or phrase, you can prepend it with the '-' symbol.
+      For example, the query <span class="code-style">president&nbsp;-roosevelt</span> will return documents containing the term "president" but not the term "roosevelt".
+    </dd>
+  </dl>
+</div>
+<!--<div class="modal-footer">-->
+<!--</div>-->
+
