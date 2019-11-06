@@ -1,4 +1,4 @@
-<div class="panel panel-default">
+<div class="panel panel-default" id="tasks_panel">
   <div class="panel-heading">
     Tasks
     <form  style="float: right;" novalidate="novalidate" data-remote="true" action="/update_tasks_status" accept-charset="UTF-8" method="get">
@@ -32,7 +32,7 @@
           <div class="collapse list-group-submenu" id="subtasks_<%= t.uuid %>">
             <ul>
               <% t.subtasks.each do |subtask| %>
-                <% style = t.status == "finished" ? "list-group-item-success" : "list-group-item-warning" %>
+                <% style = subtask.status == "finished" ? "list-group-item-success" : "list-group-item-warning" %>
                 <li class="list-group-item sub-item <%= style %>" style="padding-left: 30px">
                   <div class="clearfix">
                     <span style="float: left">

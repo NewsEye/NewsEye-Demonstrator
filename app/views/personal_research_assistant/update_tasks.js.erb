@@ -1,1 +1,6 @@
-Turbolinks.visit('<%= url_for(controller: 'personal_research_assistant', action: 'index') %>')
+console.log(current_page_class);
+if(current_page_class.constructor.name === "PersonalResearchAssistantIndex")
+{
+  current_page_class.reload_tasks();
+}
+$("#tasks_panel").html("<%= escape_javascript render partial: 'personal_research_assistant/tasks' %>")

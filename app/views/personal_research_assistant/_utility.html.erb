@@ -1,0 +1,42 @@
+<form id="analysis_form" method="post" action="/personal_research_assistant/analyse" data-remote="true">
+  <%= csrf_meta_tags %>
+  <input type="hidden" name="utility" value="<%= utility['utility_name'] %>"/>
+  <div id="utility_desc">
+    <p>
+      <span style="text-decoration: underline;">Description:</span> <%= utility['utility_description'] %>
+    </p>
+  </div>
+  <% is_comparison_task = false %>
+  <% if utility['utility_parameters'] %>
+    <% case utility['utility_name'] %>
+    <% when "comparison" %>
+      <% is_comparison_task = true %>
+      <%= render partial: 'personal_research_assistant/analysis_comparison', locals: {user_tasks: user_tasks} %>
+    <% when "query_topic_model" %>
+      <%= render partial: 'personal_research_assistant/analysis_topic_model', locals: {topic_models: topic_models} %>
+    <% else %>
+      <% parameters = utility['utility_parameters'].values %>
+      <% parameters.each do |parameter| %>
+        <div class="row" style="margin-bottom: 0.5em;">
+          <div class="col-md-3">
+            <label for="<%= parameter['parameter_name'] %>">
+              <%= parameter['parameter_name'] %>
+            </label>
+          </div>
+          <div class="col-md-8">
+            <% case parameter['parameter_type'] %>
+            <% when "string" %>
+              <input class="form-control" id="" name="utility_params[<%= parameter['parameter_name'] %>]" type="text" value="<%= parameter['parameter_default'] %>"/>
+            <% when 'integer', 'float' %>
+              <input class="form-control" id="" name="utility_params[<%= parameter['parameter_name'] %>]" type="number" value="<%= parameter['parameter_default'] %>"/>
+            <% end %>
+          </div>
+          <div class="col-md-1">
+            <span class="glyphicon glyphicon-question-sign" title="<%= parameter['parameter_description'] %>" style="margin-left: 20px"></span>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  <% end %>
+  <%= render partial: 'personal_research_assistant/analysis_source_selects' unless is_comparison_task%>
+</form>

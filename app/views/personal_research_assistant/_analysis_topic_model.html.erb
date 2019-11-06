@@ -1,0 +1,36 @@
+<div class="row">
+  <div class="col-md-3">
+    <label for="model_pra_select">Select the model to use</label>
+  </div>
+  <div class="col-md-9">
+    <select id="model_pra_select" name="model_pra_select" class="form-control" autocomplete="off">
+      <option value="" disabled selected>Select the model to use</option>
+      <% topic_models.each do |model_type| %>
+        <optgroup label="<%= model_type %>">
+          <% unless topic_models[model_type].class == String %>
+            <% puts topic_models[model_type] %>
+            <% topic_models[model_type].keys.map{|k|topic_models[model_type][k]}.each do |model| %>
+              <option value="<%= model_type %>|<%= model['name'] %>"><%= model['description'] %></option>
+            <% end %>
+          <% end %>
+        </optgroup>
+      <% end %>
+    </select>
+  </div>
+</div>
+<div id="describe_topic_div" class="row">
+  <div class="col-md-3">
+    <label for="topic_select">Select a topic to describe:</label>
+  </div>
+  <div class="col-md-7">
+    <select id="topic_select" name="topic_select" class="form-control">
+      <option value="" disabled selected>Select a topic</option>
+      <% (0...10).each do |i| %>
+        <option value="<%= i %>">Topic <%= i+1 %></option>
+      <% end %>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <a class="btn btn-info" id="describe_topic_button">Describe</a>
+  </div>
+</div>

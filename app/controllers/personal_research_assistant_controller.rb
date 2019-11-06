@@ -2,9 +2,11 @@ class PersonalResearchAssistantController < ApplicationController
 
   def index
     @utilities = PersonalResearchAssistantService.list_utilities
-    @user_tasks_uuids = current_user.tasks.select{ |t| t.task_type == 'analysis' }.map do |t|
-      input_type = @utilities.select { |u| u['utility_name'] == t.parameters['utility'] }[0]['input_type']
-      {uuid: t.uuid, input_type: input_type}
+    unless @utilities.empty?
+      @user_tasks_uuids = current_user.tasks.select{ |t| t.task_type == 'analysis' }.map do |t|
+        input_type = @utilities.select { |u| u['utility_name'] == t.parameters['utility'] }[0]['input_type']
+        {uuid: t.uuid, input_type: input_type}
+      end
     end
     @topic_models = PersonalResearchAssistantService.get_models
   end
@@ -51,31 +53,29 @@ class PersonalResearchAssistantController < ApplicationController
 
   def analysis_task
     utility_opts = params[:utility_params].nil? ? {} : params[:utility_params].to_unsafe_hash
-    if params[:utilities_select] == "query_topic_model"
+    force_refresh = params[:force_refresh].nil? ? false : true
+    if params[:utility] == "query_topic_model"
       model_type, model_name = params[:model_pra_select].split('|')
       utility_opts = {model_type: model_type, model_name: model_name}
     end
-
-    case params[:source_select]
-    when 'query'
-      data = PersonalResearchAssistantService.api_analyse({q: params[:analysis_query_pra_input]}, params[:utilities_select], utility_opts)
-    when 'search_task'
-      data = PersonalResearchAssistantService.api_analyse(params[:analysis_search_task_pra_input], params[:utilities_select], utility_opts)
-    when 'dataset'
-      dataset_ids = Dataset.find(params[:analysis_dataset_pra_select_pra_input]).get_ids
-      query = dataset_ids.map { |id| "id:#{id}" }.join(' OR ')
-      data = PersonalResearchAssistantService.api_analyse({q: query}, params[:utilities_select], utility_opts)
-    when 'none'
-      puts utility_opts
+    if params[:utility] == 'comparison'
       utility_opts['task_uuids'] = utility_opts['task_uuids'][0].split(',')
-      puts utility_opts
       data = PersonalResearchAssistantService.api_analyse(nil, params[:utilities_select], utility_opts)
     end
+    if params[:analysis_search_task_submit]
+      data = PersonalResearchAssistantService.api_analyse(params[:analysis_search_task_pra_input], params[:utility], utility_opts, force_refresh: force_refresh)
+    elsif params[:analysis_dataset_submit]
+      dataset_ids = Dataset.find(params[:analysis_dataset_pra_select_pra_input]).get_ids
+      query = dataset_ids.map { |id| "id:#{id}" }.join(' OR ')
+      data = PersonalResearchAssistantService.api_analyse({q: query}, params[:utility], utility_opts, force_refresh: force_refresh)
+    end
+
     if data['uuid']
       Task.create(user: current_user, status: data['task_status'], uuid: data['uuid'],
                   started: data['task_started'], finished: data['task_finished'],
                   task_type: data['task_type'], parameters: data['task_parameters'], results: data['task_result'])
     else
+      puts "Error creating task"
       puts data
     end
 
@@ -85,19 +85,21 @@ class PersonalResearchAssistantController < ApplicationController
   end
 
   def investigate_task
-    case params[:source_select]
-    when 'search_task'
-      data = PersonalResearchAssistantService.api_investigate(params[:investigate_search_task_pra_input])
-    when 'dataset'
-      dataset_ids = Dataset.find(params[:investigate_dataset_pra_select_pra_input]).get_ids
+    force_refresh = params[:force_refresh].nil? ? false : true
+    if params[:investigate_search_task_submit]
+      data = PersonalResearchAssistantService.api_investigate(params[:investigate_search_task_pra_input], force_refresh: force_refresh)
+    elsif params[:investigate_dataset_submit]
+      dataset_ids = Dataset.find(params[:investigate_dataset_pra_input]).get_ids
       query = dataset_ids.map { |id| "id:#{id}" }.join(' OR ')
-      data = PersonalResearchAssistantService.api_investigate({q: query})
+      data = PersonalResearchAssistantService.api_investigate({q: query}, force_refresh: force_refresh)
     end
     if data['uuid']
-      Task.create(user: current_user, status: data['task_status'], uuid: data['uuid'],
+      t = Task.create(user: current_user, status: data['task_status'], uuid: data['uuid'],
                   started: data['task_started'], finished: data['task_finished'],
                   task_type: data['task_type'], parameters: data['task_parameters'], results: data['task_result'])
+      t.subtasks
     else
+      puts "Error creating task"
       puts data
     end
     respond_to do |format|
@@ -118,6 +120,29 @@ class PersonalResearchAssistantController < ApplicationController
     respond_to do |format|
       format.js { render file: "personal_research_assistant/update_tasks", layout: false}
     end
+  end
+
+  def get_utilities
+    render json: PersonalResearchAssistantService.list_utilities
+  end
+
+  def get_user_tasks
+    if params[:utilities].nil?
+      render json: []
+    else
+      user_tasks_uuids = current_user.tasks.select{ |t| t.task_type == 'analysis' }.map do |t|
+        input_type = params[:utilities].select { |u|
+          params[:utilities][u]['utility_name'] == t.parameters['utility']
+        }
+        input_type = input_type.values[0]['input_type']
+        {uuid: t.uuid, input_type: input_type}
+      end
+      render json: user_tasks_uuids
+    end
+  end
+
+  def get_topic_models
+    render json: PersonalResearchAssistantService.get_models
   end
 
   def update_status
@@ -144,6 +169,7 @@ class PersonalResearchAssistantController < ApplicationController
                  started: data['task_started'], finished: data['task_finished'],
                  task_type: data['task_type'], parameters: data['task_parameters'],
                  results: data['task_result']) unless data.nil?
+        t.subtasks
         t.save unless data.nil?
       end
     end
@@ -202,6 +228,12 @@ class PersonalResearchAssistantController < ApplicationController
     @params = Task.where(uuid: @task_uuid)[0].parameters
     respond_to do |format|
       format.js
+    end
+  end
+
+  def render_utility
+    respond_to do |format|
+      format.html { render partial: "personal_research_assistant/utility", locals: {utility: params[:utility], topic_models: params[:topic_models], user_tasks: params[:user_tasks]}}
     end
   end
 

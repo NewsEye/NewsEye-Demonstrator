@@ -1,44 +1,13 @@
-<form id="analysis_data_source_form" novalidate="novalidate" data-remote="true" action="/personal_research_assistant/analyse" accept-charset="UTF-8" method="post" id="pra_analysis_form">
-  <%= csrf_meta_tags %>
-  <div class="form-group">
-    <label for="utilities_select">Select a utility to run</label>
-    <select id="utilities_select" name="utilities_select" class="form-control" autocomplete="off">
-      <option value="" disabled selected>Select the utility to use</option>
-      <% @utilities.each do |utility| %>
-        <option value="<%= utility['utility_name'] %>"><%= utility['utility_name'].gsub('_',' ').capitalize %></option>
-      <% end%>
-    </select>
-  </div>
+<div class="form-group">
+  <label for="utilities_select">Select a utility to run</label>
+  <select id="utilities_select" name="utilities_select" class="form-control" autocomplete="off">
+    <option value="" disabled selected>Select the utility to use</option>
+    <% @utilities.each do |utility| %>
+      <option value="<%= utility['utility_name'] %>"><%= utility['utility_name'].gsub('_',' ').capitalize %></option>
+    <% end%>
+  </select>
+</div>
+<div id="selected_utility">
   <div id="utility_desc"></div>
   <div class="form-group" id="utility_params_inputs"></div>
-  <hr/>
-  <div class="row">
-    <div class="col-md-3">
-      <label for="analysis_search_task_select">Select an existing search task:</label>
-    </div>
-    <div class="form-group col-md-7">
-      <select id="analysis_search_task_select" name="analysis_search_task_pra_input" class="form-control" autocomplete="off">
-        <option value="" disabled selected>Select a search task</option>
-        <%= options_for_select(current_user.tasks.where(task_type: 'search').map(&:uuid)) %>
-      </select>
-    </div>
-    <div class="form-group col-md-2">
-      <input class="btn btn-primary" name="analysis_search_task_submit" type="submit" data-disable-with="Creating task..." value="Analyse"/>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-3">
-      <label for="analysis_dataset_pra_select">or select a dataset to process:</label>
-    </div>
-    <div class="form-group col-md-7">
-      <select id="analysis_dataset_select" name="analysis_dataset_pra_select_pra_input" class="form-control" autocomplete="off">
-        <option value="" disabled selected>Select your dataset</option>
-        <%= options_for_select(current_user.datasets.map{ |d| [d.title, d.id] }) %>
-      </select>
-    </div>
-    <div class="form-group col-md-2">
-      <input class="btn btn-primary" name="analysis_dataset_submit" type="submit" data-disable-with="Creating task..." value="Analyse"/>
-    </div>
-  </div>
-
-</form>
+</div>

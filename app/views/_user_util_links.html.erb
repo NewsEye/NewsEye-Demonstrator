@@ -33,7 +33,7 @@
         </li>
       <% end %>
       <li id="locale_dropdown">
-        <button class="nav-link dropdown-toggle btn btn-middle-gray" type="button" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <button class="nav-link dropdown-toggle btn" type="button" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <%= I18n.locale.upcase %>
         </button>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -46,7 +46,7 @@
 
 
       <li id="feedback_dropdown">
-        <button class="nav-link dropdown-toggle btn btn-middle-gray" type="button" href="#" id="feedback_dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <button class="nav-link dropdown-toggle btn" type="button" href="#" id="feedback_dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Feedback
         </button>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -55,9 +55,12 @@
       </li>
 
       <li id="help_modal">
-        <%= link_to '/search_help',  {:remote => true, 'data-toggle' =>  "modal", 'data-target' => '#modal-help', class: 'btn btn-middle-gray'} do %>
+        <button class="nav-link dropdown-toggle btn" type="button" href="#" id="help_modal" role="button">
           ?
-        <% end %>
+        </button>
+        <%#= link_to '/search_help',  {:remote => true, 'data-toggle' =>  "modal", 'data-target' => '#modal-help', class: 'btn btn-middle-gray'} do %>
+<!--          ?-->
+        <%# end %>
       </li>
 
     </ul>

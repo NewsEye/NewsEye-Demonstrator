@@ -1,0 +1,43 @@
+<div class="row" style="margin-bottom: 10px;">
+  <div class="col-md-12">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Task UUIDs</h3>
+      </div>
+      <div class="panel-body" style="height: 200px; overflow-y: scroll; padding: 0;">
+        <ul class="list-group" id="select_tasks_list">
+          <% tasks_to_compare = {} %>
+          <% user_tasks.keys.each do |task| %>
+            <% task = user_tasks[task] %>
+            <% tasks_to_compare[task['input_type']] = [] if tasks_to_compare[task['input_type']].nil?%>
+            <% tasks_to_compare[task['input_type']] << task['uuid'] %>
+          <% end %>
+          <% tasks_to_compare.keys.each do |task_type| %>
+            <li class="list-group-item-heading" style="padding-left:10px; font-weight: bold;"><%= task_type %></li>
+            <% tasks_to_compare[task_type].each do |uuid| %>
+              <li class="list-group-item"><input type="checkbox" value=""><%= uuid %></li>
+            <% end %>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+    <input type="hidden" name="utility_params[task_uuids][]" />
+    <input type="hidden" name="utilities_select" value="comparison"/>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-4">
+    <span class="glyphicon glyphicon-question-sign" title="Force refresh of the task, running again without using the cache.  " style="margin-left: 20px"></span>
+    <label for="force_refresh">
+      Force refresh
+    </label>
+  </div>
+  <div class="col-md-1">
+    <input class="form-control" type="checkbox" name="force_refresh" value="checked" autocomplete="off"/>
+  </div>
+  <div class="col-md-4"></div>
+  <div class="col-md-3">
+    <button id="tasks_comparison_submit" type="submit" class="btn btn-primary" name="submit">Compare tasks</button>
+  </div>
+</div>

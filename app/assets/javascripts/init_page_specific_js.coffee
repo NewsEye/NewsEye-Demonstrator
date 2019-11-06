@@ -3,13 +3,14 @@ class Init
         page = $('body').attr('class').split(' ')[1]
         console.log "init page specific for #{page}"
         page = ((part[0].toUpperCase() + part.slice(1) for part in p.split('_')).join('') for p in page.split('-').splice(1, 2)).join('')
-        @execute_page_js(page)
+        @current_page_class =  @execute_page_js(page)
         @setup_cursors_wait()
+        @setup_help_modal()
 
     execute_page_js: (page)->
         if 'function' is typeof window[page]
             klass = window[page]
-            new klass()
+            return new klass()
 
     setup_cursors_wait: ->
         $(document).on 'turbolinks:click', ->
@@ -17,5 +18,14 @@ class Init
         $(document).on 'turbolinks:load', ->
             $('body').css( 'cursor', 'default' )
 
+    setup_help_modal: ->
+        $('li#help_modal').click (e)->
+            $.ajax {
+                url:  window.location.protocol+"//"+window.location.host+'/search_help',
+                method: 'GET'
+            }
+
+global = @
 $(document).on 'turbolinks:load', ->
-    new Init()
+    init = new Init()
+    global.current_page_class = init.current_page_class

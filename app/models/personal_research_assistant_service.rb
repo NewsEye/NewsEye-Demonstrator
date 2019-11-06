@@ -26,7 +26,8 @@ class PersonalResearchAssistantService
 
   def self.list_utilities
     url = "https://newseye-wp5.cs.helsinki.fi/api/analysis/utilities/"
-    query_api url, nil
+    res = query_api url, nil
+    return res.nil? ? [] : res
   end
 
   def self.api_search(query)
@@ -41,17 +42,17 @@ class PersonalResearchAssistantService
     query_api url, body
   end
 
-  def self.api_analyse(data_source, utility_name, utility_params)
+  def self.api_analyse(data_source, utility_name, utility_params, force_refresh: false)
     url = "https://newseye-wp5.cs.helsinki.fi/api/analysis/"
     case data_source
     when String
-      body = {utility: utility_name, source_uuid: data_source, utility_parameters: utility_params}
+      body = {utility: utility_name, source_uuid: data_source, utility_parameters: utility_params, force_refresh: force_refresh}
       query_api url, body
     when Hash
-      body = {utility: utility_name, search_query: data_source, utility_parameters: utility_params}
+      body = {utility: utility_name, search_query: data_source, utility_parameters: utility_params, force_refresh: force_refresh}
       query_api url, body
     when nil
-      body = {utility: utility_name, utility_parameters: utility_params}
+      body = {utility: utility_name, utility_parameters: utility_params, force_refresh: force_refresh}
       query_api url, body
     else
       puts "Wrong data soruce used."
@@ -59,14 +60,14 @@ class PersonalResearchAssistantService
     end
   end
 
-  def self.api_investigate(data_source)
+  def self.api_investigate(data_source, force_refresh: false)
     url = "https://newseye-wp5.cs.helsinki.fi/api/investigator/"
     case data_source
     when String
-      body = {source_uuid: data_source}
+      body = {source_uuid: data_source, force_refresh: force_refresh}
       query_api url, body
     when Hash
-      body = {search_query: data_source}
+      body = {search_query: data_source, force_refresh: force_refresh}
       query_api url, body
     else
       puts "Wrong data source used."
@@ -84,7 +85,7 @@ class PersonalResearchAssistantService
       url = "https://newseye-wp4.cs.helsinki.fi/#{model_type}/list-models"
       out[model_type] = query_api url, nil, auth: false
     end
-    out
+    return out.nil? ? [] : out
   end
 
   def self.describe_topic(tm_type, model, topic_number)
@@ -135,7 +136,7 @@ class PersonalResearchAssistantService
   end
 
   def self.generate_token
-    secret = "PHs&xEjS5NaKeNnvMsn1Wvb6pY$384&Id*YOx9LIa6%9GUPKVF4v6FzquxoClcnV6&T!2x4V4E6b$dP3"
+    secret = ENV["WP3_SECRET"]
     token = {'username' => 'axel.jeancaurant@gmail.com', 'exp' => (Time.now+10.seconds).to_i}
     JWT.encode token, secret, 'HS256', { typ: 'JWT' }
   end
