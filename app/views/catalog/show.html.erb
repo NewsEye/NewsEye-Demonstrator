@@ -1,20 +1,11 @@
 <% if @document[:has_model_ssim].include?('Issue') %>
-  <% if can?(:show, @document) %>
-    <div id="content" class="<%= show_content_classes %>">
-      <%= render_document_main_content_partial %>
-    </div>
+  <div id="content" class="<%= show_content_classes %>">
+    <%= render_document_main_content_partial %>
+  </div>
 
-    <div id="sidebar" class="<%= show_sidebar_classes %>">
-      <%= render_document_sidebar_partial %>
-    </div>
-  <% else %>
-    <div class="col-md-8">
-      <p>
-        This document is under copyright and cannot be accessed by users outside the NewsEye consortium. You can however access it from its original location :
-        <a href="<%= @document[:original_uri_ss] %>" target="_blank"><%= @document[:original_uri_ss] %></a> (opens in a new window).
-      </p>
-    </div>
-  <% end %>
+  <div id="sidebar" class="<%= show_sidebar_classes %>">
+    <%= render_document_sidebar_partial %>
+  </div>
 
 <% elsif @document[:has_model_ssim].include?('Article') %>
   <% if can?(:show, @document) %>

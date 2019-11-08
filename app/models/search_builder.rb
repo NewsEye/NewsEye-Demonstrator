@@ -13,7 +13,7 @@ class SearchBuilder < Blacklight::SearchBuilder
   # Filter unwanted model in search results
   def exclude_unwanted_models(solr_parameters)
     solr_parameters[:fq] ||= []
-    solr_parameters[:fq] << "(#{%w(Article Issue).map{ |model| "has_model_ssim:#{model}"}.join(' OR ')})"
+    solr_parameters[:fq] << "has_model_ssim:(#{%w(Article Issue).join(' OR ')})"
   end
 
   def add_highlight(solr_parameters)

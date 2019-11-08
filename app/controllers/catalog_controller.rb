@@ -64,10 +64,12 @@ class CatalogController < ApplicationController
     config.index.display_type_field = 'has_model_ssim'
 
     config.add_facet_field solr_name('language', :string_searchable_uniq), helper_method: :convert_language_to_locale, limit: true
-    config.add_facet_field solr_name('date_created', :date_searchable_uniq), helper_method: :convert_date_to_locale, label: 'Date', date: true
-    config.add_facet_field 'year_isi', label: 'Year', range: { assumed_boundaries: [1800, 1950] }
+    config.add_facet_field solr_name('date_created', :date_searchable_uniq), helper_method: :convert_date_to_locale, label: 'Date', limit: 5, date: true
+    config.add_facet_field 'year_isi', label: 'Year', range: true #{ assumed_boundaries: [1800, 1950] }
     config.add_facet_field 'member_of_collection_ids_ssim', helper_method: :get_collection_title_from_id, label: 'Newspaper'
     config.add_facet_field 'has_model_ssim', helper_method: :get_display_value_from_model, label: 'Type'
+
+    config.add_facet_fields_to_solr_request!
 
     # Have BL send all facet field names to Solr, which has been the default
     # previously. Simply remove these lines if you'd rather use Solr request

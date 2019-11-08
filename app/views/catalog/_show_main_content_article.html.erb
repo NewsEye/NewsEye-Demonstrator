@@ -3,10 +3,8 @@
 <% @page_title = t('blacklight.search.show.title', :document_title => document_show_html_title, :application_name => application_name).html_safe %>
 <% content_for(:head) { render_link_rel_alternates } %>
 
+<% if can?(:show, @document) %>
 
-
-
-<!--<div class="row">-->
   <div class="col-sm-5">
     <b>
       <%= ERB::Util.html_escape(@document[:title_ssi]).gsub("\n","<br>").html_safe %>
@@ -28,7 +26,15 @@
       <% end %>
     </div>
   </div>
-<!--</div>-->
+<% else %>
+  <% original_url = NewseyeSolrService.get_url_from_id @document[:id][0..@document[:id].index('_article_')] %>
+  <div class="col-md-8">
+    <p>
+      This document is under copyright and cannot be accessed by users outside the NewsEye consortium. You can however access it from its original location :
+      <a href="<%= original_url %>" target="_blank"><%= original_url %></a> (opens in a new window).
+    </p>
+  </div>
+<% end %>
 
 <% if @document.respond_to?(:export_as_openurl_ctx_kev) %>
   <!--

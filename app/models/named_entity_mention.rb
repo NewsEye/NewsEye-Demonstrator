@@ -22,4 +22,10 @@ class NamedEntityMention #< ApplicationRecord
     entity.stringify_keys!
   end
 
+  def self.batch_index nems
+    docs = nems.map(&:to_solr)
+    puts NewseyeSolrService.add docs
+    puts NewseyeSolrService.commit
+  end
+
 end

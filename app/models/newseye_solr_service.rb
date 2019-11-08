@@ -29,8 +29,9 @@ class NewseyeSolrService
     numpage = pageid.split('_')[-1]
     issueid = pageid[0...pageid.index('_page_')]
     output = []
-    NewseyeSolrService.query({q: "id:entity_* AND doc_id_ssi:#{issueid}", rows: 100000}).map do |solr_res|
-      puts solr_res
+    mentions = NewseyeSolrService.query({q: '*:*', fq: ["doc_id_ssi:#{issueid}", "{!cache=false cost=200}selector_ssim:*page_#{numpage}#*"], rows: 100000})
+    # puts "### #{mentions.size}"
+    mentions.map do |solr_res|
       output << {mention: solr_res['mention_ssi'], selectors: solr_res['selector_ssim'].select { |selector| selector.include? "/canvas/page_#{numpage}"}}
     end
     output

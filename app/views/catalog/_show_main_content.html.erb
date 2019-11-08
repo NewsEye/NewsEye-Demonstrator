@@ -3,107 +3,117 @@
 <% @page_title = t('blacklight.search.show.title', :document_title => document_show_html_title, :application_name => application_name).html_safe %>
 <% content_for(:head) { render_link_rel_alternates } %>
 
-<div id="document" class="document <%= render_document_class %>" itemscope  itemtype="<%= @document.itemtype %>">
-  <div id="doc_<%= @document.id.to_s.parameterize %>">
-    <% options = {
-        language: params[:locale],
-        data: [
-            {
-                manifestUri: url_for(only_path: false, action: :manifest, controller: 'iiif', locale: nil),
-                location: "NewsEye"
-            }
-        ],
-        layout: '1x1',
-        openManifestsPage: false,
+<% if can?(:show, @document) %>
+
+  <div id="document" class="document <%= render_document_class %>" itemscope  itemtype="<%= @document.itemtype %>">
+    <div id="doc_<%= @document.id.to_s.parameterize %>">
+      <% options = {
+          language: params[:locale],
+          data: [
+              {
+                  manifestUri: url_for(only_path: false, action: :manifest, controller: 'iiif', locale: nil),
+                  location: "NewsEye"
+              }
+          ],
+          layout: '1x1',
+          openManifestsPage: false,
 
 
-        mainMenuSettings: {
-            show: false
-        },
-        'availableExternalCommentsPanel': true,
-        availableAnnotationDrawingTools: ['Rectangle', 'Ellipse'],
-        availableAnnotationStylePickers: [],
-        #['StrokeColor','FillColor','StrokeType'],
-        windowSettings: {
-            availableViews: ['ThumbnailsView', 'ImageView', 'ScrollView'],
-            viewType: 'ImageView',
-            bottomPanel: true,
-            bottomPanelVisible: true,
-            sidePanel: true,
-            sidePanelOptions: {
-                toc: true,
-                annotations: true,
-                tocTabAvailable: true,
-                layersTabAvailable: false,
-                searchTabAvailable: false,
-                annotationTabAvailable: true
-            },
-            sidePanelVisible: false,
-            overlay: true,
-            canvasControls: {
-                annotations: {
-                    annotationLayer: true,
-                    annotationCreation: true,
-                    annotationState: 'off',
-                    annotationRefresh: true,
-                },
-                imageManipulation: {
-                    manipulationLayer: true,
-                    controls: {
-                        rotate: true,
-                        brightness: true,
-                        contrast: true,
-                        saturate: true,
-                        grayscale: true,
-                        invert: true,
-                        mirror: false
-                    }
-                }
-            },
-            fullScreen: true,
-            displayLayout: false,
-            # layoutOptions: {
-            #     newObject: true,
-            #     close: true,
-            #     slotRight: true,
-            #     slotLeft: true,
-            #     slotAbove: true,
-            #     slotBelow: true,
-            # }
-        },
-        windowObjects: [
-            {
-                loadedManifest: url_for(only_path: false, action: :manifest, controller: 'iiif', locale: nil)
-            }
-        ],
-        annotationEndpoint: {
-            name: 'Simple Annotation Store Endpoint',
-            module: 'SimpleASEndpoint',
-            # module: 'LocalStorageEndpoint',
-            options: {url: "#{request.protocol+request.host_with_port}/annotations"}
-        }
-    }
-       config = {
-          id: 'mirador_view',
-          buildPath: '',
-          i18nPath: '/locales/',
-          imagesPath: ''
-          }.merge(options)
-    %>
-    <div id="mirador_view" style="height: 600px; width: 100%; position: relative;"></div>
-    <script type="text/javascript">
-        $(function() {
-            window.mirador_instance = Mirador(<%= config.to_json.html_safe %>);
-            // while(window.mirador_instance.viewer.workspace == null){
-            //     console.log('wait');
-            // }
-            // window.mirador_instance.viewer.workspace.windows[0].sidePanelVisibility(false);
-        });
-    </script>
+          mainMenuSettings: {
+              show: false
+          },
+          'availableExternalCommentsPanel': true,
+          availableAnnotationDrawingTools: ['Rectangle', 'Ellipse'],
+          availableAnnotationStylePickers: [],
+          #['StrokeColor','FillColor','StrokeType'],
+          windowSettings: {
+              availableViews: ['ThumbnailsView', 'ImageView', 'ScrollView'],
+              viewType: 'ImageView',
+              bottomPanel: true,
+              bottomPanelVisible: true,
+              sidePanel: true,
+              sidePanelOptions: {
+                  toc: true,
+                  annotations: true,
+                  tocTabAvailable: true,
+                  layersTabAvailable: false,
+                  searchTabAvailable: false,
+                  annotationTabAvailable: true
+              },
+              sidePanelVisible: false,
+              overlay: true,
+              canvasControls: {
+                  annotations: {
+                      annotationLayer: true,
+                      annotationCreation: true,
+                      annotationState: 'off',
+                      annotationRefresh: true,
+                  },
+                  imageManipulation: {
+                      manipulationLayer: true,
+                      controls: {
+                          rotate: true,
+                          brightness: true,
+                          contrast: true,
+                          saturate: true,
+                          grayscale: true,
+                          invert: true,
+                          mirror: false
+                      }
+                  }
+              },
+              fullScreen: true,
+              displayLayout: false,
+              # layoutOptions: {
+              #     newObject: true,
+              #     close: true,
+              #     slotRight: true,
+              #     slotLeft: true,
+              #     slotAbove: true,
+              #     slotBelow: true,
+              # }
+          },
+          windowObjects: [
+              {
+                  loadedManifest: url_for(only_path: false, action: :manifest, controller: 'iiif', locale: nil)
+              }
+          ],
+          annotationEndpoint: {
+              name: 'Simple Annotation Store Endpoint',
+              module: 'SimpleASEndpoint',
+              # module: 'LocalStorageEndpoint',
+              options: {url: "#{request.protocol+request.host_with_port}/annotations"}
+          }
+      }
+         config = {
+            id: 'mirador_view',
+            buildPath: '',
+            i18nPath: '/locales/',
+            imagesPath: ''
+            }.merge(options)
+      %>
+      <div id="mirador_view" style="height: 600px; width: 100%; position: relative;"></div>
+      <script type="text/javascript">
+          $(function() {
+              window.mirador_instance = Mirador(<%= config.to_json.html_safe %>);
+              // while(window.mirador_instance.viewer.workspace == null){
+              //     console.log('wait');
+              // }
+              // window.mirador_instance.viewer.workspace.windows[0].sidePanelVisibility(false);
+          });
+      </script>
 
 
+    </div>
   </div>
-</div>
+<% else %>
+  <div class="col-md-8">
+    <p>
+      This document is under copyright and cannot be accessed by users outside the NewsEye consortium. You can however access it from its original location :
+      <a href="<%= @document[:original_uri_ss] %>" target="_blank"><%= @document[:original_uri_ss] %></a> (opens in a new window).
+    </p>
+  </div>
+<% end %>
 
 <% if @document.respond_to?(:export_as_openurl_ctx_kev) %>
   <!--
