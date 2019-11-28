@@ -20,6 +20,9 @@
   <% if current_user %>
     <div class="<%= container_classes %>">
       <%= render_search_bar  %>
+      <button class="btn pull-right" type="button" href="#" id="kw_suggest_modal" role="button">
+        Suggest keywords
+      </button>
     </div>
   <% end %>
 </div>

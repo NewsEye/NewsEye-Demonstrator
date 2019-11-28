@@ -1,0 +1,34 @@
+<div class="modal-header">
+  <button type="button" class="close" data-dismiss="modal">x</button>
+  <h4 class="modal-title" id="params_label">Keywords suggestion</h4>
+</div>
+<div class="modal-body">
+  <div class="embedding_form">
+    <form novalidate="novalidate" data-remote="true" action="/tools/query_embd_model" accept-charset="UTF-8" method="post" class="form-inline">
+      <div class="form-row">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Type a word">
+        </div>
+        <div class="form-group">
+          <select class="form-control" id="embd_model_select">
+            <option>French</option>
+            <option>German</option>
+            <option>Finnish</option>
+            <option>Swedish</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <select class="form-control" id="embd_limit">
+            <option>25</option>
+            <option>50</option>
+            <option>100</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <button>Find similar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div id="embedding_results"></div>
+</div>

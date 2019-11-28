@@ -1,14 +1,15 @@
 # frozen_string_literal: true
 class SearchBuilder < Blacklight::SearchBuilder
   include Blacklight::Solr::SearchBuilderBehavior
-  # include BlacklightAdvancedSearch::AdvancedSearchBuilder
-  # self.default_processor_chain += [:add_advanced_parse_q_to_solr, :add_advanced_search_to_solr]
+  include BlacklightAdvancedSearch::AdvancedSearchBuilder
+  self.default_processor_chain += [:add_advanced_parse_q_to_solr] #, :add_advanced_search_to_solr]
   include BlacklightRangeLimit::RangeLimitBuilder
 
   # Add a filter query to restrict the search to documents the current user has access to
   include Hydra::AccessControlsEnforcement
 
   self.default_processor_chain += %i[exclude_unwanted_models add_highlight]
+  # self.default_processor_chain += [:fix_query]
 
   # Filter unwanted model in search results
   def exclude_unwanted_models(solr_parameters)
@@ -27,8 +28,9 @@ class SearchBuilder < Blacklight::SearchBuilder
     solr_parameters[:'hl.maxAnalyzedChars'] = 10000000
   end
 
-  def set_fl_id(solr_parameters)
-    solr_parameters[:fl] = "id"
+  def fix_query(solr_parameters)
+    solr_parameters[:'facet.field'].uniq!
+    solr_parameters.except! :defType
   end
 
 end

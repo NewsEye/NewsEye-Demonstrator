@@ -19,6 +19,28 @@ class NewseyeSolrService
     NewseyeSolrService.query({q: "*:*", fq: ["id:#{id}"], fl: "original_uri_ss", rows: 1})[0]['original_uri_ss']
   end
 
+  def self.get_newspapers
+    connect unless @@connection
+    @@connection.get('terms', params: {'terms.fl': "member_of_collection_ids_ssim", 'terms.limit': 100})['terms']['member_of_collection_ids_ssim'].select{|k| k.is_a? String }
+  end
+
+  def self.get_nb_issues_per_year
+    nps = NewseyeSolrService.get_newspapers
+    connect unless @@connection
+    out = {}
+    nps.each do |npid|
+      params = {q: '*:*', fq: ["member_of_collection_ids_ssim:#{npid}", "has_model_ssim:Issue"],
+                'facet.range': 'date_created_dtsi',
+                'f.date_created_dtsi.facet.range.start': '1850-01-01T00:00:00.000Z',
+                'f.date_created_dtsi.facet.range.end': '1950-01-01T00:00:00.000Z',
+                'f.date_created_dtsi.facet.range.gap': '+1YEAR',
+                'facet.mincount': 0,
+                rows: 0}
+      res = @@connection.get('select', params: params)
+      out[npid] = res['facet_counts']['facet_ranges']['date_created_dtsi']['counts'].in_groups_of(2)
+    end
+    out
+  end
   # def self.get_annots_from_page(id, level)
   #   flarg = "*, [child parentFilter=level:1.* childFilter=level:#{level} limit=1000000]"
   #   ActiveFedora::SolrService.query("id:#{id}", {fl: flarg}).first['_childDocuments_']

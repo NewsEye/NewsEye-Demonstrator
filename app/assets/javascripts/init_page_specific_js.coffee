@@ -6,6 +6,7 @@ class Init
         @current_page_class =  @execute_page_js(page)
         @setup_cursors_wait()
         @setup_help_modal()
+        @setup_kw_suggest_modal()
 
     execute_page_js: (page)->
         if 'function' is typeof window[page]
@@ -22,6 +23,13 @@ class Init
         $('li#help_modal').click (e)->
             $.ajax {
                 url:  window.location.protocol+"//"+window.location.host+'/search_help',
+                method: 'GET'
+            }
+
+    setup_kw_suggest_modal: ->
+        $('#kw_suggest_modal').click (e)->
+            $.ajax {
+                url:  window.location.protocol+"//"+window.location.host+'/kw_suggest',
                 method: 'GET'
             }
 

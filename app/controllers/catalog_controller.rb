@@ -1,6 +1,7 @@
 # -*- encoding : utf-8 -*-
 
 class CatalogController < ApplicationController
+  include BlacklightAdvancedSearch::Controller
   # include BlacklightAdvancedSearch::Controller
 
   include BlacklightRangeLimit::ControllerOverride
@@ -25,12 +26,12 @@ class CatalogController < ApplicationController
 
   configure_blacklight do |config|
     # default advanced config values
-    # config.advanced_search ||= Blacklight::OpenStructWithHashAccess.new
-    # # config.advanced_search[:qt] ||= 'advanced'
-    # config.advanced_search[:url_key] ||= 'advanced'
-    # config.advanced_search[:query_parser] ||= 'dismax'
-    # config.advanced_search[:form_solr_parameters] ||= {}
-    # #
+    config.advanced_search ||= Blacklight::OpenStructWithHashAccess.new
+    # config.advanced_search[:qt] ||= 'advanced'
+    config.advanced_search[:url_key] ||= 'advanced'
+    config.advanced_search[:query_parser] ||= 'dismax'
+    config.advanced_search[:form_solr_parameters] ||= {}
+
     config.view.gallery.partials = [:index_header, :index]
     config.view.masonry.partials = [:index]
     config.view.slideshow.partials = [:index]
@@ -63,10 +64,10 @@ class CatalogController < ApplicationController
     config.index.title_field = 'title_ssi'
     config.index.display_type_field = 'has_model_ssim'
 
-    config.add_facet_field solr_name('language', :string_searchable_uniq), helper_method: :convert_language_to_locale, limit: true
+    config.add_facet_field solr_name('language', :string_searchable_uniq), helper_method: :convert_language_to_locale, limit: true, tag: "langtag", ex: "langtag"
     config.add_facet_field solr_name('date_created', :date_searchable_uniq), helper_method: :convert_date_to_locale, label: 'Date', limit: 5, date: true
     config.add_facet_field 'year_isi', label: 'Year', range: true #{ assumed_boundaries: [1800, 1950] }
-    config.add_facet_field 'member_of_collection_ids_ssim', helper_method: :get_collection_title_from_id, label: 'Newspaper'
+    config.add_facet_field 'member_of_collection_ids_ssim', helper_method: :get_collection_title_from_id, label: 'Newspaper', tag: "collectag", ex: "collectag"
     config.add_facet_field 'has_model_ssim', helper_method: :get_display_value_from_model, label: 'Type'
 
     config.add_facet_fields_to_solr_request!
@@ -187,12 +188,29 @@ class CatalogController < ApplicationController
     puts 'ok'
   end
 
+  def get_stats
+    data = NewseyeSolrService.get_nb_issues_per_year
+    render json: data
+  end
+
   # this method allow you to change url parameters like utf8 or locale
   def search_action_url options = {}
     url_for(options.reverse_merge(action: 'index'))
   end
 
   def help
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def kw_suggest
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def query_embd_model
     respond_to do |format|
       format.js
     end

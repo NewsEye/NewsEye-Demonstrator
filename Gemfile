@@ -17,6 +17,8 @@ gem 'hydra-works'
 gem 'europeana-api'
 gem 'riiif'
 
+gem 'chart-js-rails'
+
 gem 'pg'
 # gem 'activerecord-jdbcpostgresql-adapter' # for jruby
 

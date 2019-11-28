@@ -37,6 +37,7 @@ class PersonalResearchAssistantService
     when String
       body = {q: query}
     when Hash
+      query.except! *(query.keys.select{|k| !k.to_s.index('.facet.limit').nil? })
       body = query
     end
     query_api url, body

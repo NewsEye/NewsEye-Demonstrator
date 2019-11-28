@@ -73,3 +73,17 @@ span.code-style {
   font-family: 'Courier New', Courier, monospace;
   white-space: nowrap;
 }
+/*
+ * Canvas Explore
+ */
+#canvas_container {
+  height: 400px;
+}
+#select_np li.np_selected{
+  font-weight: bold;
+}
+
+#kw_suggest_modal {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}

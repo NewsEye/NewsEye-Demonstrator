@@ -32,3 +32,10 @@ class @API
             success: (data)->
                 callback(data)
         }
+    @np_stats: (callback)->
+        $.ajax {
+            url:  window.location.protocol+"//"+window.location.host+'/get_stats',
+            method: 'GET',
+            success: (data)->
+                callback(data)
+        }

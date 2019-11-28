@@ -2,6 +2,7 @@
   <% if has_user_authentication_provider? %>
     <ul class="nav navbar-nav">
       <% if current_user %>
+        <li><%= link_to 'Statistics', "/explore" %></li>
         <li><%= link_to 'Personal Research Assistant', "/#{I18n.locale}/personal_research_assistant" %></li>
         <li><%= link_to 'Datasets', "/#{I18n.locale}/datasets" %></li>
         <%#= render_nav_actions do |config, action|%>
@@ -58,9 +59,6 @@
         <button class="nav-link dropdown-toggle btn" type="button" href="#" id="help_modal" role="button">
           ?
         </button>
-        <%#= link_to '/search_help',  {:remote => true, 'data-toggle' =>  "modal", 'data-target' => '#modal-help', class: 'btn btn-middle-gray'} do %>
-<!--          ?-->
-        <%# end %>
       </li>
 
     </ul>

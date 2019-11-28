@@ -41,7 +41,7 @@ Rails.application.routes.draw do
     end
 
     mount Blacklight::Engine => '/'
-    # mount BlacklightAdvancedSearch::Engine => '/'
+    mount BlacklightAdvancedSearch::Engine => '/'
     # get 'advanced' => 'advanced#index'
     # get 'advanced/range_limit' => 'advanced#range_limit'
 
@@ -88,11 +88,14 @@ Rails.application.routes.draw do
     get '/delete_task/:uuid', to: 'personal_research_assistant#delete_task'
 
     get '/search_help', to: 'catalog#help'
+    get '/kw_suggest', to: 'catalog#kw_suggest'
+    post '/tools/query_embd_model', to: 'catalog#query_embd_model'
 
   end
 
   mount Riiif::Engine => '/iiif', as: 'riiif'
 
+  get '/get_stats', to: 'catalog#get_stats'
   get '/iiif/:id/manifest.json', to: 'iiif#manifest'
   get '/iiif/:id/annotated_manifest.json', to: 'iiif#manifest_with_annotations'
   get '/iiif/:id/list/:name', to: 'iiif#annotation_list'

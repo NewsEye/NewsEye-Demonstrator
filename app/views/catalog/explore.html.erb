@@ -1,5 +1,15 @@
-<ul>
-  <% Newspaper.all.each do |newspaper| %>
-    <li><p><%= newspaper.title %></p></li>
-  <% end %>
-</ul>
+<div class="row">
+  <div class="col-md-2">
+    <ul id="select_np" class="list-group">
+      <li id="select_all_datasets" class="list-group-item">Select all<span class="pull-right glyphicon glyphicon-ok" style="visibility: hidden"></span></li>
+      <% NewseyeSolrService.get_newspapers.each do |npid| %>
+        <li class="list-group-item npids"><%= npid %><span class="pull-right glyphicon glyphicon-ok" style="visibility: hidden"></span></li>
+      <% end %>
+    </ul>
+  </div>
+  <div class="col-md-10">
+    <div id="canvas_container">
+      <canvas id="myChart"></canvas>
+    </div>
+  </div>
+</div>

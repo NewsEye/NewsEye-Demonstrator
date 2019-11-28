@@ -2,5 +2,5 @@
 class SavedSearchesController < ApplicationController
   include Blacklight::SavedSearches
 
-  # helper BlacklightAdvancedSearch::RenderConstraintsOverride
+  helper BlacklightAdvancedSearch::RenderConstraintsOverride
 end
