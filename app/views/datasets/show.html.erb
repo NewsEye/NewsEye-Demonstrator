@@ -1,29 +1,28 @@
 <% if current_user.id == @dataset.user_id %>
-  <div>
-    <strong>Title:</strong>
-    <p><%= @dataset.title %></p>
-    <strong>Searches</strong>
-    <p>
-      <% @dataset.searches.each do |search| %>
-      <p><%= CGI::unescape search %></p>
-      <% end %>
-    </p>
-    <strong>Documents</strong>
-    <p>
-      <% @dataset.issues.each do |doc| %>
-        <p><%= doc %></p>
-      <% end %>
-    </p>
-    <strong>Articles</strong>
-    <p>
-      <% @dataset.articles.each do |doc| %>
-        <p><%= doc %></p>
-      <% end %>
-    </p>
-  </div>
+  <div class="row">
+    <div class="col-md-3">
+      <p>
+        <strong>Title:</strong>
+        <%= @dataset.title %>
+        <%= link_to "/datasets/rename_dataset_modal/#{@dataset.id}",  {:remote => true, 'data-toggle' =>  "modal", 'data-target' => '#modal-rename-dataset', class: 'btn btn-link'} do %>
+          <span class="glyphicon glyphicon-cog"></span>
+        <% end %>
+      </p>
+      <p>
+        <%= @dataset.nb_articles %> articles.
+        <%= @dataset.nb_issues %> issues.
+      </p>
+      <%= link_to 'Back to datasets', "/#{I18n.locale}/datasets" %>
+    </div>
 
-  <%= link_to 'Edit', edit_dataset_path(@dataset) %>
+    <div class="col-md-9 documents-list">
+      <% puts @documents_list.map{|d|d['date_created_dtsi']} %>
+      <% @documents_list.each_with_index do |doc, doc_idx| %>
+        <%= render partial: 'datasets/document', locals: {document: SolrDocument.new(doc), idx: doc_idx} %>
+      <% end %>
+    </div>
+  </div>
 <% else %>
   <p>Access forbidden.</p>
 <% end %>
-<%= link_to 'Back', "/#{I18n.locale}/datasets" %>
+

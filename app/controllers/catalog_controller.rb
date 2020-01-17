@@ -56,9 +56,10 @@ class CatalogController < ApplicationController
 
     ## Default parameters to send to solr for all search-like requests. See also SearchBuilder#processed_parameters
     config.default_solr_params = {
-      qf: 'all_text_ten_siv all_text_tfr_siv all_text_tde_siv all_text_tfi_siv all_text_tse_siv content_tfr_siv title_tfr_siv',
-      qt: 'search',
-      rows: 10
+        #qf: 'all_text_ten_siv all_text_tfr_siv all_text_tde_siv all_text_tfi_siv all_text_tse_siv title_tfr_siv',
+        qf: %w(all_text_unstemmed_ten_siv^3 all_text_unstemmed_tfr_siv^3 all_text_unstemmed_tfi_siv^3 all_text_unstemmed_tse_siv^3 all_text_unstemmed_tde_siv^3 all_text_ten_siv all_text_tfr_siv all_text_tfi_siv all_text_tse_siv all_text_tde_siv title_ten_siv title_tfr_siv title_tfi_siv title_tde_siv title_tse_siv).join(' '),
+        qt: 'search',
+        rows: 10
     }
 
     config.index.title_field = 'title_ssi'
@@ -216,6 +217,105 @@ class CatalogController < ApplicationController
     end
   end
 
+  def set_working_dataset
+    session[:working_dataset] = params['dataset']['id']
+    respond_to do |format|
+      format.js {render "set_working_dataset"}
+    end
+  end
+
+  def confirm_modify_dataset
+    current_relevancies = Hash[params['relevancy'].to_unsafe_h.map { |k,v| [k, v.to_i ]}]
+    @target_relevancy = params['global_dataset_relevancy'].to_i
+    @current_url = params['current_url']
+    @relevancy_changes = {added: [], removed: [], modified: [], unchanged:[]}
+    current_relevancies.each do |doc_id, doc_relevancy|
+        case @target_relevancy
+        when 0
+          case doc_relevancy
+          when 0
+            @relevancy_changes[:unchanged] << [doc_id, doc_relevancy]
+          when 1, 2, 3
+            @relevancy_changes[:removed] << [doc_id, doc_relevancy]
+          end
+        when 1, 2, 3
+          case doc_relevancy
+          when 0
+            @relevancy_changes[:added] << [doc_id, doc_relevancy]
+          when 1, 2, 3
+            @relevancy_changes[:unchanged] << [doc_id, doc_relevancy] if doc_relevancy == @target_relevancy
+            @relevancy_changes[:modified] << [doc_id, doc_relevancy] if doc_relevancy != @target_relevancy
+          end
+        end
+    end
+    @dataset_id = session['working_dataset']
+    @dataset_title = Dataset.find(@dataset_id).title
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def apply_modify_dataset
+    d = Dataset.find(session['working_dataset'])
+    to_add = params['docs'].map do |doc_id|
+      {id: doc_id, type: doc_id.include?("_article_") ? "article" : "issue", relevancy: params['target_relevancy'].to_i}
+    end
+    d.add_docs to_add
+    respond_to do |format|
+      if d.save
+        format.html { redirect_to params[:current_url], notice: 'Dataset was successfully modified.' }
+      else
+        format.html { redirect_to params[:current_url], notice: 'There was an error modifying the dataset.' }
+      end
+    end
+  end
+
+  def modify_doc_relevancy
+    @doc_id = params['doc_id']
+    @new_relevancy = params['specific_dataset_relevancy'].to_i
+    if params['current_dataset'] # when called from dataset/show
+      current_dataset = Dataset.find(params['current_dataset'].to_i)
+    else # when called from catalog/index
+      current_dataset = Dataset.find(session['working_dataset'])
+    end
+    @dataset_name = current_dataset.title
+    @previous_relevancy = current_dataset.relevancy_for_doc @doc_id
+    doc_index = current_dataset.documents.index { |doc| doc['id'] == @doc_id}
+    if doc_index.nil?
+      if @new_relevancy != 0
+        current_dataset.documents << {id: @doc_id, type: @doc_id.include?("_article_") ? "article" : "issue", relevancy: @new_relevancy}
+        message = "Added document #{@doc_id} to the dataset #{@dataset_name} (#{helpers.get_relevancy_text @new_relevancy})."
+      else
+        message = "Nothing was done."
+      end
+    else
+      if @new_relevancy == 0
+        current_dataset.documents.delete_at doc_index
+        message = "Removed document #{@doc_id} from the dataset #{@dataset_name}."
+      else
+        current_dataset.documents[doc_index]['relevancy'] = @new_relevancy
+        if @previous_relevancy == @new_relevancy
+          message = "Nothing was done."
+        else
+          message = "Relevancy for document #{@doc_id} was set to #{helpers.get_relevancy_text @new_relevancy}."
+        end
+      end
+    end
+    respond_to do |format|
+      if current_dataset.save
+        format.js
+        format.html { redirect_to params[:current_url], notice: message }
+      else
+        format.js
+        format.html { redirect_to params[:current_url], notice: 'There was an error updating the dataset.' }
+      end
+    end
+  end
+
+  def article_parts
+    render json: Article2.from_solr(params[:article_id]).draw
+  end
+
   protected
 
   # Redirect to action: index if this action is a query (not a return to home) and if there is no f or q params
@@ -241,7 +341,6 @@ class CatalogController < ApplicationController
     # Otherwise, return "false"
     false
   end
-
 
   def track_action
     ahoy.track "Ran action", request.path_parameters

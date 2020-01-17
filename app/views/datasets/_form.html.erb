@@ -13,8 +13,8 @@
   </div>
 <% end %>
 
-<%= select_tag(:docs_to_remove, options_for_select(@dataset.searches), {id: 'delete_searches_select', class: "selectpicker", multiple: true}) %>
-<%= button_tag "Remove selected searches", type: 'button', onclick: "delete_selected_docs_from_dataset()", class: 'btn btn-default' %>
+<%#= select_tag(:docs_to_remove, options_for_select(@dataset.searches), {id: 'delete_searches_select', class: "selectpicker", multiple: true}) %>
+<%#= button_tag "Remove selected searches", type: 'button', onclick: "delete_selected_docs_from_dataset()", class: 'btn btn-default' %>
 
 <!--<form id="delete_searches_form" class="simple_form" action="/datasets/<%#= current_user.datasets[0].id %>" accept-charset="UTF-8" method="post" remote="true">-->
   <%#= hidden_field_tag :authenticity_token, form_authenticity_token %>

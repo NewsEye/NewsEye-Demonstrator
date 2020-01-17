@@ -15,7 +15,7 @@
     <!--[if IEMobile]>
       <meta http-equiv="cleartype" content="on">
     <![endif]-->
-
+    <meta name="turbolinks-cache-control" content="no-cache">
     <title><%= render_page_title %></title>
     <%= opensearch_description_tag application_name, opensearch_catalog_url(:format => 'xml') %>
     <%= favicon_link_tag %>
@@ -52,5 +52,18 @@
       <div class="modal-content"></div>
     </div>
   </div>
+
+  <div id="modal-global_dataset_confirm" class="modal hide fade" role="dialog" aria-labelledby="global_dataset_add_label" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content"></div>
+    </div>
+  </div>
+
+  <div id="modal-rename-dataset" class="modal hide fade" role="dialog" aria-labelledby="rename-dataset" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content"></div>
+    </div>
+  </div>
+
   </body>
 </html>

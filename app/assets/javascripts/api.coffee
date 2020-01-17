@@ -39,3 +39,18 @@ class @API
             success: (data)->
                 callback(data)
         }
+    @working_dataset: (callback)->
+        $.ajax {
+            url:  window.location.protocol+"//"+window.location.host+'/catalog/set_working_dataset',
+            method: 'GET',
+            success: (data)->
+                callback(data)
+        }
+    @get_article_images: (article_id, callback)->
+        $.ajax {
+            url:  window.location.protocol+"//"+window.location.host+'/catalog/article_parts',
+            method: 'POST',
+            data:{article_id: article_id},
+            success: (data)->
+                callback(data)
+        }

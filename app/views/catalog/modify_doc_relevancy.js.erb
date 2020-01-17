@@ -1,0 +1,28 @@
+<%
+  case @new_relevancy
+  when 0
+    case @previous_relevancy
+    when 0
+      message = "Relevancy for document #{@doc_id} was not modified."
+    when 1, 2, 3
+      message = "Document #{@doc_id} was removed from #{@dataset_name}."
+    end
+  when 1, 2, 3
+    case @previous_relevancy
+    when 0
+      message = "Document #{@doc_id} was added to #{@dataset_name} with relevancy #{@new_relevancy}."
+    when 1, 2, 3
+      message = "Relevancy for document #{@doc_id} was not modified." if @previous_relevancy == @new_relevancy
+      message = "Relevancy for document #{@doc_id} was modified from #{@previous_relevancy} to #{@new_relevancy}." if @previous_relevancy != @new_relevancy
+    end
+  end
+  puts "######## #{@previous_relevancy} #{@new_relevancy}"
+  puts "######## #{message}"
+%>
+
+Turbolinks.visit(location.toString());
+$("div#main-flashes div:first-child").empty();
+$("div#main-flashes div:first-child").append(
+'<div class="alert alert-info"><%= message %> \
+  <a class="close" data-dismiss="alert" href="#">×</a>\
+</div>');

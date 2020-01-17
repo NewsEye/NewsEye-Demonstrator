@@ -1,0 +1,42 @@
+<div class="modal-header">
+  <button type="button" class="close" data-dismiss="modal">x</button>
+  <h4 class="modal-title" id="params_label">Confirmation to modify <%= @dataset_title %></h4>
+</div>
+<div class="modal-body">
+  <p>The following changes will be applied to <span><%= @dataset_title %></span></p>
+  <h4>Added (<%= @relevancy_changes[:added].size %>):</h4>
+  <ul>
+    <% @relevancy_changes[:added].each do |doc_id, doc_relevancy| %>
+      <li><%= doc_id %> (<strong><%= get_relevancy_text @target_relevancy %></strong>)</li>
+    <% end %>
+  </ul>
+  <h4>Removed (<%= @relevancy_changes[:removed].size %>):</h4>
+  <ul>
+    <% @relevancy_changes[:removed].each do |doc_id, doc_relevancy| %>
+      <li><%= doc_id %> (from <%= get_relevancy_text doc_relevancy %>)</li>
+    <% end %>
+  </ul>
+  <h4>Modified (<%= @relevancy_changes[:modified].size %>):</h4>
+  <ul>
+    <% @relevancy_changes[:modified].each do |doc_id, doc_relevancy| %>
+      <li><%= doc_id %> (from <%= get_relevancy_text doc_relevancy %> to <strong><%= get_relevancy_text @target_relevancy %></strong>)</li>
+    <% end %>
+  </ul>
+  <h4>Unchanged (<%= @relevancy_changes[:unchanged].size %>):</h4>
+  <ul>
+    <% @relevancy_changes[:unchanged].each do |doc_id, doc_relevancy| %>
+      <li><%= doc_id %> (<strong><%= get_relevancy_text @target_relevancy %></strong>)</li>
+    <% end %>
+  </ul>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn" data-dismiss="modal">Cancel</button>
+  <form id="apply_dataset_global_changes" class="form-inline" novalidate="novalidate" data-remote="false" method='post' action="/catalog/apply_modify_dataset">
+    <input type="hidden" name="target_relevancy" value="<%= @target_relevancy %>"/>
+    <input type="hidden" name="current_url" value="<%= @current_url %>"/>
+    <% @relevancy_changes.values.map{|li| li.map{|l| l[0]}}.flatten.each do |doc_id| %>
+      <input type="hidden" name="docs[]" value="<%= doc_id %>"/>
+    <% end %>
+    <button type="submit" class="btn btn-info" data-disable-with="Working...">Apply changes</button>
+  </form>
+</div>

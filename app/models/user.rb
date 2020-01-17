@@ -23,4 +23,11 @@ class User < ApplicationRecord
   def to_s
     email
   end
+
+  def datasets_with_doc doc_id
+    self.datasets.map do |dataset|
+      [dataset.id, dataset.title, dataset.relevancy_for_doc(doc_id)] if dataset.contains doc_id
+    end.delete_if(&:nil?)
+  end
+
 end

@@ -1,6 +1,6 @@
 class DatasetsController < ApplicationController
 
-  before_action :set_dataset, only: [:show, :edit, :update, :destroy, :delete_elements]
+  before_action :set_dataset, only: [:show, :edit, :update, :destroy, :delete_elements, :rename_dataset_modal]
 
   # GET /datasets
   # GET /datasets.json
@@ -11,15 +11,13 @@ class DatasetsController < ApplicationController
   # GET /datasets/1
   # GET /datasets/1.json
   def show
+    @documents_list = @dataset.fetch_documents
+    @documents_list.sort_by! { |doc| Date.parse(doc['date_created_dtsi'])}
   end
 
   # GET /datasets/new
   def new
     @dataset = Dataset.new
-  end
-
-  # GET /datasets/1/edit
-  def edit
   end
 
   # POST /datasets
@@ -141,8 +139,23 @@ class DatasetsController < ApplicationController
   def destroy
     @dataset.destroy
     respond_to do |format|
-      format.html { redirect_to '/personal_research_assistant', notice: 'Dataset was successfully destroyed.' }
+      format.html { redirect_to '/datasets', notice: 'Dataset was successfully destroyed.' }
       format.json { head :no_content }
+    end
+  end
+
+  def rename_dataset_modal
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def apply_rename_dataset
+    d = Dataset.find(params[:dataset_id])
+    d.title = params[:new_title]
+    d.save!
+    respond_to do |format|
+      format.html { redirect_to dataset_path(d), turbolinks: true, notice: 'Dataset title was successfully updated.' }
     end
   end
 

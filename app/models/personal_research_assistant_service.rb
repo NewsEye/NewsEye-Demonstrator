@@ -103,6 +103,24 @@ class PersonalResearchAssistantService
     Base64.strict_encode64(out)
   end
 
+  def self.visualization(model_type, model_name)
+    url = "https://newseye-wp4.cs.helsinki.fi/#{model_type}/pyldavis"
+    body = {model_name: model_name}
+    out = query_api url, body, auth: false, parse: false
+  end
+
+  def self.query(model_type, model_name, doc_ids)
+    # returns taskuuid
+  end
+
+  def self.query_results(task_uuid)
+
+  end
+
+  def self.doc_linking(model_type, model_name, num_docs, doc_ids)
+
+  end
+
   ################################################
   # Common
   ################################################

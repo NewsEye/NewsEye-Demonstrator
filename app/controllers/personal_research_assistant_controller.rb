@@ -237,4 +237,10 @@ class PersonalResearchAssistantController < ApplicationController
     end
   end
 
+  def visualize_tm
+    respond_to do |format|
+      format.html { render html: PersonalResearchAssistantService.visualization("lda", "onb-lda-50").html_safe}
+    end
+  end
+
 end

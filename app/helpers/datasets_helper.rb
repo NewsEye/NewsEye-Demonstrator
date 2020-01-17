@@ -33,4 +33,30 @@ module DatasetsHelper
     results.map { |r| r['id'] }
   end
 
+  def get_info_from_relevancy relevancy
+    case relevancy
+    when 0
+      []
+    when 1
+      ['light', 'Somewhat relevant']
+    when 2
+      ['info', 'Relevant']
+    when 3
+      ['primary', 'Very relevant']
+    end
+  end
+
+  def get_relevancy_text relevancy
+    case relevancy
+    when 0
+      "Not relevant"
+    when 1
+      'Somewhat relevant'
+    when 2
+      'Relevant'
+    when 3
+      'Very relevant'
+    end
+  end
+
 end

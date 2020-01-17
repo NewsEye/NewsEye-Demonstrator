@@ -5,7 +5,7 @@
 
 <% if can?(:show, @document) %>
 
-  <div class="col-sm-5">
+  <div class="col-sm-4">
     <b>
       <%= ERB::Util.html_escape(@document[:title_ssi]).gsub("\n","<br>").html_safe %>
     </b>
@@ -18,12 +18,17 @@
     </p>
 
   </div>
-  <div class="col-sm-7">
-    <div>
-      <% manifest = get_manifest @document[:from_issue_ssi]%>
-      <% @document[:canvases_parts_ssm].each do |canvas| %>
-        <img src="<%= get_iiif_images_from_canvas_path manifest, canvas %>" style="max-width: 100%;">
-      <% end %>
+  <div id="article_well" class="well" style="overflow: scroll;">
+    <div class="col-sm-8">
+      <canvas id="article_composite_image"></canvas>
+  <!--    <div>-->
+        <%# manifest = get_manifest @document[:from_issue_ssi]%>
+        <%# @document[:canvases_parts_ssm].each do |canvas| %>
+  <!--        <p>-->
+  <!--          <img src="<%#= get_iiif_images_from_canvas_path manifest, canvas %>" style="max-width: 100%;">-->
+  <!--        </p>-->
+        <%# end %>
+  <!--    </div>-->
     </div>
   </div>
 <% else %>

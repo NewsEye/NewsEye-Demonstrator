@@ -59,18 +59,7 @@ class Issue2
 
     solr_doc['year_isi'] = solr_doc['date_created_ssi'][0..3].to_i
     solr_doc["member_of_collection_ids_ssim"] = self.newspaper_id
-    case self.language
-    when 'fr'
-      solr_doc['all_text_tfr_siv'] = self.all_text
-    when 'de'
-      solr_doc['all_text_tde_siv'] = self.all_text
-    when 'fi'
-      solr_doc['all_text_tfi_siv'] = self.all_text
-    when 'se'
-      solr_doc['all_text_tse_siv'] = self.all_text
-    else
-      solr_doc['all_text_ten_siv'] = self.all_text
-    end
+    solr_doc["all_text_t#{self.language}_siv"] = self.all_text
 
     if self.to_solr_articles
       solr_doc['_childDocuments_'] = []

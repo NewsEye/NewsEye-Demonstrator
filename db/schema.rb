@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20191010114350) do
+ActiveRecord::Schema.define(version: 20191210143850) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -67,11 +67,9 @@ ActiveRecord::Schema.define(version: 20191010114350) do
   create_table "datasets", force: :cascade do |t|
     t.string "title"
     t.bigint "user_id"
-    t.string "searches", default: [], array: true
-    t.string "articles", default: [], array: true
-    t.string "issues", default: [], array: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.jsonb "documents", default: []
     t.index ["title", "user_id"], name: "index_datasets_on_title_and_user_id", unique: true
     t.index ["user_id"], name: "index_datasets_on_user_id"
   end

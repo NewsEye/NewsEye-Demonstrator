@@ -59,12 +59,15 @@ Rails.application.routes.draw do
     root to: "catalog#index"
     # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
-    resources :datasets
+    resources :datasets, :except => ['edit']
 
     post '/datasets/:id/delete_searches', to: 'datasets#delete_searches'
+    post '/datasets/:id/rename', to: 'datasets#rename_dataset'
     post '/datasets/add', to: 'datasets#add'
     post '/datasets/create_and_add', to: 'datasets#create_and_add'
     post '/datasets/delete_elements', to: 'datasets#delete_elements'
+    get '/datasets/rename_dataset_modal/:id', to: 'datasets#rename_dataset_modal'
+    post '/datasets/apply_rename_dataset', to: 'datasets#apply_rename_dataset'
 
     get '/personal_research_assistant', to: 'personal_research_assistant#index'
     get '/personal_research_assistant/show_results/:task_uuid', to: 'personal_research_assistant#show_results'
@@ -90,6 +93,11 @@ Rails.application.routes.draw do
     get '/search_help', to: 'catalog#help'
     get '/kw_suggest', to: 'catalog#kw_suggest'
     post '/tools/query_embd_model', to: 'catalog#query_embd_model'
+    post '/catalog/set_working_dataset', to: 'catalog#set_working_dataset'
+    post '/catalog/confirm_modify_dataset', to: 'catalog#confirm_modify_dataset'
+    post '/catalog/apply_modify_dataset', to: 'catalog#apply_modify_dataset'
+    post '/catalog/modify_doc_relevancy', to: 'catalog#modify_doc_relevancy'
+    post '/catalog/article_parts', to: 'catalog#article_parts'
 
   end
 
@@ -101,5 +109,7 @@ Rails.application.routes.draw do
   get '/iiif/:id/list/:name', to: 'iiif#annotation_list'
   get '/iiif/:id/layer/:name', to: 'iiif#layer'
   get '/iiif/:id/alto', to: 'iiif#alto'
+
+  get '/test', to: 'personal_research_assistant#visualize_tm'
 
 end
