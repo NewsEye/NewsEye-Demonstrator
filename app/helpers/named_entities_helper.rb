@@ -2,76 +2,43 @@ module NamedEntitiesHelper
 
   def get_named_entities_for_doc doc_id
     output = {LOC: {}, PER: {}, ORG: {}, MISC: {}}
-    nems = NewseyeSolrService.query({q:"doc_id_ssi:#{doc_id}", rows: 1000000})
-    mapping_id_ne = Hash[NewseyeSolrService.query({q: "entity_type_ssi:*", rows: 10000}).map{ |ne| [ne['id'], {label: ne['label_ssi'], type: ne['entity_type_ssi']}] }]
-    nems.select {|ne| mapping_id_ne[ne['linked_entity_ssi']][:type] == "Location"}.each do |ne|
-      label = mapping_id_ne[ne['linked_entity_ssi']][:label]
-      output[:LOC][label] = [] unless output[:LOC].has_key? label
-      output[:LOC][label].append(ne)
+    if doc_id.index('_article_').nil?
+      nems = NewseyeSolrService.query({q:"issue_id_ssi:#{doc_id}", rows: 1000000})
+    else
+      nems = NewseyeSolrService.query({q:"article_id_ssi:#{doc_id}", rows: 1000000})
     end
-    nems.select {|ne| mapping_id_ne[ne['linked_entity_ssi']][:type] == "Person"}.each do |ne|
-      label = mapping_id_ne[ne['linked_entity_ssi']][:label]
-      output[:PER][label] = [] unless output[:PER].has_key? label
-      output[:PER][label].append(ne)
+    nems.select {|ne_solr| ne_solr['type_ssi'] == "LOC"}.each do |ne_solr|
+      output[:LOC][ne_solr['linked_entity_ssi']] = [] unless output[:LOC].has_key? ne_solr['linked_entity_ssi']
+      output[:LOC][ne_solr['linked_entity_ssi']].append(ne_solr)
     end
-    nems.select {|ne| mapping_id_ne[ne['linked_entity_ssi']][:type] == "Organization"}.each do |ne|
-      label = mapping_id_ne[ne['linked_entity_ssi']][:label]
-      output[:ORG][label] = [] unless output[:ORG].has_key? label
-      output[:ORG][label].append(ne)
+    nems.select {|ne_solr| ne_solr['type_ssi'] == "PERS"}.each do |ne_solr|
+      output[:PER][ne_solr['linked_entity_ssi']] = [] unless output[:PER].has_key? ne_solr['linked_entity_ssi']
+      output[:PER][ne_solr['linked_entity_ssi']].append(ne_solr)
     end
-    nems.select {|ne| mapping_id_ne[ne['linked_entity_ssi']][:type] == "Miscellaneous"}.each do |ne|
-      label = mapping_id_ne[ne['linked_entity_ssi']][:label]
-      output[:MISC][label] = [] unless output[:MISC].has_key? label
-      output[:MISC][label].append(ne)
+    nems.select {|ne_solr| ne_solr['type_ssi'] == "ORG"}.each do |ne_solr|
+      output[:ORG][ne_solr['linked_entity_ssi']] = [] unless output[:ORG].has_key? ne_solr['linked_entity_ssi']
+      output[:ORG][ne_solr['linked_entity_ssi']].append(ne_solr)
     end
     output
   end
 
-  def get_named_entities_for_article article_id
-    output = {LOC: {}, PER: {}, ORG: {}, MISC: {}}
-    begin
-      doc_id = article_id[0...article_id.index('_article_')]
-      doc_solr = NewseyeSolrService.query({q:"id:#{doc_id}"})[0]
-      lang = doc_solr['language_ssi']
-      doc_text = doc_solr["all_text_t#{lang}_siv"]
-      article_text = NewseyeSolrService.query({q: "id:#{article_id}"})[0]["all_text_t#{lang}_siv"].gsub("\n\n","\n")
-      start_index = doc_text.index(article_text)
-      bounds = {start: start_index, end: start_index + article_text.size}
-    rescue => e
-      puts "Error during processing: #{$!}"
-      puts "Backtrace:\n\t#{e.backtrace.join("\n\t")}"
-      return output
-    end
-
-    puts bounds
-    nems = NewseyeSolrService.query({q: "doc_id_ssi:#{doc_id} AND index_start_isi:[#{bounds[:start]} TO *] AND index_end_isi:[* TO #{bounds[:end]}]", rows: 100000})
-    mapping_id_ne = Hash[NewseyeSolrService.query({q: "entity_type_ssi:*", rows:10000}).map{|ne| [ne['id'], {label: ne['label_ssi'], type: ne['entity_type_ssi']}]}]
-
-    nems.select {|ne| mapping_id_ne[ne['linked_entity_ssi']][:type] == "Location"}.each do |ne|
-      label = mapping_id_ne[ne['linked_entity_ssi']][:label]
-      output[:LOC][label] = [] unless output[:LOC].has_key? label
-      output[:LOC][label].append(ne)
-    end
-    nems.select {|ne| mapping_id_ne[ne['linked_entity_ssi']][:type] == "Person"}.each do |ne|
-      label = mapping_id_ne[ne['linked_entity_ssi']][:label]
-      output[:PER][label] = [] unless output[:PER].has_key? label
-      output[:PER][label].append(ne)
-    end
-    nems.select {|ne| mapping_id_ne[ne['linked_entity_ssi']][:type] == "Organization"}.each do |ne|
-      label = mapping_id_ne[ne['linked_entity_ssi']][:label]
-      output[:ORG][label] = [] unless output[:ORG].has_key? label
-      output[:ORG][label].append(ne)
-    end
-    nems.select {|ne| mapping_id_ne[ne['linked_entity_ssi']][:type] == "Miscellaneous"}.each do |ne|
-      label = mapping_id_ne[ne['linked_entity_ssi']][:label]
-      output[:ORG][label] = [] unless output[:MISC].has_key? label
-      output[:ORG][label].append(ne)
-    end
-    puts output
-    output
+  def get_kb_urls entities
+    ids = entities.select{ |label| label != "" }
+    NewseyeSolrService.query({q: "*:*", fq: "id:(#{ids.join(' ')})", fl: "id,kb_url_ssi", rows: 99999}).map do |res|
+      [res['id'], res['kb_url_ssi']]
+    end.to_h
   end
 
-
+  def get_entity_label(options={})
+    priority_language = [I18n.locale, 'en', 'de', 'fr', 'fi', 'sv']
+    doc = NewseyeSolrService.get_by_id options
+    puts "####{doc}" if doc.nil?
+    unless doc.nil?
+      priority_language.each do |lang|
+        return doc["label_#{lang}_ssi"] unless doc["label_#{lang}_ssi"].nil?
+      end
+    end
+  end
 
   def get_bbox_from_annotations(annots)
     minx = 99999999

@@ -30,7 +30,7 @@ class SearchBuilder < Blacklight::SearchBuilder
 
   def fix_query(solr_parameters)
     solr_parameters[:'facet.field'].uniq!
-    solr_parameters.except! :defType
+    #solr_parameters.except! :defType
   end
 
 end

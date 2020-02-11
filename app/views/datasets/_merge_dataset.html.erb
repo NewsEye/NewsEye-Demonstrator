@@ -1,0 +1,16 @@
+<div class="modal-header">
+  <button type="button" class="close" data-dismiss="modal">x</button>
+  <h4 class="modal-title" id="params_label">Merging dataset ### into <%= @dataset.title %></h4>
+</div>
+<form id="rename_dataset_form" class="form-inline" novalidate="novalidate" data-remote="false" method='post' action="/datasets/apply_rename_dataset">
+  <div class="modal-body">
+    <label for="new_title">New title: </label>
+    <input type="text" name="new_title"/>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn" data-dismiss="modal">Cancel</button>
+    <!--    <input type="hidden" name="current_url" value="<%#= @current_url %>"/>-->
+    <input type="hidden" name="dataset_id" value="<%= @dataset.id %>"/>
+    <button type="submit" class="btn btn-info">Apply changes</button>
+  </div>
+</form>

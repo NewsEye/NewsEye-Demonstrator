@@ -15,6 +15,7 @@ class User < ApplicationRecord
 
   has_many :datasets
   has_many :tasks
+  has_many :searches
 
 
   # Method added by Blacklight; Blacklight uses #to_s on your

@@ -31,7 +31,7 @@
     <form autocomplete="off" novalidate="novalidate" data-remote="false" action="/catalog/modify_doc_relevancy" accept-charset="UTF-8" method="post" class="form-inline">
       <label for="specific_dataset_relevancy">Set relevancy towards <span class="working_dataset_span"><%= Dataset.find(session['working_dataset']).title %></span>: </label>
       <select name="specific_dataset_relevancy" class="form-control form-control-sm">
-        <%= options_for_select [["Not relevant", 0],["Somewhat relevant",1],["Relevant",2],["Very relevant",3]] %>
+        <%= options_for_select [["Delete", -1],["Not relevant", 0],["Somewhat relevant",1],["Relevant",2],["Very relevant",3]] %>
       </select>
       <input type="hidden" name="doc_id" value="<%= @document.id %>"/>
       <input type="hidden" name="current_url" value="<%= request.original_url %>"/>

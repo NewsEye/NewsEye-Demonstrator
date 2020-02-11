@@ -1,1 +1,1 @@
-$('#embedding_results').text('test');
+$('#embedding_results').text("<%= j @words["similar_words"].join("\n") %>");

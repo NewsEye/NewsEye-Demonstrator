@@ -98,6 +98,19 @@ Rails.application.routes.draw do
     post '/catalog/apply_modify_dataset', to: 'catalog#apply_modify_dataset'
     post '/catalog/modify_doc_relevancy', to: 'catalog#modify_doc_relevancy'
     post '/catalog/article_parts', to: 'catalog#article_parts'
+    post '/catalog/linked_entity_search', to: 'catalog#linked_entity_search'
+
+    post "/saved_searches/save", to: "saved_searches#save"
+    post "/saved_searches/confirm_save", to: "saved_searches#confirm_save"
+    get "/saved_searches", to: "saved_searches#index"
+    get '/delete_search/:id', to: 'saved_searches#delete_search'
+    get "/workspace", to: "personal_workspace#index"
+
+    post "/list_datasets", to: "api_base#list_datasets"
+    post "/get_dataset_content", to: "api_base#get_dataset_content"
+    post "/export_dataset/zipped", to: "export#zipped_export"
+    post "/export_dataset/csv", to: "export#csv_export"
+    post "/export_dataset/json", to: "export#json_export"
 
   end
 

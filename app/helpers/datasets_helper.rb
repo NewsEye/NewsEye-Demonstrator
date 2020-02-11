@@ -48,6 +48,8 @@ module DatasetsHelper
 
   def get_relevancy_text relevancy
     case relevancy
+    when -1
+      "Deleted"
     when 0
       "Not relevant"
     when 1

@@ -1,0 +1,21 @@
+<div class="form-check">
+  <label class="form-check-label" for="select_all_checkbox">Select all visible documents</label>
+  <input class="form-check-input" type="checkbox" value="" id="select_all_checkbox">
+</div>
+<div class="">
+  <form id="global_dataset_relevancy_form" class="form-inline" novalidate="novalidate" data-remote="true" method='post' action="/catalog/confirm_modify_dataset">
+
+    <div class="form-group">
+      <label for="global_dataset_relevancy">Relevancy</label>
+      <select name="global_dataset_relevancy" class="form-control form-control-sm">
+        <%= options_for_select [["Delete", -1],["Not relevant", 0],["Somewhat relevant",1],["Relevant",2],["Very relevant",3]] %>
+      </select>
+    </div>
+    <!-- Hidden fields are generated from JS catalog#index -->
+    <div class="form-group">
+      <button class="btn btn-default" type="submit" href="#" id="apply_global_dataset_changes">
+        Apply relevancy for all selected documents
+      </button>
+    </div>
+  </form>
+</div>

@@ -29,7 +29,7 @@ class CatalogController < ApplicationController
     config.advanced_search ||= Blacklight::OpenStructWithHashAccess.new
     # config.advanced_search[:qt] ||= 'advanced'
     config.advanced_search[:url_key] ||= 'advanced'
-    config.advanced_search[:query_parser] ||= 'dismax'
+    config.advanced_search[:query_parser] ||= 'edismax'
     config.advanced_search[:form_solr_parameters] ||= {}
 
     config.view.gallery.partials = [:index_header, :index]
@@ -57,7 +57,7 @@ class CatalogController < ApplicationController
     ## Default parameters to send to solr for all search-like requests. See also SearchBuilder#processed_parameters
     config.default_solr_params = {
         #qf: 'all_text_ten_siv all_text_tfr_siv all_text_tde_siv all_text_tfi_siv all_text_tse_siv title_tfr_siv',
-        qf: %w(all_text_unstemmed_ten_siv^3 all_text_unstemmed_tfr_siv^3 all_text_unstemmed_tfi_siv^3 all_text_unstemmed_tse_siv^3 all_text_unstemmed_tde_siv^3 all_text_ten_siv all_text_tfr_siv all_text_tfi_siv all_text_tse_siv all_text_tde_siv title_ten_siv title_tfr_siv title_tfi_siv title_tde_siv title_tse_siv).join(' '),
+        qf: %w(all_text_unstemmed_ten_iv^10 all_text_unstemmed_tfr_iv^10 all_text_unstemmed_tfi_iv^10 all_text_unstemmed_tse_iv^10 all_text_unstemmed_tde_iv^10 all_text_ten_siv all_text_tfr_siv all_text_tfi_siv all_text_tse_siv all_text_tde_siv title_ten_siv title_tfr_siv title_tfi_siv title_tde_siv title_tse_siv).join(' '),
         qt: 'search',
         rows: 10
     }
@@ -66,10 +66,13 @@ class CatalogController < ApplicationController
     config.index.display_type_field = 'has_model_ssim'
 
     config.add_facet_field solr_name('language', :string_searchable_uniq), helper_method: :convert_language_to_locale, limit: true, tag: "langtag", ex: "langtag"
-    config.add_facet_field solr_name('date_created', :date_searchable_uniq), helper_method: :convert_date_to_locale, label: 'Date', limit: 5, date: true
+    config.add_facet_field solr_name('date_created', :date_searchable_uniq), helper_method: :convert_date_to_locale, label: 'Date', limit: 5, date: true, tag: "datetag", ex: "datetag"
     config.add_facet_field 'year_isi', label: 'Year', range: true #{ assumed_boundaries: [1800, 1950] }
     config.add_facet_field 'member_of_collection_ids_ssim', helper_method: :get_collection_title_from_id, label: 'Newspaper', tag: "collectag", ex: "collectag"
     config.add_facet_field 'has_model_ssim', helper_method: :get_display_value_from_model, label: 'Type'
+    config.add_facet_field 'linked_persons_ssim', helper_method: :get_entity_label, label: 'Persons', limit: 20, tag: "persontag", ex: "persontag"
+    config.add_facet_field 'linked_locations_ssim', helper_method: :get_entity_label, label: 'Locations', limit: 20, tag: "locationtag", ex: "locationtag"
+    config.add_facet_field 'linked_organisations_ssim', helper_method: :get_entity_label, label: 'Organisations', limit: 20, tag: "organisationtag", ex: "organisationtag"
 
     config.add_facet_fields_to_solr_request!
 
@@ -212,6 +215,7 @@ class CatalogController < ApplicationController
   end
 
   def query_embd_model
+    @words = PersonalResearchAssistantService.word_embeddings_query params[:word], params[:language], params[:num_words]
     respond_to do |format|
       format.js
     end
@@ -231,18 +235,18 @@ class CatalogController < ApplicationController
     @relevancy_changes = {added: [], removed: [], modified: [], unchanged:[]}
     current_relevancies.each do |doc_id, doc_relevancy|
         case @target_relevancy
-        when 0
+        when -1
           case doc_relevancy
-          when 0
+          when -1
             @relevancy_changes[:unchanged] << [doc_id, doc_relevancy]
-          when 1, 2, 3
+          when 0, 1, 2, 3
             @relevancy_changes[:removed] << [doc_id, doc_relevancy]
           end
-        when 1, 2, 3
+        when 0, 1, 2, 3
           case doc_relevancy
-          when 0
+          when -1
             @relevancy_changes[:added] << [doc_id, doc_relevancy]
-          when 1, 2, 3
+          when 0, 1, 2, 3
             @relevancy_changes[:unchanged] << [doc_id, doc_relevancy] if doc_relevancy == @target_relevancy
             @relevancy_changes[:modified] << [doc_id, doc_relevancy] if doc_relevancy != @target_relevancy
           end
@@ -282,14 +286,14 @@ class CatalogController < ApplicationController
     @previous_relevancy = current_dataset.relevancy_for_doc @doc_id
     doc_index = current_dataset.documents.index { |doc| doc['id'] == @doc_id}
     if doc_index.nil?
-      if @new_relevancy != 0
+      if @new_relevancy != -1
         current_dataset.documents << {id: @doc_id, type: @doc_id.include?("_article_") ? "article" : "issue", relevancy: @new_relevancy}
         message = "Added document #{@doc_id} to the dataset #{@dataset_name} (#{helpers.get_relevancy_text @new_relevancy})."
       else
         message = "Nothing was done."
       end
     else
-      if @new_relevancy == 0
+      if @new_relevancy == -1
         current_dataset.documents.delete_at doc_index
         message = "Removed document #{@doc_id} from the dataset #{@dataset_name}."
       else
@@ -314,6 +318,18 @@ class CatalogController < ApplicationController
 
   def article_parts
     render json: Article2.from_solr(params[:article_id]).draw
+  end
+
+  def linked_entity_search
+    dataset = Dataset.find(params[:dataset_id])
+    entities = dataset.fetch_linked_entities
+    # f[linked_persons_ssim][]=entity_PERS_Q25670&f[linked_persons_ssim][]=entity_PERS_Q4719463
+    url = url_for controller: "catalog", action: "index"
+    url = "#{url}?#{entities.map{ |ne_id| "f[linked_persons_ssim][]=#{ne_id}" }.join("&")}"
+    puts url
+    respond_to do |format|
+      format.html { redirect_to url }
+    end
   end
 
   protected

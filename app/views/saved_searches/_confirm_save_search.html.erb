@@ -1,0 +1,21 @@
+<div class="modal-header">
+  <button type="button" class="close" data-dismiss="modal">x</button>
+  <h4 class="modal-title" id="params_label">Confirmation to save search</h4>
+</div>
+<form id="apply_save_search" class="form-inline" novalidate="novalidate" data-remote="false" method='post' action="/saved_searches/confirm_save">
+  <div class="modal-body">
+    <p>Do you want to save this search ?</p>
+<!--    <p><%#= search_params %></p>-->
+    <hr/>
+    <label for="describe_confirm">Do you want the Personal Research Assistant to get information on this search ?</label>
+    <input type="checkbox" id="describe_confirm" name="describe" checked="true">
+    <label for="description">Description of this search:</label>
+    <input type="text" id="description" name="description">
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn" data-dismiss="modal">Cancel</button>
+    <input type="hidden" name="current_url" value="<%= @current_url %>"/>
+    <input type="hidden" name="query" value="<%= @search_params %>"/>
+      <button type="submit" class="btn btn-info" data-disable-with="Working...">Save search</button>
+  </div>
+</form>

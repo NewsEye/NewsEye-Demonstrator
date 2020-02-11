@@ -86,7 +86,6 @@ module Blacklight::Solr
     # as :f, to solr as appropriate :fq query.
     def add_facet_fq_to_solr(solr_parameters)
       # convert a String value into an Array
-      puts "#######"
       if solr_parameters[:fq].is_a? String
         solr_parameters[:fq] = [solr_parameters[:fq]]
       end
@@ -94,14 +93,12 @@ module Blacklight::Solr
       # :fq, map from :f.
       if blacklight_params[:f]
         f_request_params = blacklight_params[:f]
-        puts "################# #{f_request_params}"
         f_request_params.each_pair do |facet_field, value_list|
           facet_values = []
           Array(value_list).reject(&:blank?).each do |value|
             facet_values << facet_value_to_fq_string(facet_field, value)
             # solr_parameters.append_filter_query facet_value_to_fq_string(facet_field, value)
           end
-          puts "### #{facet_values}"
           # Combine facet values into one fq field (OR instead of AND)
           terms_filter = facet_values[0][facet_values[0].index('{')..facet_values[0].rindex('}')]
           terms_filter.gsub!('!term ', '!terms ')

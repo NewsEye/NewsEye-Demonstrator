@@ -75,6 +75,11 @@ class NewseyeSolrService
     connect unless @@connection
     @@connection.add(params)
   end
+
+  def self.update(params)
+    connect unless @@connection
+    @@connection.update(params)
+  end
   #
   # def self.get_by_id(id)
   #   connect unless @@connection

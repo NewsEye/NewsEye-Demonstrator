@@ -53,9 +53,9 @@ class Dataset < ApplicationRecord
     docs_with_relevancy.each do |document|
       doc_index = self.documents.index{ |doc| doc['id'] == document[:id] }
       if doc_index.nil?
-        self.documents << document if document[:relevancy] != 0
+        self.documents << document if document[:relevancy] != -1
       else
-        if document[:relevancy] == 0
+        if document[:relevancy] == -1
           self.documents.delete_at doc_index
         else
           self.documents[doc_index]['relevancy'] = document[:relevancy]
@@ -72,6 +72,16 @@ class Dataset < ApplicationRecord
       solr_doc['relevancy'] = self.relevancy_for_doc solr_doc['id']
       solr_doc
     end
+  end
+
+  def fetch_facets
+    ids = self.documents.map{ |doc| doc['id']}
+    NewseyeSolrService.query({q: "*:*", fq: "{!terms f=id}#{ids.join(',')}"})
+  end
+
+  def fetch_linked_entities
+    docs = self.fetch_documents
+    docs.map{ |doc| doc['linked_entities_ssim'] }.flatten
   end
 end
 

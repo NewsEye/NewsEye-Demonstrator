@@ -1,6 +1,7 @@
 class DatasetsController < ApplicationController
 
   before_action :set_dataset, only: [:show, :edit, :update, :destroy, :delete_elements, :rename_dataset_modal]
+  before_action :authorize_pra, only: [:list_datasets, :get_dataset_content]
 
   # GET /datasets
   # GET /datasets.json
@@ -12,7 +13,15 @@ class DatasetsController < ApplicationController
   # GET /datasets/1.json
   def show
     @documents_list = @dataset.fetch_documents
-    @documents_list.sort_by! { |doc| Date.parse(doc['date_created_dtsi'])}
+    @documents_list.sort_by! do |doc|
+      case params[:sort]
+      when "date"
+        Date.parse(doc['date_created_dtsi'])
+      when "relevancy"
+        doc['relevancy']
+      end
+    end
+    @documents_list.reverse! if params[:sort_order] == "desc"
   end
 
   # GET /datasets/new
@@ -139,7 +148,7 @@ class DatasetsController < ApplicationController
   def destroy
     @dataset.destroy
     respond_to do |format|
-      format.html { redirect_to '/datasets', notice: 'Dataset was successfully destroyed.' }
+      format.html { redirect_to '/workspace', notice: 'Dataset was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
@@ -159,10 +168,40 @@ class DatasetsController < ApplicationController
     end
   end
 
+  def merge_dataset_modal
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def apply_merge_dataset
+    d = Dataset.find(params[:dataset_id])
+    to_merge = Dataset.find(params[:dataset_id_to_merge])
+
+    respond_to do |format|
+      format.html { redirect_to dataset_path(d), turbolinks: true, notice: 'Dataset title was successfully updated.' }
+    end
+  end
+
+  def list_datasets
+    datasets = User.find_by_email(params[:email]).datasets
+    render json: datasets.map(&:title)
+  end
+
+  def get_dataset_content
+    datasets = User.find_by_email(params[:email]).datasets
+    dataset_docs = datasets.to_a.select{|dt| dt.title == "pih"}[0].documents
+    render json: dataset_docs
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_dataset
       @dataset = Dataset.find(params[:id])
+    end
+
+    def authorize_pra
+      render json: "not authorized" unless current_user.email == "pra@newseye.eu"
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

@@ -1,0 +1,30 @@
+<div class="panel panel-default">
+  <div class="panel-heading">Searches</div>
+  <div class="panel-body flex-grow">
+    <table class="table">
+      <tbody>
+      <% current_user.search_ids.each do |search_id| %>
+        <% search = Search.find(search_id) %>
+        <tr>
+          <td><%= link_to search.description, search.query_url %></td>
+          <td>
+          <%= link_to "/personal_research_assistant/describe_search/#{search.id}", data: { confirm: 'Are you sure?' } do %>
+            <span class="glyphicon glyphicon-list" style="color: black"></span>
+          <% end %>
+        </td>
+          <td>
+            <%= link_to "/personal_research_assistant/explore_search/#{search.id}", data: { confirm: 'Are you sure?' } do %>
+              <span class="glyphicon glyphicon-search" style="color: black"></span>
+            <% end %>
+          </td>
+          <td>
+            <%= link_to "/delete_search/#{search.id}", data: { confirm: 'Are you sure?' } do %>
+              <span class="glyphicon glyphicon-remove" style="color: red"></span>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

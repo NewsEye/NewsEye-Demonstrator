@@ -6,11 +6,23 @@
       <% current_user.dataset_ids.each do |dataset_id| %>
         <% dataset = Dataset.find(dataset_id) %>
         <tr>
-          <td><%= dataset.title %></td>
-          <td><%= link_to 'Show', dataset %></td>
-<!--          <td><%#= link_to 'Edit', edit_dataset_path(dataset) %></td>-->
-          <td><%= link_to 'Destroy', dataset, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+          <td><%= link_to dataset.title, dataset %></td>
           <td><%= dataset.nb_issues %> issues and <%= dataset.nb_articles %> articles</td>
+          <td>
+            <%= link_to "/personal_research_assistant/describe_dataset/#{dataset.id}", data: { confirm: 'Are you sure?' } do %>
+              <span class="glyphicon glyphicon-list" style="color: black"></span>
+            <% end %>
+          </td>
+          <td>
+            <%= link_to "/personal_research_assistant/explore_dataset/#{dataset.id}", method: :delete, data: { confirm: 'Are you sure?' } do %>
+              <span class="glyphicon glyphicon-search" style="color: black"></span>
+            <% end %>
+          </td>
+          <td>
+            <%= link_to dataset, method: :delete, data: { confirm: 'Are you sure?' } do %>
+              <span class="glyphicon glyphicon-remove" style="color: red"></span>
+            <% end %>
+          </td>
         </tr>
       <% end %>
       </tbody>

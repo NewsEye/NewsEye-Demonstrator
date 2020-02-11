@@ -1,0 +1,6 @@
+$("#modal-save_search").find(".modal-content").html("<%= j (render partial: 'confirm_save_search', locals: {
+    search_params: @search_params,
+    current_url: @current_url}) %>");
+$("#modal-save_search").modal();
+$('#modal-save_search')[0].classList.remove('hide');
+

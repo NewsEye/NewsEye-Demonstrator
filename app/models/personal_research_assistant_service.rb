@@ -121,6 +121,12 @@ class PersonalResearchAssistantService
 
   end
 
+  def self.word_embeddings_query(word, language, num_words)
+    url = "https://newseye-wp4.cs.helsinki.fi/word-embeddings/query"
+    body = {word: word, lang: language, num_words: num_words}
+    out = query_api url, body, auth: false
+  end
+
   ################################################
   # Common
   ################################################

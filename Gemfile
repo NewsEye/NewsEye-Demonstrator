@@ -18,6 +18,9 @@ gem 'europeana-api'
 gem 'riiif'
 
 gem 'chart-js-rails'
+gem 'rubyzip'
+
+gem 'sparql'
 
 gem 'pg'
 # gem 'activerecord-jdbcpostgresql-adapter' # for jruby

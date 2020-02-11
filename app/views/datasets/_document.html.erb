@@ -15,12 +15,14 @@
       <% end -%>
     <% end -%>
     <dt>Relevancy</dt>
-    <dd><%= get_relevancy_text document['relevancy'] %></dd>
+    <dd class="relevancy_value" data-relevancy="<%= document['relevancy'] %>"><%= get_relevancy_text document['relevancy'] %></dd>
+
+    <input type="checkbox" id="" class="dataset_check"/>
 
     <form autocomplete="off" novalidate="novalidate" data-remote="false" action="/catalog/modify_doc_relevancy" accept-charset="UTF-8" method="post" class="form-inline">
       <label for="specific_dataset_relevancy">Set relevancy to:</label>
       <select name="specific_dataset_relevancy" class="form-control form-control-sm">
-        <%= options_for_select [["Not relevant", 0],["Somewhat relevant",1],["Relevant",2],["Very relevant",3]] %>
+        <%= options_for_select [["Delete", -1],["Not relevant", 0],["Somewhat relevant",1],["Relevant",2],["Very relevant",3]] %>
       </select>
       <input type="hidden" name="doc_id" value="<%= document.id %>"/>
       <input type="hidden" name="current_url" value="<%= request.original_url %>"/>
@@ -30,5 +32,9 @@
       </button>
     </form>
   </dl>
+  <div class="document-thumbnail col-md-4">
+    <a href="/catalog/<%= document['id'] %>">
+      <img src="<%= document['thumbnail_url_ss'] %>" alt="Default"/>
+    </a>
+  </div>
 </div>
-<hr/>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20191210143850) do
+ActiveRecord::Schema.define(version: 20200204094200) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -113,11 +113,14 @@ ActiveRecord::Schema.define(version: 20191210143850) do
   end
 
   create_table "searches", id: :serial, force: :cascade do |t|
-    t.binary "query_params"
     t.integer "user_id"
-    t.string "user_type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "user_type"
+    t.binary "query_params"
+    t.jsonb "query", default: {}
+    t.text "description"
+    t.string "query_url"
     t.index ["user_id"], name: "index_searches_on_user_id"
   end
 
@@ -152,5 +155,6 @@ ActiveRecord::Schema.define(version: 20191210143850) do
 
   add_foreign_key "datasets", "users"
   add_foreign_key "named_entity_mentions", "named_entities"
+  add_foreign_key "searches", "users"
   add_foreign_key "tasks", "users"
 end
