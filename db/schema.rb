@@ -113,11 +113,11 @@ ActiveRecord::Schema.define(version: 20200204094200) do
   end
 
   create_table "searches", id: :serial, force: :cascade do |t|
+    t.binary "query_params"
     t.integer "user_id"
+    t.string "user_type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "user_type"
-    t.binary "query_params"
     t.jsonb "query", default: {}
     t.text "description"
     t.string "query_url"
