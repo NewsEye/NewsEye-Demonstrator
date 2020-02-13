@@ -5,6 +5,7 @@
 #   git config --global core.excludesfile '~/.gitignore_global'
 
 /.idea
+/.generators
 /public/assets/*
 /db/seeds_data
 /db/old_seeds_data
