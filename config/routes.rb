@@ -111,6 +111,8 @@ Rails.application.routes.draw do
     post "/export_dataset/zipped", to: "export#zipped_export"
     post "/export_dataset/csv", to: "export#csv_export"
     post "/export_dataset/json", to: "export#json_export"
+    post "/datasets/merge", to: "datasets#merge_dataset_modal"
+    post "/datasets/apply_merge_dataset", to: "datasets#apply_merge_dataset"
 
   end
 

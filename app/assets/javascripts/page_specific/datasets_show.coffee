@@ -42,6 +42,10 @@ class @DatasetsShow
             else
                 $('.dataset_check').prop("checked", false )
 
+        $('#merge_datasets_form').submit ()->
+            hidden = $("<input type=\"hidden\" name=\"current_url\" value=\"#{window.location.href}\"></input>")
+            $("#merge_datasets_form").append hidden
+
     urlParam: (name)->
         results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href)
         if results==null

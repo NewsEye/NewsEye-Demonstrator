@@ -43,7 +43,7 @@ class Dataset < ApplicationRecord
   def relevancy_for_doc doc_id
     doc_index = self.documents.index{ |doc| doc['id'] == doc_id }
     if doc_index.nil?
-      0
+      -1
     else
       self.documents[doc_index]['relevancy']
     end

@@ -24,6 +24,7 @@ module NamedEntitiesHelper
 
   def get_kb_urls entities
     ids = entities.select{ |label| label != "" }
+    return {} if ids.empty?
     NewseyeSolrService.query({q: "*:*", fq: "id:(#{ids.join(' ')})", fl: "id,kb_url_ssi", rows: 99999}).map do |res|
       [res['id'], res['kb_url_ssi']]
     end.to_h

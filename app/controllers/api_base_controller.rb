@@ -1,6 +1,6 @@
 class ApiBaseController < ApplicationController
   protect_from_forgery with: :null_session, if: :json_request
-   before_action :authenticate_request, if: :json_request
+  before_action :authenticate_request, if: :json_request
   before_action :authenticate_pra, only: [:list_datasets, :get_dataset_content]
 
   attr_reader :current_user
@@ -11,9 +11,9 @@ class ApiBaseController < ApplicationController
   end
 
   def get_dataset_content
-    datasets = User.find_by_email(params[:email]).datasets
-    dataset_docs = datasets.to_a.select{|dt| dt.title == "pih"}[0].documents
-    render json: dataset_docs
+    dataset = Dataset.where("user_id=#{User.find_by_email(params[:email]).id} AND title='#{params[:dataset_name]}'")
+    render json: {error: "Cannot find dataset."} if dataset.nil?
+    render json: dataset.documents
   end
 
   private

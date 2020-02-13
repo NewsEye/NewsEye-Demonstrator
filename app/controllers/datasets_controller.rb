@@ -154,6 +154,7 @@ class DatasetsController < ApplicationController
   end
 
   def rename_dataset_modal
+
     respond_to do |format|
       format.js
     end
@@ -169,6 +170,24 @@ class DatasetsController < ApplicationController
   end
 
   def merge_dataset_modal
+    @dataset = Dataset.find(params[:dataset_id])
+    @other_dataset = Dataset.find(params[:merge_datasets_select])a
+    @current_url = params['current_url']
+
+    current_relevancies = Hash[params['relevancy'].to_unsafe_h.map { |k,v| [k, v.to_i ]}]
+
+    @relevancy_changes = {added: [], removed: [], modified: [], unchanged:[]}
+    @other_dataset.documents.each do |doc|
+      doc_id = doc['id']
+      doc_relevancy = doc['relevancy']
+      current_relevancy = @dataset.relevancy_for_doc doc_id
+      case current_relevancy
+      when -1
+        @relevancy_changes[:added] << [doc_id, doc_relevancy]
+      when 0, 1, 2, 3, 4
+        @relevancy_changes[:unchanged] << [doc_id, doc_relevancy]
+      end
+    end
     respond_to do |format|
       format.js
     end

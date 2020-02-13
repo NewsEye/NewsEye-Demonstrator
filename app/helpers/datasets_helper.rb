@@ -61,4 +61,11 @@ module DatasetsHelper
     end
   end
 
+  def get_datasets_for_user user
+    puts "####{user}"
+    u = User.where("email = '#{user}'")[0]
+    puts "####{u}"
+    datasets = Dataset.where("user_id = #{u.id}").map{ |d| [d.id, d.title] }
+  end
+
 end
