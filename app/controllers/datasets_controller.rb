@@ -171,7 +171,7 @@ class DatasetsController < ApplicationController
 
   def merge_dataset_modal
     @dataset = Dataset.find(params[:dataset_id])
-    @other_dataset = Dataset.find(params[:merge_datasets_select])a
+    @other_dataset = Dataset.find(params[:merge_datasets_select])
     @current_url = params['current_url']
 
     current_relevancies = Hash[params['relevancy'].to_unsafe_h.map { |k,v| [k, v.to_i ]}]
