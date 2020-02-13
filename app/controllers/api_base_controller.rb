@@ -7,11 +7,11 @@ class ApiBaseController < ApplicationController
 
   def list_datasets
     datasets = User.find_by_email(params[:email]).datasets
-    render json: datasets.map(&:title)
+    render json: datasets.map{|dts| [dts.title, dts.documents.hash] }
   end
 
   def get_dataset_content
-    dataset = Dataset.where("user_id=#{User.find_by_email(params[:email]).id} AND title='#{params[:dataset_name]}'")
+    dataset = Dataset.where("user_id=#{User.find_by_email(params[:email]).id} AND title='#{params[:dataset_name]}'").first
     render json: {error: "Cannot find dataset."} if dataset.nil?
     render json: dataset.documents
   end
