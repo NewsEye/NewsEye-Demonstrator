@@ -11,7 +11,7 @@ module NamedEntitiesHelper
       output[:LOC][ne_solr['linked_entity_ssi']] = [] unless output[:LOC].has_key? ne_solr['linked_entity_ssi']
       output[:LOC][ne_solr['linked_entity_ssi']].append(ne_solr)
     end
-    nems.select {|ne_solr| ne_solr['type_ssi'] == "PERS"}.each do |ne_solr|
+    nems.select {|ne_solr| ne_solr['type_ssi'].start_with? "PER"}.each do |ne_solr|
       output[:PER][ne_solr['linked_entity_ssi']] = [] unless output[:PER].has_key? ne_solr['linked_entity_ssi']
       output[:PER][ne_solr['linked_entity_ssi']].append(ne_solr)
     end

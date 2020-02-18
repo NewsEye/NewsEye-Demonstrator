@@ -1,14 +1,17 @@
 <div class="modal-header">
   <button type="button" class="close" data-dismiss="modal">x</button>
   <h4 class="modal-title" id="params_label">Confirmation to merge "<%= @other_dataset.title %>" into "<%= @dataset.title %>"</h4>
-  <p>Select documents to import:</p>
-  <div id="relevancy_radios" class="form-group">
-    <label class="radio-inline"><input type="radio" name="optradio" checked>All</label>
-    <label class="radio-inline"><input type="radio" name="optradio">Non relevant</label>
-    <label class="radio-inline"><input type="radio" name="optradio">Somewhat relevant</label>
-    <label class="radio-inline"><input type="radio" name="optradio">Relevant</label>
-    <label class="radio-inline"><input type="radio" name="optradio">Very relevant</label>
-  </div>
+  <p>Documents will be imported with the same relevancy as the dataset they originally come from.
+    If a document to import already exists in the current dataset, its relevancy will not be changed.</p>
+<!--  <p>Select documents to import:</p>-->
+<!--  <div id="relevancy_radios" class="form-group">-->
+<!--    <label class="radio-inline"><input type="radio" name="rel_all" checked>All</label>-->
+<!--    <label class="radio-inline"><input type="radio" name="rel_0">Non relevant</label>-->
+<!--    <label class="radio-inline"><input type="radio" name="rel_1">Somewhat relevant</label>-->
+<!--    <label class="radio-inline"><input type="radio" name="rel_2">Relevant</label>-->
+<!--    <label class="radio-inline"><input type="radio" name="rel_3">Very relevant</label>-->
+<!--  </div>-->
+
 <!--  <div class="form-group">-->
 <!--    <label for="overwrite_relevancy_checkbox">Overwrite relevancy ?-->
 <!--      <input class="form-check-input" type="checkbox" value="" id="overwrite_relevancy_checkbox">-->
@@ -20,21 +23,24 @@
   <h4>Added (<%= @relevancy_changes[:added].size %>):</h4>
   <ul>
     <% @relevancy_changes[:added].each do |doc_id, doc_relevancy| %>
-      <li><%= doc_id %> (<strong><%= get_relevancy_text @target_relevancy %></strong>)</li>
+      <li><%= doc_id %> (<strong><%= get_relevancy_text doc_relevancy %></strong>)</li>
     <% end %>
   </ul>
   <h4>Unchanged (<%= @relevancy_changes[:unchanged].size %>):</h4>
   <ul>
     <% @relevancy_changes[:unchanged].each do |doc_id, doc_relevancy| %>
-      <li><%= doc_id %> (<strong><%= get_relevancy_text @target_relevancy %></strong>)</li>
+      <li><%= doc_id %> (<strong><%= get_relevancy_text doc_relevancy %></strong>)</li>
     <% end %>
   </ul>
 </div>
 </div>
 <div class="modal-footer">
   <button type="button" class="btn" data-dismiss="modal">Cancel</button>
-  <form id="apply_dataset_global_changes" class="form-inline" novalidate="novalidate" data-remote="false" method='post' action="/catalog/apply_modify_dataset">
-
+  <form id="apply_dataset_global_changes" class="form-inline" novalidate="novalidate" data-remote="false" method='post' action="/datasets/apply_merge_dataset">
+    <input type="hidden" name="dataset_id" value="<%= @dataset.id %>"/>
+    <% @relevancy_changes[:added].each do |doc_id, doc_relevancy| %>
+      <input type="hidden" name="relevancy[<%= doc_id %>]" value="<%= doc_relevancy %>"/>
+    <% end %>
     <button type="submit" class="btn btn-info" data-disable-with="Working...">Apply changes</button>
   </form>
 </div>

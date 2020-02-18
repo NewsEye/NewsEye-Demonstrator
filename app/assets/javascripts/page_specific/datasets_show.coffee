@@ -45,6 +45,9 @@ class @DatasetsShow
         $('#merge_datasets_form').submit ()->
             hidden = $("<input type=\"hidden\" name=\"current_url\" value=\"#{window.location.href}\"></input>")
             $("#merge_datasets_form").append hidden
+#         The next thing is handled in the modal _merge_datasets.html.erb
+#         $('#relevancy_radios input').change ()->
+#             console.log("ok")
 
     urlParam: (name)->
         results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href)

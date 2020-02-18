@@ -45,7 +45,7 @@
       <div>
         <form id="merge_datasets_form" class="form-inline" novalidate="novalidate" data-remote="true" method='post' action="/datasets/merge">
           <div class="form-group">
-            <label for="merge_datasets_select">Merge another dataset into this one</label>
+            <label for="merge_datasets_select">Import documents from another dataset:</label>
             <select name="merge_datasets_select" class="form-control form-control-sm">
               <%= options_for_select get_datasets_for_user(current_user).map{|d| d.reverse}.select{|d| d[1] != @dataset.id} %>
             </select>

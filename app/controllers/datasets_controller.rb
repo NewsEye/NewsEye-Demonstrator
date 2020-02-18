@@ -12,6 +12,7 @@ class DatasetsController < ApplicationController
   # GET /datasets/1
   # GET /datasets/1.json
   def show
+    session['working_dataset'] = @dataset.id
     @documents_list = @dataset.fetch_documents
     @documents_list.sort_by! do |doc|
       case params[:sort]
@@ -195,10 +196,16 @@ class DatasetsController < ApplicationController
 
   def apply_merge_dataset
     d = Dataset.find(params[:dataset_id])
-    to_merge = Dataset.find(params[:dataset_id_to_merge])
-
+    to_merge = params[:relevancy].keys.map do |doc_id|
+      {id: doc_id, type: doc_id.include?("_article_") ? "article" : "issue", relevancy: params[:relevancy][doc_id].to_i}
+    end
+    d.add_docs to_merge
     respond_to do |format|
-      format.html { redirect_to dataset_path(d), turbolinks: true, notice: 'Dataset title was successfully updated.' }
+      if d.save
+        format.html { redirect_to dataset_path(d), turbolinks: true, notice: 'Dataset was successfully updated.' }
+      else
+        format.html { redirect_to dataset_path(d), turbolinks: true, notice: 'There was an error modifying the dataset.' }
+      end
     end
   end
 
