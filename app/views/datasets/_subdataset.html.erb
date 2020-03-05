@@ -1,0 +1,23 @@
+<div class="modal-header">
+  <button type="button" class="close" data-dismiss="modal">x</button>
+  <h4 class="modal-title" id="params_label">Create a sub-dataset from "<%= @dataset.title %>"</h4>
+</div>
+<form id="apply_dataset_global_changes" class="form-inline" novalidate="novalidate" data-remote="false" method='post' action="/datasets/apply_subdataset">
+  <input type="hidden" name="dataset_id" value="<%= @dataset.id %>"/>
+  <input type="hidden" name="user_id" value="<%= current_user.id %>"/>
+  <div class="modal-body">
+    <p>Select documents to add to a new dataset:</p>
+    <div id="relevancy_radios" class="form-group">
+      <label class="checkbox-inline"><input type="checkbox" name="rel_0">Non relevant</label>
+      <label class="checkbox-inline"><input type="checkbox" name="rel_1">Somewhat relevant</label>
+      <label class="checkbox-inline"><input type="checkbox" name="rel_2">Relevant</label>
+      <label class="checkbox-inline"><input type="checkbox" name="rel_3">Very relevant</label>
+    </div>
+    <label>Name of the dataset to create: </label><input type="text" id="subdataset_name" name="dataset_name"/>
+  </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn" data-dismiss="modal">Cancel</button>
+    <button type="submit" class="btn btn-info" data-disable-with="Working...">Apply changes</button>
+  </div>
+</form>

@@ -1,1 +1,7 @@
-$('#embedding_results').text("<%= j @words["similar_words"].join("\n") %>");
+$('#embedding_results').empty();
+ul = $('<ul style="columns: 2; -webkit-columns: 2; -moz-columns: 2;"></ul>');
+<% @words["similar_words"].each do |word| %>
+  li = $('<li><%= word %></li>');
+  ul.append(li);
+<% end %>
+$('#embedding_results').append(ul);

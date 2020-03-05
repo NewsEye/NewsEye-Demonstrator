@@ -2,7 +2,6 @@
 
 class CatalogController < ApplicationController
   include BlacklightAdvancedSearch::Controller
-  # include BlacklightAdvancedSearch::Controller
 
   include BlacklightRangeLimit::ControllerOverride
 
@@ -65,14 +64,14 @@ class CatalogController < ApplicationController
     config.index.title_field = 'title_ssi'
     config.index.display_type_field = 'has_model_ssim'
 
-    config.add_facet_field solr_name('language', :string_searchable_uniq), helper_method: :convert_language_to_locale, limit: true, tag: "langtag", ex: "langtag"
-    config.add_facet_field solr_name('date_created', :date_searchable_uniq), helper_method: :convert_date_to_locale, label: 'Date', limit: 5, date: true, tag: "datetag", ex: "datetag"
+    config.add_facet_field solr_name('language', :string_searchable_uniq), helper_method: :convert_language_to_locale, limit: true#, tag: "langtag", ex: "langtag"
+    config.add_facet_field solr_name('date_created', :date_searchable_uniq), helper_method: :convert_date_to_locale, label: 'Date', limit: 5, date: true#, tag: "datetag", ex: "datetag"
     config.add_facet_field 'year_isi', label: 'Year', range: true #{ assumed_boundaries: [1800, 1950] }
-    config.add_facet_field 'member_of_collection_ids_ssim', helper_method: :get_collection_title_from_id, label: 'Newspaper', tag: "collectag", ex: "collectag"
+    config.add_facet_field 'member_of_collection_ids_ssim', helper_method: :get_collection_title_from_id, label: 'Newspaper'#, tag: "collectag", ex: "collectag"
     config.add_facet_field 'has_model_ssim', helper_method: :get_display_value_from_model, label: 'Type'
-    config.add_facet_field 'linked_persons_ssim', helper_method: :get_entity_label, label: 'Persons', limit: 20, tag: "persontag", ex: "persontag"
-    config.add_facet_field 'linked_locations_ssim', helper_method: :get_entity_label, label: 'Locations', limit: 20, tag: "locationtag", ex: "locationtag"
-    config.add_facet_field 'linked_organisations_ssim', helper_method: :get_entity_label, label: 'Organisations', limit: 20, tag: "organisationtag", ex: "organisationtag"
+    config.add_facet_field 'linked_persons_ssim', helper_method: :get_entity_label, label: 'Persons', limit: 20#, tag: "persontag", ex: "persontag"
+    config.add_facet_field 'linked_locations_ssim', helper_method: :get_entity_label, label: 'Locations', limit: 20#, tag: "locationtag", ex: "locationtag"
+    config.add_facet_field 'linked_organisations_ssim', helper_method: :get_entity_label, label: 'Organisations', limit: 20#, tag: "organisationtag", ex: "organisationtag"
 
     config.add_facet_fields_to_solr_request!
 
@@ -185,6 +184,23 @@ class CatalogController < ApplicationController
       format.html { setup_next_and_previous_documents }
       format.json { render json: { response: { document: @document } } }
       additional_export_formats(@document, format)
+    end
+  end
+
+  # displays values and pagination links for a single facet field
+  def facet
+    @facet = blacklight_config.facet_fields[params[:id]]
+    raise ActionController::RoutingError, 'Not Found' unless @facet
+    @response = get_facet_field_response(@facet.key, params)
+    @display_facet = @response.aggregations[@facet.field]
+    @pagination = facet_paginator(@facet, @display_facet)
+    respond_to do |format|
+      format.html do
+        # Draw the partial for the "more" facet modal window:
+        return render layout: false if request.xhr?
+        # Otherwise draw the facet selector for users who have javascript disabled.
+      end
+      format.json
     end
   end
 

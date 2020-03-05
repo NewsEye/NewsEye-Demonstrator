@@ -68,10 +68,10 @@ class @CatalogExplore
                 dataset['data'] = values
                 datasets.push dataset
             ctx = $('#myChart')
-            return new Chart(ctx, {
+            new Chart(ctx, {
                type: 'line',
                data: {
-                   labels: labels,
+                   labels: labels.map(String),
                    datasets: datasets
                },
                options: {

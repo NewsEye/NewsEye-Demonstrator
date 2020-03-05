@@ -84,11 +84,20 @@ Rails.application.routes.draw do
     post '/personal_research_assistant/investigate', to: 'personal_research_assistant#investigate_task'
     get '/update_tasks_status', to: 'personal_research_assistant#update_status'
 
+    get '/personal_workspace/describe_search/:search_id', to: 'personal_workspace#describe_search'
+    get '/personal_workspace/describe_dataset/:dataset_id', to: 'personal_workspace#describe_dataset'
+    get '/personal_workspace/describe_search_modal/:run_uuid', to: 'personal_workspace#describe_search_modal'
+    get '/personal_workspace/show/:task_id', to: 'personal_workspace#show'
+    get '/personal_workspace/update_tasks', to: 'personal_workspace#update_tasks'
+    get '/personal_workspace/get_run_report', to: 'personal_workspace#get_run_report'
+    get '/personal_workspace/get_task_report', to: 'personal_workspace#get_task_report'
+    post '/personal_workspace/get_task_results', to: 'personal_workspace#get_task_results'
+    get '/personal_workspace/delete_task/:uuid', to: 'personal_workspace#delete_task'
+
     get '/personal_research_assistant/utilities', to: 'personal_research_assistant#get_utilities'
     post '/personal_research_assistant/user_tasks', to: 'personal_research_assistant#get_user_tasks'
     get '/personal_research_assistant/topic_models', to: 'personal_research_assistant#get_topic_models'
     post '/personal_research_assistant/render_utility', to: 'personal_research_assistant#render_utility'
-    get '/delete_task/:uuid', to: 'personal_research_assistant#delete_task'
 
     get '/search_help', to: 'catalog#help'
     get '/kw_suggest', to: 'catalog#kw_suggest'
@@ -104,7 +113,7 @@ Rails.application.routes.draw do
     post "/saved_searches/confirm_save", to: "saved_searches#confirm_save"
     get "/saved_searches", to: "saved_searches#index"
     get '/delete_search/:id', to: 'saved_searches#delete_search'
-    get "/workspace", to: "personal_workspace#index"
+    get "/personal_workspace", to: "personal_workspace#index"
 
     post "/list_datasets", to: "api_base#list_datasets"
     post "/get_dataset_content", to: "api_base#get_dataset_content"
@@ -113,6 +122,8 @@ Rails.application.routes.draw do
     post "/export_dataset/json", to: "export#json_export"
     post "/datasets/merge", to: "datasets#merge_dataset_modal"
     post "/datasets/apply_merge_dataset", to: "datasets#apply_merge_dataset"
+    post "/datasets/subdataset", to: "datasets#subdataset_modal"
+    post "/datasets/apply_subdataset", to: "datasets#apply_subdataset"
 
   end
 

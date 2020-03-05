@@ -15,7 +15,7 @@
   <div class="modal-footer">
     <button type="button" class="btn" data-dismiss="modal">Cancel</button>
     <input type="hidden" name="current_url" value="<%= @current_url %>"/>
-    <input type="hidden" name="query" value="<%= @search_params %>"/>
+    <input type="hidden" name="query" value="<%= @search_params.to_json %>"/>
       <button type="submit" class="btn btn-info" data-disable-with="Working...">Save search</button>
   </div>
 </form>

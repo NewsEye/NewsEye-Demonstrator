@@ -77,6 +77,42 @@ class PersonalResearchAssistantService
   end
 
   ################################################
+
+  def self.describe_search(query)
+    url = "https://newseye-wp5.cs.helsinki.fi/api/investigator/"
+    body = {search_query: query, parameters: {describe: "T"}}
+    query_api url, body
+  end
+
+  def self.describe_dataset(dataset_title, username)
+    url = "https://newseye-wp5.cs.helsinki.fi/api/investigator/"
+    body = {dataset: {name: dataset_title, user: username}, parameters: {describe: "T"}}
+    query_api url, body
+  end
+
+  def self.get_result(run_uuid)
+    url = "https://newseye-wp5.cs.helsinki.fi/api/investigator/result?run=#{run_uuid}"
+    query_api url, nil
+  end
+
+  def self.get_task_result(task_uuid)
+    url = "https://newseye-wp5.cs.helsinki.fi/api/investigator/result?task=#{task_uuid}"
+    query_api url, nil
+  end
+
+  def self.get_run_report(task_uuid)
+    url = "https://newseye-wp5.cs.helsinki.fi/api/report/report?run=#{task_uuid}"
+    report = query_api url, nil, true, false
+    JSON.parse(report)['body'].html_safe
+  end
+
+  def self.get_task_report(task_uuid)
+    url = "https://newseye-wp5.cs.helsinki.fi/api/report/report?task=#{task_uuid}"
+    report = query_api url, nil, true, false
+    JSON.parse(report)['body'].html_safe
+  end
+
+  ################################################
   # WP4
   ################################################
 
@@ -131,9 +167,9 @@ class PersonalResearchAssistantService
   # Common
   ################################################
 
-  def self.query_api(url, body, auth: true, parse: true)
+  def self.query_api(url, body, auth=true, parse=true)
     Rails.logger.info "querying #{url}"
-    Rails.logger.info "body is:  #{body.inspect}"
+    Rails.logger.info "body is:  #{body.to_json}"
     uri = URI(url)
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
@@ -142,7 +178,7 @@ class PersonalResearchAssistantService
       headers['Authorization'] = "JWT #{generate_token}"
     end
     if body.nil?
-      req = Net::HTTP::Get.new(uri.path, headers)
+      req = Net::HTTP::Get.new(url, headers)
     else
       headers["Content-Type"] = 'application/json'
       req = Net::HTTP::Post.new(uri.path, headers)
@@ -162,7 +198,8 @@ class PersonalResearchAssistantService
 
   def self.generate_token
     secret = ENV["WP3_SECRET"]
-    token = {'username' => 'axel.jeancaurant@gmail.com', 'exp' => (Time.now+10.seconds).to_i}
+    # token = {'username' => 'axel.jeancaurant@gmail.com', 'exp' => (Time.now+10.seconds).to_i}
+    token = {'username' => 'axel.jeancaurant@gmail.com', 'exp' => (Time.now+2.days).to_i}
     JWT.encode token, secret, 'HS256', { typ: 'JWT' }
   end
 end

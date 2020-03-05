@@ -1,0 +1,54 @@
+<div class="main_task" id="<%= @task.uuid %>">
+  <% case @task.task_type %>
+  <% when "describe_search" %>
+    <h2>Description of Search "<%= @search.description %>"</h2>
+  <% when "describe_dataset" %>
+    <h2>Description of Dataset "<%= @dataset.title %>"</h2>
+  <% end %>
+  <div id="run_report">
+    <%#= PersonalResearchAssistantService.get_run_report @task.uuid %>
+  </div>
+
+
+  <% @task.subtasks.each do |subtask| %>
+    <% processor_name = get_processor_name(@task, subtask) %>
+    <div class="row">
+      <% if processor_name == "ExtractFacets" or processor_name == "GenerateTimeSeries" %>
+          <div id="<%= subtask.uuid %>" class=" col-md-12 subtask">
+            <h3 class="subtask_name"><%= processor_name %></h3>
+            <div id="<%= subtask.uuid %>_report">
+              <%#= PersonalResearchAssistantService.get_task_report subtask.uuid %>
+            </div>
+<!--            <p><%#= subtask.results.to_json %></p>-->
+<!--            <div class="col-md-2 select_display">-->
+<!--              <ul id="select_facet" class="list-group">-->
+                <%# subtask.results['result'].each do |entry, res| %>
+<!--                  <li class="list-group-item"><%#= entry %></li>-->
+                <%# end %>
+<!--              </ul>-->
+<!--            </div>-->
+            <% subtask.results['result'].each do |entry, res| %>
+              <div class="col-md-10">
+                <div>
+                  <canvas id="canvas_<%= subtask.uuid %>_<%= entry %>" style="height: 200px;"></canvas>
+                </div>
+              </div>
+            <% end %>
+          </div>
+      <% else %>
+          <div id="<%= subtask.uuid %>" class="col-md-12 subtask">
+            <h3 class="subtask_name"><%= processor_name %></h3>
+            <div id="<%= subtask.uuid %>_report">
+              <%#= PersonalResearchAssistantService.get_task_report subtask.uuid %>
+            </div>
+<!--            <p><%#= subtask.results.to_json %></p>-->
+            <div class="col-md-10">
+              <div>
+                <canvas id="canvas_<%= subtask.uuid %>" style="height: 200px;"></canvas>
+              </div>
+            </div>
+          </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

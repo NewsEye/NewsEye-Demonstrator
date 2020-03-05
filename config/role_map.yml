@@ -57,6 +57,7 @@ development:
     - khldalnajjar@gmail.com
     - tuula.paakkonen@helsinki.fi
     - user@newseye.eu
+    - pra@newseye.eu
 
 production:
   admin:
@@ -116,3 +117,4 @@ production:
     - miia.ramo@helsinki.fi
     - khldalnajjar@gmail.com
     - tuula.paakkonen@helsinki.fi
+    - pra@newseye.eu

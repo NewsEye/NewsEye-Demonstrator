@@ -26,7 +26,15 @@
           <ul class="list-group">
             <% named_entities[:PER][label].each do |ne| %>
               <li class="list-group-item ne_mention">
-                <%= ne['mention_ssi'] %>
+                &emsp;<%= ne['mention_ssi'] %>
+                <% case ne['stance_fsi'] %>
+                <% when -1 %>
+                  (-)
+                <% when 0 %>
+                  (=)
+                <% when 1 %>
+                  (+)
+                <% end %>
                 <!--                <p style="display: none;">-->
                 <%#= get_bbox_from_annotations ne['selector_ssim'] %>
                 <!--                </p>-->
@@ -63,8 +71,16 @@
         <div id="collapse2_<%= label %>" class="panel-collapse collapse">
           <ul class="list-group">
             <% named_entities[:LOC][label].each do |ne| %>
-              <li class="list-group-item ne_mention">
-                <%= ne['mention_ssi'] %>
+              <li class="list-group-item ne_mention" style="text-indent: 3em;">
+                &emsp;<%= ne['mention_ssi'] %>
+                <% case ne['stance_fsi'] %>
+                <% when -1 %>
+                  (-)
+                <% when 0 %>
+                  (=)
+                <% when 1 %>
+                  (+)
+                <% end %>
                 <!--                <p style="display: none;">-->
                 <%#= get_bbox_from_annotations ne['selector_ssim'] %>
                 <!--                </p>-->
@@ -102,7 +118,15 @@
           <ul class="list-group">
             <% named_entities[:ORG][label].each do |ne| %>
               <li class="list-group-item ne_mention">
-                <%= ne['mention_ssi'] %>
+                &emsp;<%= ne['mention_ssi'] %>
+                <% case ne['stance_fsi'] %>
+                <% when -1 %>
+                  (-)
+                <% when 0 %>
+                  (=)
+                <% when 1 %>
+                  (+)
+                <% end %>
                 <!--                <p style="display: none;">-->
                 <%#= get_bbox_from_annotations ne['selector_ssim'] %>
                 <!--                </p>-->

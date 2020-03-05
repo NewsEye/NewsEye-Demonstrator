@@ -39,6 +39,14 @@ class @API
             success: (data)->
                 callback(data)
         }
+    @task_results: (parent_task_uuid, task_uuid, callback)->
+        $.ajax {
+            url:  window.location.protocol+"//"+window.location.host+'/personal_workspace/get_task_results',
+            method: 'POST',
+            data:{parent_task_uuid: parent_task_uuid, task_uuid: task_uuid},
+            success: (data)->
+                callback(data)
+        }
     @working_dataset: (callback)->
         $.ajax {
             url:  window.location.protocol+"//"+window.location.host+'/catalog/set_working_dataset',

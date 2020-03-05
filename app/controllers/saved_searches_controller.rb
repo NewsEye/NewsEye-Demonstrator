@@ -14,7 +14,7 @@ class SavedSearchesController < ApplicationController
   def delete_search
     @search.destroy
     respond_to do |format|
-      format.html { redirect_to '/workspace', notice: 'Search was successfully destroyed.' }
+      format.html { redirect_to '/personal_workspace', notice: 'Search was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

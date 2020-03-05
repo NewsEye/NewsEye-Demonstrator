@@ -1,0 +1,3 @@
+$("#modal-describe_search").find(".modal-content").html("<%= j (render partial: 'modal_describe_search', locals: {results: @results, search_name: @search_name}) %>");
+$("#modal-describe_search").modal();
+$('#modal-describe_search')[0].classList.remove('hide');

@@ -10,6 +10,12 @@ module PersonalWorkspaceHelper
     JSON.parse(res.body)
   end
 
+  def get_processor_name(task, subtask)
+    # st = task.results['result'].select{|st| st['uuid'] == subtask.uuid}[0]
+    st = task.results.select{|st| st['uuid'] == subtask.uuid}[0]
+    st['processor'] unless st.nil?
+  end
+
   def tm_query(model_type, model, doc_ids)
     uri = URI("https://newseye-wp4.cs.helsinki.fi/#{model_type}/query")
     http = Net::HTTP.new(uri.host, uri.port)

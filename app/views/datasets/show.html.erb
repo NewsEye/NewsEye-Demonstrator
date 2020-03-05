@@ -13,7 +13,7 @@
         <%= @dataset.nb_articles %> articles.
         <%= @dataset.nb_issues %> issues.
       </p>
-
+      <hr/>
       <div class="search-widgets">
         <div id="sort-dropdown" class="btn-group">
           <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
@@ -41,7 +41,7 @@
           <li><a id="json_export_anchor">JSON</a></li>
         </ul>
       </div>
-
+      <hr/>
       <div>
         <form id="merge_datasets_form" class="form-inline" novalidate="novalidate" data-remote="true" method='post' action="/datasets/merge">
           <div class="form-group">
@@ -56,7 +56,7 @@
             <% end %>
           <div class="form-group">
             <button class="btn btn-default" type="submit" href="#" id="apply_datasets_merge">
-              Merge
+              Import
             </button>
           </div>
         </form>
@@ -66,19 +66,21 @@
                       remote: true,
                       params: {dataset_id: @dataset.id} %>
       </div>
-
+      <hr/>
       <div>
-        <button type="button" class="btn btn-default">
-          Create a sub-dataset
-        </button>
+        <%= button_to "Create a sub-dataset",
+                      "/datasets/subdataset",
+                      method: "post",
+                      remote: true,
+                      params: {dataset_id: @dataset.id} %>
       </div>
 
       <hr/>
       <div>
-        <%= button_to "Search for documents with similar linked entities",
+        <%#= button_to "Search for documents with similar linked entities",
                       "/catalog/linked_entity_search",
                       method: "post",
-                      params: {dataset_id: @dataset.id} %>
+                      params: {dataset_id: @dataset.id}%>
       </div>
       <hr/>
 

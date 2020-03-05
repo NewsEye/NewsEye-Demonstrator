@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20200204094200) do
+ActiveRecord::Schema.define(version: 20200221084504) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -113,11 +113,11 @@ ActiveRecord::Schema.define(version: 20200204094200) do
   end
 
   create_table "searches", id: :serial, force: :cascade do |t|
-    t.binary "query_params"
     t.integer "user_id"
-    t.string "user_type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "user_type"
+    t.binary "query_params"
     t.jsonb "query", default: {}
     t.text "description"
     t.string "query_url"
@@ -136,6 +136,10 @@ ActiveRecord::Schema.define(version: 20200204094200) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "subtask", default: false
+    t.bigint "dataset_id"
+    t.bigint "search_id"
+    t.index ["dataset_id"], name: "index_tasks_on_dataset_id"
+    t.index ["search_id"], name: "index_tasks_on_search_id"
     t.index ["user_id"], name: "index_tasks_on_user_id"
     t.index ["uuid"], name: "index_tasks_on_uuid"
   end
@@ -156,5 +160,7 @@ ActiveRecord::Schema.define(version: 20200204094200) do
   add_foreign_key "datasets", "users"
   add_foreign_key "named_entity_mentions", "named_entities"
   add_foreign_key "searches", "users"
+  add_foreign_key "tasks", "datasets"
+  add_foreign_key "tasks", "searches"
   add_foreign_key "tasks", "users"
 end

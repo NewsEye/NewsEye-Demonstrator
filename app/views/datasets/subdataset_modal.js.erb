@@ -1,0 +1,3 @@
+$("#modal-subdataset").find(".modal-content").html("<%= j (render 'subdataset', locals: {dataset: @dataset }) %>");
+$("#modal-subdataset").modal();
+$('#modal-subdataset')[0].classList.remove('hide');

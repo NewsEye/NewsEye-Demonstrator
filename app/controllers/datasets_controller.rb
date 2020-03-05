@@ -149,7 +149,7 @@ class DatasetsController < ApplicationController
   def destroy
     @dataset.destroy
     respond_to do |format|
-      format.html { redirect_to '/workspace', notice: 'Dataset was successfully destroyed.' }
+      format.html { redirect_to '/personal_workspace', notice: 'Dataset was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
@@ -174,9 +174,6 @@ class DatasetsController < ApplicationController
     @dataset = Dataset.find(params[:dataset_id])
     @other_dataset = Dataset.find(params[:merge_datasets_select])
     @current_url = params['current_url']
-
-    current_relevancies = Hash[params['relevancy'].to_unsafe_h.map { |k,v| [k, v.to_i ]}]
-
     @relevancy_changes = {added: [], removed: [], modified: [], unchanged:[]}
     @other_dataset.documents.each do |doc|
       doc_id = doc['id']
@@ -205,6 +202,39 @@ class DatasetsController < ApplicationController
         format.html { redirect_to dataset_path(d), turbolinks: true, notice: 'Dataset was successfully updated.' }
       else
         format.html { redirect_to dataset_path(d), turbolinks: true, notice: 'There was an error modifying the dataset.' }
+      end
+    end
+  end
+
+  def subdataset_modal
+    @dataset = Dataset.find(params[:dataset_id])
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def apply_subdataset
+    original_dataset = Dataset.find(params[:dataset_id])
+    d = Dataset.new
+    d.title = params[:dataset_name]
+    d.user_id = params[:user_id]
+    if params[:rel_0]
+      d.add_docs original_dataset.documents.select{|d| d['relevancy'] == 0 }.map(&:symbolize_keys)
+    end
+    if params[:rel_1]
+      d.add_docs original_dataset.documents.select{|d| d['relevancy'] == 1 }.map(&:symbolize_keys)
+    end
+    if params[:rel_2]
+      d.add_docs original_dataset.documents.select{|d| d['relevancy'] == 2 }.map(&:symbolize_keys)
+    end
+    if params[:rel_3]
+      d.add_docs original_dataset.documents.select{|d| d['relevancy'] == 3 }.map(&:symbolize_keys)
+    end
+    respond_to do |format|
+      if d.save
+        format.html { redirect_to dataset_path(d), turbolinks: true, notice: 'Dataset was successfully updated.' }
+      else
+        format.html { redirect_to dataset_path(original_dataset), turbolinks: true, notice: 'There was an error modifying the dataset.' }
       end
     end
   end
