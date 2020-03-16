@@ -116,7 +116,8 @@ class PersonalResearchAssistantService
 
   def self.get_models
     out = {}
-    %w(lda dtm pltm hlda pldtm).each do |model_type|
+    # %w(lda dtm pltm hlda pldtm).each do |model_type|
+    %w(lda dtm pltm pldtm).each do |model_type|
       url = "https://newseye-wp4.cs.helsinki.fi/#{model_type}/list-models"
       out[model_type] = query_api url, nil, false
     end

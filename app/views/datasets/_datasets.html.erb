@@ -9,9 +9,7 @@
           <td><%= link_to dataset.title, dataset %></td>
           <td><%= dataset.nb_issues %> issues and <%= dataset.nb_articles %> articles</td>
           <td>
-            <%= link_to "/personal_workspace/describe_dataset/#{dataset.id}", data: { confirm: 'Are you sure?' }, remote: true do %>
-              <span class="glyphicon glyphicon-list" style="color: black"></span>
-            <% end %>
+            <%= link_to "Describe", "/personal_workspace/describe_dataset/#{dataset.id}", remote: true %>
           </td>
 <!--          <td>-->
             <%#= link_to "/personal_workspace/explore_dataset/#{dataset.id}", method: :delete, data: { confirm: 'Are you sure?' }, remote: true do %>
