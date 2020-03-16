@@ -27,6 +27,8 @@
 /node_modules
 /yarn-error.log
 
+/script/imports_2020
+
 .byebug_history
 /.env
 /docker/docker_data_postgres
