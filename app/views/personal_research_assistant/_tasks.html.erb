@@ -1,7 +1,7 @@
 <div class="panel panel-default" id="tasks_panel">
   <div class="panel-heading">
     Tasks
-    <form  style="float: right;" novalidate="novalidate" data-remote="true" action="/personal_workspace/update_tasks" accept-charset="UTF-8" method="get">
+    <form id="refresh_tasks_form" class="form-inline" style="float: right;" novalidate="novalidate" data-remote="true" action="/personal_workspace/update_tasks" accept-charset="UTF-8" method="get">
       <%= csrf_meta_tags %>
       <button type="submit" class="btn btn-link"><span class="glyphicon glyphicon-refresh"></span></button>
     </form>
@@ -68,17 +68,45 @@
               </span>
             </div>
           </li>
-        <% when 'topic_model_query' %>
+        <% when 'tm_query' %>
+          <% text = "Started at: #{t.started} | Topic distribution for dataset \"#{t.parameters['dataset_title']}\" (using model \"#{t.parameters['model_name']}\")" %>
+          <% if t.status == "finished" %>
+            <% style = "list-group-item-success" %>
+            <% task_text = link_to(text, "/personal_workspace/show/#{t.id}") %>
+          <% else %>
+            <% style = "list-group-item-warning" %>
+            <% task_text = text %>
+          <% end %>
           <% style = t.status == "finished" ? "list-group-item-success" : "list-group-item-warning" %>
           <li class="list-group-item <%= style %>">
             <div class="clearfix">
-              <span style="float: left">
-                Started at: <%= t.started %> |
-                Task type: <%= t.task_type %> |
-                uuid: <%= t.uuid %>
-              </span>
+              <%= task_text %>
               <span style="float:right">
-                <%= render partial: 'personal_research_assistant/tasks_actions', locals: {task: t} %>
+                <%= link_to "/personal_workspace/delete_task/#{t.uuid}",  {remote: true, 'data-confirm': "Are you sure you want to delete this task ?", class: 'btn btn-link'} do %>
+                  <span class="glyphicon glyphicon-remove" style="color: red"></span>
+                <% end %>
+                <%#= render partial: 'personal_research_assistant/tasks_actions', locals: {task: t} %>
+              </span>
+            </div>
+          </li>
+        <% when 'tm_doc_linking' %>
+          <% text = "Started at: #{t.started} | Linked documents for dataset \"#{t.parameters['dataset_title']}\" (using model \"#{t.parameters['model_name']}\")" %>
+          <% if t.status == "finished" %>
+            <% style = "list-group-item-success" %>
+            <% task_text = link_to(text, "/personal_workspace/show/#{t.id}") %>
+          <% else %>
+            <% style = "list-group-item-warning" %>
+            <% task_text = text %>
+          <% end %>
+          <% style = t.status == "finished" ? "list-group-item-success" : "list-group-item-warning" %>
+          <li class="list-group-item <%= style %>">
+            <div class="clearfix">
+              <%= task_text %>
+              <span style="float:right">
+                <%= link_to "/personal_workspace/delete_task/#{t.uuid}",  {remote: true, 'data-confirm': "Are you sure you want to delete this task ?", class: 'btn btn-link'} do %>
+                  <span class="glyphicon glyphicon-remove" style="color: red"></span>
+                <% end %>
+                <%#= render partial: 'personal_research_assistant/tasks_actions', locals: {task: t} %>
               </span>
             </div>
           </li>

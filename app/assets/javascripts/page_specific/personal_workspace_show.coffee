@@ -2,9 +2,54 @@ class @PersonalWorkspaceShow
     constructor: ->
         self = @
         console.log 'show'
-        @process_results()
+        main_classes = $("div.main_task").attr("class").split(' ')
+        main_classes.splice(main_classes.indexOf("main_task"),1)
+        task_type = main_classes[0]
+        console.log task_type
+        if task_type == "describe_search" or task_type == "describe_dataset"
+            @process_results()
+            @load_reports()
+        if task_type == "tm_query"
+            @topics()
+
+    topics: ()->
+        console.log "load topics"
+        self = @
+        task_uuid = $($("div.main_task")[0]).attr('id')
+        API.topic_query_results task_uuid, (data)->
+            console.log data
+            datasets = []
+            labels = []
+            dataset = {}
+            dataset['label'] = "Topics distribution"
+            dataset['backgroundColor'] =  'rgba(200, 200, 200, 0.5)'
+            dataset['borderColor'] =  'rgba(50, 50, 50, 1)'
+            dataset['lineTension'] = 0.4
+            dataset['fill'] = 'origin'
+            dataset['borderWidth'] = 1
+            dataset['hidden'] = false
+            values = []
+            for value, index in data['topic_weights']
+                labels.push index+1
+                values.push value
+            dataset['data'] = values
+            datasets.push dataset
+            self.build_graph("canvas_#{data['uuid']}", labels, datasets)
+
+
+    load_reports: ->
+        console.log "load reports"
+        self = @
+        parent_uuid = $($("div.main_task")[0]).attr('id')
+        API.run_report parent_uuid, (data)->
+            $("#run_report").html data['body']
+        for subtask in $("div.subtask")
+            uuid = $(subtask).attr('id')
+            API.task_report uuid, (data)->
+                $("##{data['task_uuid']}_report").html data['body']
 
     process_results: ->
+        console.log "process results"
         self = @
         parent_uuid = $($("div.main_task")[0]).attr('id')
         for subtask in $("div.subtask")

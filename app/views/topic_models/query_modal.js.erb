@@ -1,0 +1,3 @@
+$("#modal-tm_query").find(".modal-content").html("<%= j (render partial: 'modal_query', locals: {dataset: @dataset, models: @models}) %>");
+$("#modal-tm_query").modal();
+$('#modal-tm_query')[0].classList.remove('hide');

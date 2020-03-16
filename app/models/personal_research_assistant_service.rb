@@ -102,14 +102,12 @@ class PersonalResearchAssistantService
 
   def self.get_run_report(task_uuid)
     url = "https://newseye-wp5.cs.helsinki.fi/api/report/report?run=#{task_uuid}"
-    report = query_api url, nil, true, false
-    JSON.parse(report)['body'].html_safe
+    query_api url, nil, true, false
   end
 
   def self.get_task_report(task_uuid)
     url = "https://newseye-wp5.cs.helsinki.fi/api/report/report?task=#{task_uuid}"
-    report = query_api url, nil, true, false
-    JSON.parse(report)['body'].html_safe
+    query_api url, nil, true, false
   end
 
   ################################################
@@ -120,47 +118,67 @@ class PersonalResearchAssistantService
     out = {}
     %w(lda dtm pltm hlda pldtm).each do |model_type|
       url = "https://newseye-wp4.cs.helsinki.fi/#{model_type}/list-models"
-      out[model_type] = query_api url, nil, auth: false
+      out[model_type] = query_api url, nil, false
     end
     return out.nil? ? [] : out
   end
 
-  def self.describe_topic(tm_type, model, topic_number)
+  def self.describe_topic(tm_type, model, topic_number, time_slice=nil)
     url = "https://newseye-wp4.cs.helsinki.fi/#{tm_type}/describe-topic"
     body = {model_name: model, topic_id: "#{topic_number}"}
-    out = query_api url, body, auth: false
+    body[:time_slice] = time_slice unless time_slice.nil?
+    out = query_api url, body, false
     out['topic_desc'] unless out.empty?
   end
 
-  def self.wordcloud_base64(tm_type, model, topic_number)
+  def self.wordcloud_base64(tm_type, model, topic_number, time_slice=nil)
     url = "https://newseye-wp4.cs.helsinki.fi/#{tm_type}/word-cloud"
     body = {model_name: model, topic_id: "#{topic_number}"}
-    out = query_api url, body, auth: false, parse: false
+    body[:time_slice] = time_slice unless time_slice.nil?
+    out = query_api url, body, false, false
     Base64.strict_encode64(out)
   end
 
   def self.visualization(model_type, model_name)
     url = "https://newseye-wp4.cs.helsinki.fi/#{model_type}/pyldavis"
     body = {model_name: model_name}
-    out = query_api url, body, auth: false, parse: false
+    out = query_api url, body, false, false
   end
 
-  def self.query(model_type, model_name, doc_ids)
-    # returns taskuuid
+  def self.visualization_dtm(model_name)
+    url = "https://newseye-wp4.cs.helsinki.fi/dtm/bar_chart"
+    body = {model_name: model_name}
+    out = query_api url, body, false, false
   end
 
-  def self.query_results(task_uuid)
+  def self.tm_query(model_type, model_name, doc_ids)
+    url = "https://newseye-wp4.cs.helsinki.fi/#{model_type}/query"
+    body = {model_name: model_name, documents: doc_ids}
+    out = query_api url, body, false, true
+  end
 
+  def self.tm_query_results(task_uuid)
+    url = "https://newseye-wp4.cs.helsinki.fi/query-results"
+    body = {task_uuid: task_uuid}
+    out = query_api url, body, false, true
+  end
+
+  def self.tm_doc_linking_results(task_uuid)
+    url = "https://newseye-wp4.cs.helsinki.fi/doc-linking-results"
+    body = {task_uuid: task_uuid}
+    out = query_api url, body, false, true
   end
 
   def self.doc_linking(model_type, model_name, num_docs, doc_ids)
-
+    url = "https://newseye-wp4.cs.helsinki.fi/lda-doc-linking"
+    body = {model_name: model_name, num_docs: num_docs, documents: doc_ids}
+    out = query_api url, body, false, true
   end
 
   def self.word_embeddings_query(word, language, num_words)
     url = "https://newseye-wp4.cs.helsinki.fi/word-embeddings/query"
     body = {word: word, lang: language, num_words: num_words}
-    out = query_api url, body, auth: false
+    out = query_api url, body, false
   end
 
   ################################################

@@ -47,6 +47,30 @@ class @API
             success: (data)->
                 callback(data)
         }
+    @topic_query_results: (task_uuid, callback)->
+        $.ajax {
+            url:  window.location.protocol+"//"+window.location.host+'/topic_models/query_results',
+            method: 'POST',
+            data:{task_uuid: task_uuid},
+            success: (data)->
+                callback(data)
+        }
+    @run_report: (run_uuid, callback)->
+        $.ajax {
+            url:  window.location.protocol+"//"+window.location.host+'/personal_workspace/get_run_report',
+            method: 'POST',
+            data:{run_uuid: run_uuid},
+            success: (data)->
+                callback(data)
+        }
+    @task_report: (task_uuid, callback)->
+        $.ajax {
+            url:  window.location.protocol+"//"+window.location.host+'/personal_workspace/get_task_report',
+            method: 'POST',
+            data:{task_uuid: task_uuid},
+            success: (data)->
+                callback(data)
+        }
     @working_dataset: (callback)->
         $.ajax {
             url:  window.location.protocol+"//"+window.location.host+'/catalog/set_working_dataset',
@@ -59,6 +83,14 @@ class @API
             url:  window.location.protocol+"//"+window.location.host+'/catalog/article_parts',
             method: 'POST',
             data:{article_id: article_id},
+            success: (data)->
+                callback(data)
+        }
+    @get_topic_description: (model_type, model_name, topic_number, callback)->
+        $.ajax {
+            url:  window.location.protocol+"//"+window.location.host+'/topic_models/describe',
+            method: 'POST',
+            data:{model_type: model_type, model_name: model_name, topic_number: topic_number},
             success: (data)->
                 callback(data)
         }

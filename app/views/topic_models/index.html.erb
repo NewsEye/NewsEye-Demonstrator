@@ -1,0 +1,26 @@
+<div class="row">
+  <% @models.each do |model_type, models| %>
+    <% if models.is_a?(Array) %>
+      <div class="col-md-4">
+        <% langs = models.map{|model| model['lang'] }.uniq %>
+        <h2><%= model_type %></h2>
+        <% langs.each do |lang| %>
+          <h4><%= lang %></h4>
+          <dl>
+          <% models.select{|model| model['lang'] == lang }.each do |model| %>
+              <dt>
+                <%= link_to model['name'], "/topic_models/describe_modal?"+{model_name: model['name'], model_type: model_type}.to_param, remote: true %>
+                <% if model_type == 'lda' %>
+                  (<%= link_to  "Visualize", "/topic_models/visualize/#{model['name']}", remote: true %>)
+                <% elsif model_type == "dtm" %>
+                  (<%= link_to  "Visualize", "/topic_models/visualize/#{model['name']}", target:"_blank" %>)
+                <% end %>
+              </dt>
+              <dd><%= model['description'] %></dd>
+          <% end %>
+          </dl>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

@@ -1,0 +1,62 @@
+<div class="modal-header">
+  <button type="button" class="close" data-dismiss="modal">x</button>
+  <h4 class="modal-title" id="params_label">Create a Topic Modelling task for dataset "<%= dataset.title %>"</h4>
+</div>
+<div class="modal-body">
+  <h5>Query for the topic distrubution: </h5>
+  <form id="query_tm_form" class="form" novalidate="novalidate" data-remote="false" method='post' action="/topic_models/query">
+    <div class="form-group">
+      <select id="model_tm_select" name="model_tm_select" class="form-control" autocomplete="off">
+        <option value="" disabled selected>Select the model to use</option>
+        <% models.keys.each do |model_type| %>
+          <% next if models[model_type].is_a? String %>
+          <optgroup label="<%= model_type %>">
+            <% models[model_type].each do |data| %>
+              <% next if data.instance_of? Array %>
+              <option value="<%= "#{model_type};;#{data['name']}" %>"><%= data['name'] %>: <%= data['description'] %></option>
+            <% end %>
+          </optgroup>
+        <% end %>
+      </select>
+    </div>
+    <input type="hidden" name="dataset_id" value="<%= dataset.id %>"/>
+    <input type="hidden" name="query_type" value="query"/>
+    <button type="submit" class="btn btn-info" data-disable-with="Working...">Create task</button>
+  </form>
+  <hr/>
+  <h5>Query for semantically linked documents: </h5>
+  <form id="doc_linking_tm_form" class="form" novalidate="novalidate" data-remote="false" method='post' action="/topic_models/query">
+    <div class="form-group">
+      <select id="model_tm_select" name="model_tm_select" class="form-control" autocomplete="off">
+        <option value="" disabled selected>Select the model to use</option>
+        <% models.keys.each do |model_type| %>
+          <% next if models[model_type].is_a? String %>
+          <% next unless model_type == "lda" %>
+          <optgroup label="<%= model_type %>">
+            <% models[model_type].each do |data| %>
+              <% next if data.instance_of? Array %>
+              <option value="<%= "#{model_type};;#{data['name']}" %>"><%= data['name'] %>: <%= data['description'] %></option>
+            <% end %>
+          </optgroup>
+        <% end %>
+      </select>
+    </div>
+    <div class="form-group">
+      <select id="numdocs_select" name="num_docs" class="form-control" autocomplete="off">
+        <option value="" disabled selected>Select the number of documents to be returned</option>
+        <option value="10">10</option>
+        <option value="25">25</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+      </select>
+    </div>
+    <input type="hidden" name="dataset_id" value="<%= dataset.id %>"/>
+    <input type="hidden" name="query_type" value="doc-linking"/>
+    <button type="submit" class="btn btn-info" data-disable-with="Working...">Create task</button>
+  </form>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn" data-dismiss="modal">Cancel</button>
+</div>
+
+

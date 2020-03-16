@@ -12,12 +12,29 @@ class PersonalWorkspaceController < ApplicationController
 
   def update_tasks
     Task.where(user: current_user, status: "running", subtask: false).or(Task.where(user: current_user, status: "initializing", subtask: false)).each do |t|
-      data = PersonalResearchAssistantService.get_result t.uuid
-      t.update(status: data['run_status'], uuid: data['uuid'],
-               started: data['run_started'], finished: data['run_finished'],
-               task_type: t.task_type, parameters: data['user_parameters'],
-               results: data['result']) unless data.nil?
-      t.subtasks
+      case t.task_type
+      when "describe_search", "describe_dataset"
+        data = PersonalResearchAssistantService.get_result t.uuid
+        t.update(status: data['run_status'], uuid: data['uuid'],
+                 started: data['run_started'], finished: data['run_finished'],
+                 task_type: t.task_type, parameters: data['user_parameters'],
+                 results: data['result']) unless data.nil?
+        t.subtasks
+      when "tm_query"
+        data = PersonalResearchAssistantService.tm_query_results t.uuid
+        if data.instance_of? Hash
+          t.update(status: "finished", finished: Time.now, results: data)
+        end
+      when "tm_doc_linking"
+        data = PersonalResearchAssistantService.tm_doc_linking_results t.uuid
+        puts data
+        # if data.instance_of? Hash
+        #   t.update(status: "finished", finished: Time.now, results: data)
+        # end
+      end
+    end
+    respond_to do |format|
+      format.js { render js: "$(\"body\").css(\"cursor\", \"default\")"}
     end
   end
 
@@ -78,11 +95,15 @@ class PersonalWorkspaceController < ApplicationController
   end
 
   def get_run_report
-
+    data = PersonalResearchAssistantService.get_run_report params[:run_uuid]
+    render json: data
   end
 
   def get_task_report
-
+    data = PersonalResearchAssistantService.get_task_report params[:task_uuid]
+    data = JSON.parse data
+    data['task_uuid'] = params[:task_uuid]
+    render json: data
   end
 
   def get_task_results

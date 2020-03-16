@@ -58,6 +58,7 @@ development:
     - tuula.paakkonen@helsinki.fi
     - user@newseye.eu
     - pra@newseye.eu
+    - newseye.maunoury@gmail.com
 
 production:
   admin:
@@ -118,3 +119,4 @@ production:
     - khldalnajjar@gmail.com
     - tuula.paakkonen@helsinki.fi
     - pra@newseye.eu
+    - newseye.maunoury@gmail.com

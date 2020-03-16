@@ -1,0 +1,56 @@
+<% nb_topics = tm_name.tr('^0-9', '').to_i %>
+<div class="modal-header">
+  <button type="button" class="close" data-dismiss="modal">x</button>
+  <h4 class="modal-title" id="params_label">Description of topic model <%= tm_name %></h4>
+</div>
+<div class="modal-body">
+  <div class="row">
+    <div class="col-md-4">
+      <button type="button" class="btn btn-primary" id="previous">Previous topic</button>
+    </div>
+    <div class="col-md-4">
+      <button type="button" class="btn btn-primary" id="next">Next Topic</button>
+    </div>
+    <div class="col-md-4">
+      <div class="form-group">
+        <select class="form-control" id="select_topic">
+          <option value="0" selected>Select a topic</option>
+          <% (1..nb_topics).each do |i| %>
+            <option value="<%= i %>"><%= i %></option>
+          <% end %>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <p id="topic_description"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <img id="topic_wordcloud"/>
+    </div>
+  </div>
+</div>
+
+<script>
+    $("#previous").click(function(){
+      var selected = $("#select_topic").val();
+      var previous = Math.max(0, parseInt(selected) - 1).toString();
+      $('#select_topic').val(previous);
+      $('#select_topic').trigger('change');
+    });
+    $("#next").click(function(){
+      var selected = $("#select_topic").val();
+      var next = Math.min(<%= nb_topics %>, parseInt(selected) + 1).toString();
+      $('#select_topic').val(next);
+      $('#select_topic').trigger('change');
+    });
+    $("#select_topic").change(function(){
+      API.get_topic_description("<%= tm_type %>", "<%= tm_name %>", $("#select_topic").val(), function(data){
+        $("#topic_description").text(data['text_description']);
+        $("#topic_wordcloud").attr("src", "data:image/png;base64,"+data['wordcloud']);
+      });
+    });
+</script>

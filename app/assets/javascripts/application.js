@@ -8,5 +8,6 @@
 //= require blacklight_range_limit
 //= require api
 //= require Chart.min
+//= require chartjs-chart-matrix.min
 //= require init_page_specific_js
 //= require_tree ./page_specific

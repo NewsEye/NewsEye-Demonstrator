@@ -89,8 +89,8 @@ Rails.application.routes.draw do
     get '/personal_workspace/describe_search_modal/:run_uuid', to: 'personal_workspace#describe_search_modal'
     get '/personal_workspace/show/:task_id', to: 'personal_workspace#show'
     get '/personal_workspace/update_tasks', to: 'personal_workspace#update_tasks'
-    get '/personal_workspace/get_run_report', to: 'personal_workspace#get_run_report'
-    get '/personal_workspace/get_task_report', to: 'personal_workspace#get_task_report'
+    post '/personal_workspace/get_run_report', to: 'personal_workspace#get_run_report'
+    post '/personal_workspace/get_task_report', to: 'personal_workspace#get_task_report'
     post '/personal_workspace/get_task_results', to: 'personal_workspace#get_task_results'
     get '/personal_workspace/delete_task/:uuid', to: 'personal_workspace#delete_task'
 
@@ -98,6 +98,14 @@ Rails.application.routes.draw do
     post '/personal_research_assistant/user_tasks', to: 'personal_research_assistant#get_user_tasks'
     get '/personal_research_assistant/topic_models', to: 'personal_research_assistant#get_topic_models'
     post '/personal_research_assistant/render_utility', to: 'personal_research_assistant#render_utility'
+
+    get '/topic_models', to: 'topic_models#index'
+    get '/topic_models/describe_modal', to: 'topic_models#describe_tm_modal'
+    get '/topic_models/visualize/:tm_name', to: 'topic_models#visualize_lda_modal'
+    post '/topic_models/describe', to: 'topic_models#describe'
+    get '/topic_models/query_modal/:dataset_id', to: 'topic_models#query_modal'
+    post '/topic_models/query', to: 'topic_models#query'
+    post '/topic_models/query_results', to: 'topic_models#query_results'
 
     get '/search_help', to: 'catalog#help'
     get '/kw_suggest', to: 'catalog#kw_suggest'
