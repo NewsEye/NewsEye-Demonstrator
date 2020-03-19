@@ -86,11 +86,11 @@ class @API
             success: (data)->
                 callback(data)
         }
-    @get_topic_description: (model_type, model_name, topic_number, callback)->
+    @get_topic_description: (model_type, model_name, topic_number, year, callback)->
         $.ajax {
             url:  window.location.protocol+"//"+window.location.host+'/topic_models/describe',
             method: 'POST',
-            data:{model_type: model_type, model_name: model_name, topic_number: topic_number},
+            data:{model_type: model_type, model_name: model_name, topic_number: topic_number, year: year},
             success: (data)->
                 callback(data)
         }

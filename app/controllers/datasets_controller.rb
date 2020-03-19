@@ -147,6 +147,7 @@ class DatasetsController < ApplicationController
   # DELETE /datasets/1
   # DELETE /datasets/1.json
   def destroy
+    Task.where(dataset: @dataset).map(&:destroy)
     @dataset.destroy
     respond_to do |format|
       format.html { redirect_to '/personal_workspace', notice: 'Dataset was successfully destroyed.' }

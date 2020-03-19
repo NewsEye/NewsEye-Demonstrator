@@ -33,9 +33,6 @@ class PersonalWorkspaceController < ApplicationController
         # end
       end
     end
-    respond_to do |format|
-      format.js { render js: "$(\"body\").css(\"cursor\", \"default\")"}
-    end
   end
 
   def delete_task

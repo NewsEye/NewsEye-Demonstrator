@@ -12,6 +12,7 @@ class SavedSearchesController < ApplicationController
   # DELETE /datasets/1
   # DELETE /datasets/1.json
   def delete_search
+    Task.where(search: @search).map(&:destroy)
     @search.destroy
     respond_to do |format|
       format.html { redirect_to '/personal_workspace', notice: 'Search was successfully destroyed.' }
@@ -37,12 +38,25 @@ class SavedSearchesController < ApplicationController
     s.description = params[:description]
     s.query = params[:query]
     s.query_url = params[:current_url]
-    if params[:describe] == "on"
-      # send describe search API call
-    end
     respond_to do |format|
       if s.save
-        format.html { redirect_to params[:current_url], notice: 'Your search was saved.' }
+        if params[:describe] == "on"
+          # send describe search API call
+          data = PersonalResearchAssistantService.describe_search JSON.parse(s.query)
+          puts data
+          if data['uuid']
+            Task.create(user: current_user, status: data['run_status'], uuid: data['uuid'],
+                        started: data['run_started'], finished: data['run_finished'], search: s,
+                        task_type: "describe_search", parameters: data['solr_query'], results: data['task_result'])
+            describe_notice = "and a description task was created"
+          else
+            puts data
+          end
+        end
+        notice = "Your search was saved"
+        notice = "#{notice} #{describe_notice}" unless describe_notice.nil?
+        notice = "#{notice}."
+        format.html { redirect_to params[:current_url], notice: notice }
       else
         format.html { redirect_to params[:current_url], notice: 'There was an error saving the search.' }
       end

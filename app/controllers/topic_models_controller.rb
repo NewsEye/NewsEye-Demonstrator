@@ -20,8 +20,8 @@ class TopicModelsController < ApplicationController
   end
 
   def describe
-    text_description = PersonalResearchAssistantService.describe_topic params[:model_type], params[:model_name], params[:topic_number]
-    wordcloud = PersonalResearchAssistantService.wordcloud_base64 params[:model_type], params[:model_name], params[:topic_number]
+    text_description = PersonalResearchAssistantService.describe_topic params[:model_type], params[:model_name], params[:topic_number], params[:year]
+    wordcloud = PersonalResearchAssistantService.wordcloud_base64 params[:model_type], params[:model_name], params[:topic_number], params[:year]
     render json: {text_description: text_description, wordcloud: wordcloud}
   end
 

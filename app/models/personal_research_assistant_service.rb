@@ -140,6 +140,12 @@ class PersonalResearchAssistantService
     Base64.strict_encode64(out)
   end
 
+  def self.get_valid_years(model_name)
+    url = "https://newseye-wp4.cs.helsinki.fi/dtm/valid-years"
+    body = {model_name: model_name}
+    out = query_api url, body, false
+  end
+
   def self.visualization(model_type, model_name)
     url = "https://newseye-wp4.cs.helsinki.fi/#{model_type}/pyldavis"
     body = {model_name: model_name}

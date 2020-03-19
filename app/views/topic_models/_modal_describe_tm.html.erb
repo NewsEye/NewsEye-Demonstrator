@@ -4,24 +4,57 @@
   <h4 class="modal-title" id="params_label">Description of topic model <%= tm_name %></h4>
 </div>
 <div class="modal-body">
-  <div class="row">
-    <div class="col-md-4">
-      <button type="button" class="btn btn-primary" id="previous">Previous topic</button>
-    </div>
-    <div class="col-md-4">
-      <button type="button" class="btn btn-primary" id="next">Next Topic</button>
-    </div>
-    <div class="col-md-4">
-      <div class="form-group">
-        <select class="form-control" id="select_topic">
-          <option value="0" selected>Select a topic</option>
-          <% (1..nb_topics).each do |i| %>
-            <option value="<%= i %>"><%= i %></option>
-          <% end %>
-        </select>
+
+  <% if tm_type == "dtm" %>
+    <% years = PersonalResearchAssistantService.get_valid_years tm_name %>
+    <div class="row">
+      <div class="col-md-3">
+        <button type="button" class="btn btn-primary" id="previous">Previous topic</button>
+      </div>
+      <div class="col-md-3">
+        <button type="button" class="btn btn-primary" id="next">Next Topic</button>
+      </div>
+      <div class="col-md-3">
+        <div class="form-group">
+          <select class="form-control" id="select_year">
+            <% years.each_with_index do |i, idx| %>
+              <option value="<%= i %>" <%= "selected" if idx == 0 %>><%= i %></option>
+            <% end %>
+          </select>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="form-group">
+          <select class="form-control" id="select_topic">
+            <option value="0" selected>Select a topic</option>
+            <% (1..nb_topics).each do |i| %>
+              <option value="<%= i %>"><%= i %></option>
+            <% end %>
+          </select>
+        </div>
       </div>
     </div>
-  </div>
+  <% else %>
+    <div class="row">
+      <div class="col-md-4">
+        <button type="button" class="btn btn-primary" id="previous">Previous topic</button>
+      </div>
+      <div class="col-md-4">
+        <button type="button" class="btn btn-primary" id="next">Next Topic</button>
+      </div>
+      <div class="col-md-4">
+        <div class="form-group">
+          <select class="form-control" id="select_topic">
+            <option value="0" selected>Select a topic</option>
+            <% (1..nb_topics).each do |i| %>
+              <option value="<%= i %>"><%= i %></option>
+            <% end %>
+          </select>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
   <div class="row">
     <div class="col-md-12">
       <p id="topic_description"></p>
@@ -40,17 +73,26 @@
       var previous = Math.max(0, parseInt(selected) - 1).toString();
       $('#select_topic').val(previous);
       $('#select_topic').trigger('change');
+      $("body").css("cursor", "wait");
     });
     $("#next").click(function(){
       var selected = $("#select_topic").val();
       var next = Math.min(<%= nb_topics %>, parseInt(selected) + 1).toString();
       $('#select_topic').val(next);
       $('#select_topic').trigger('change');
+      $("body").css("cursor", "wait");
     });
     $("#select_topic").change(function(){
-      API.get_topic_description("<%= tm_type %>", "<%= tm_name %>", $("#select_topic").val(), function(data){
+      $("body").css("cursor", "wait");
+      var year = parseInt($("#select_year").val());
+      API.get_topic_description("<%= tm_type %>", "<%= tm_name %>", $("#select_topic").val(), year, function(data){
+        $("body").css("cursor", "default");
         $("#topic_description").text(data['text_description']);
         $("#topic_wordcloud").attr("src", "data:image/png;base64,"+data['wordcloud']);
       });
+    });
+    $("#select_year").change(function(){
+      $('#select_topic').trigger('change');
+      $("body").css("cursor", "wait");
     });
 </script>
