@@ -36,7 +36,7 @@ module DatasetsHelper
   def get_info_from_relevancy relevancy
     case relevancy
     when 0
-      []
+      ['dark', 'Not relevant']
     when 1
       ['light', 'Somewhat relevant']
     when 2

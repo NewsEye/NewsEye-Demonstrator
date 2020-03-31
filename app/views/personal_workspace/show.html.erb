@@ -6,6 +6,8 @@
     <h2>Description of Dataset "<%= @dataset.title %>"</h2>
   <% when "tm_query" %>
     <h2>Topic distribution for dataset "<%= @dataset.title %>"</h2>
+  <% when "tm_doc_linking" %>
+    <h2>Documents similar to dataset "<%= @dataset.title %>"</h2>
   <% end %>
 
   <% case @task.task_type %>
@@ -40,22 +42,42 @@
       </div>
     <% end %>
   <% when "tm_query" %>
-<!--    <p><%#= @task.results %></p>-->
     <h4>Topic model used</h4>
-      <% model_type = @task.parameters['model_type'] %>
-      <% model_name = @task.parameters['model_name'] %>
-      <%= link_to model_name, "/topic_models/describe_modal?"+{model_name: model_name, model_type: model_type}.to_param, remote: true %>
-      <% if model_type == 'lda' %>
-        (<%= link_to  "Visualize", "/topic_models/visualize/#{model_name}", remote: true %>)
-      <% elsif model_type == "dtm" %>
-        (<%= link_to  "Visualize", "/topic_models/visualize/#{model_name}", target:"_blank" %>)
-      <% end %>
+    <% model_type = @task.parameters['model_type'] %>
+    <% model_name = @task.parameters['model_name'] %>
+    <%= link_to model_name, "/topic_models/describe_modal?"+{model_name: model_name, model_type: model_type}.to_param, remote: true %>
+    <% if model_type == 'lda' %>
+      (<%= link_to  "Visualize", "/topic_models/visualize/#{model_name}", remote: true %>)
+    <% elsif model_type == "dtm" %>
+      (<%= link_to  "Visualize", "/topic_models/visualize/#{model_name}", target:"_blank" %>)
+    <% end %>
     <h4>Topics distribution</h4>
     <div>
       <canvas id="canvas_<%= @task.uuid %>" style="height: 200px;"></canvas>
     </div>
     <div>
       <canvas id="canvas_test" style="height: 200px;"></canvas>
+    </div>
+  <% when "tm_doc_linking" %>
+    <h4>Topic model used</h4>
+    <% model_type = @task.parameters['model_type'] %>
+    <% model_name = @task.parameters['model_name'] %>
+    <%= link_to model_name, "/topic_models/describe_modal?"+{model_name: model_name, model_type: model_type}.to_param, remote: true %>
+    <% if model_type == 'lda' %>
+      (<%= link_to  "Visualize", "/topic_models/visualize/#{model_name}", remote: true %>)
+    <% elsif model_type == "dtm" %>
+      (<%= link_to  "Visualize", "/topic_models/visualize/#{model_name}", target:"_blank" %>)
+    <% end %>
+    <h4>Similar documents</h4>
+    <div class="row">
+      <div class="col-md-3">
+        <%= render partial: "personal_workspace/datasets_handling" %>
+      </div>
+      <div class="col-md-9">
+        <% @documents_list.each_with_index do |doc, doc_idx| %>
+          <%= render partial: 'datasets/document', locals: {document: SolrDocument.new(doc), idx: doc_idx} %>
+        <% end %>
+      </div>
     </div>
   <% end %>
 </div>

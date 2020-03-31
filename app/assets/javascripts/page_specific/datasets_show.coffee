@@ -24,14 +24,16 @@ class @DatasetsShow
                 $($("#sort-dropdown button")[0]).html("Sort by relevancy (⬇) <span class=\"caret\"></span>")
 
         $('#apply_global_dataset_changes').click ->
+            working_dataset_id = $('#div_dataset_id').text()
             $("#global_dataset_relevancy_form input[type='hidden']").remove() # Remove existing hidden fields
             hidden = $("<input type=\"hidden\" name=\"current_url\" value=\"#{window.location.href}\"></input>")
             $("#global_dataset_relevancy_form").append hidden
             for doc in $('div.document')
                 if typeof($(doc).find('input:checked')[0]) != "undefined"
                     doc_id = $(doc).find('h3 a')[0]['href'].split('/').pop()
-                    relevancy = $($(doc).find("dd.relevancy_value")[0]).data('relevancy')
+                    relevancy = $($(doc).find("span.dataset-#{working_dataset_id}")[0]).data('relevancy')
                     relevancy = -1 if typeof relevancy == 'undefined'
+                    console.log relevancy
                     hidden = $("<input type=\"hidden\" name=\"relevancy[#{doc_id}]\" value=\"#{relevancy}\"></input>")
                     $("#global_dataset_relevancy_form").append hidden
 

@@ -8,6 +8,13 @@ class PersonalWorkspaceController < ApplicationController
     @task = Task.find params[:task_id]
     @search = @task.search
     @dataset = @task.dataset
+    puts @task.task_type
+    if @task.task_type == "tm_doc_linking"
+      ids = @task.results['similar_docs']
+      puts ids
+      @documents_list = NewseyeSolrService.query({q: "*:*", fq: "id:(#{ids.join(' ')})", rows: 9999})
+      puts @documents_list
+    end
   end
 
   def update_tasks
@@ -22,15 +29,16 @@ class PersonalWorkspaceController < ApplicationController
         t.subtasks
       when "tm_query"
         data = PersonalResearchAssistantService.tm_query_results t.uuid
+        puts data
         if data.instance_of? Hash
           t.update(status: "finished", finished: Time.now, results: data)
         end
       when "tm_doc_linking"
         data = PersonalResearchAssistantService.tm_doc_linking_results t.uuid
         puts data
-        # if data.instance_of? Hash
-        #   t.update(status: "finished", finished: Time.now, results: data)
-        # end
+        if data.instance_of? Hash
+          t.update(status: "finished", finished: Time.now, results: data)
+        end
       end
     end
   end
