@@ -9,7 +9,7 @@
   <div class="panel-body">
 
     <div class="list-group">
-      <% Task.where(user: current_user, subtask: false).sort_by { |t| t.started }.reverse.each do |t| %>
+      <% Task.where(user: current_user, subtask: false).select{ |t| !t.started.nil? }.sort_by { |t| t.started }.reverse.each do |t| %>
         <% case t.task_type %>
         <% when 'investigator', 'investigate' %>
           <% style = t.status == "finished" ? "list-group-item-success" : "list-group-item-warning" %>
@@ -93,7 +93,7 @@
           <% text = "Started at: #{t.started} | Linked documents for dataset \"#{t.dataset.title}\" (using model \"#{t.parameters['model_name']}\")" %>
           <% if t.status == "finished" %>
             <% style = "list-group-item-success" %>
-            <% task_text = link_to(text, "/personal_workspace/show/#{t.id}") %>
+            <% task_text = link_to(text, "/#{I18n.locale}/personal_workspace/show/#{t.id}") %>
           <% else %>
             <% style = "list-group-item-warning" %>
             <% task_text = text %>
@@ -114,7 +114,7 @@
           <% text = "Started at: #{t.started} | Description of search \"#{t.search.description}\"" %>
           <% if t.status == "finished" %>
             <% style = "list-group-item-success" %>
-            <% task_text = link_to(text, "/personal_workspace/show/#{t.id}") %>
+            <% task_text = link_to(text, "/#{I18n.locale}/personal_workspace/show/#{t.id}") %>
           <% else %>
             <% style = "list-group-item-warning" %>
             <% task_text = text %>
@@ -134,7 +134,7 @@
           <% text = "Started at: #{t.started} | Description of dataset \"#{t.dataset.title}\"" %>
           <% if t.status == "finished" %>
             <% style = "list-group-item-success" %>
-            <% task_text = link_to(text, "/personal_workspace/show/#{t.id}") %>
+            <% task_text = link_to(text, "/#{I18n.locale}/personal_workspace/show/#{t.id}") %>
           <% else %>
             <% style = "list-group-item-warning" %>
             <% task_text = text %>
