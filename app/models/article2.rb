@@ -19,8 +19,12 @@ class Article2 # < ApplicationRecord
     solr_doc['canvases_parts_ssm'] = self.canvases_parts
     solr_doc['thumbnail_url_ss'] =  self.get_thumbnail_url(issue_manifest) unless issue_manifest.nil?
     solr_doc['has_model_ssim'] = 'Article'
-    solr_doc['discover_access_group_ssim'] = ['admin', 'researcher']
-    solr_doc['read_access_group_ssim'] = ['admin', 'researcher']
+    solr_doc['discover_access_group_ssim'] = ['admin', 'researcher', 'registered']
+    if self.language == "fi" or self.language == "se"
+      solr_doc['read_access_group_ssim'] = ['admin', 'researcher']
+    else
+      solr_doc['read_access_group_ssim'] = ['admin', 'researcher', 'registered']
+    end
     # solr_doc['bounds'] = "TODO"
     solr_doc
   end

@@ -55,7 +55,11 @@ class Issue2
     solr_doc['member_ids_ssim'] =  self.pages.map(&:id)
     solr_doc['mets_path_ss'] = self.mets_path if self.mets_path
     solr_doc['discover_access_group_ssim'] = ['admin', 'researcher', 'registered']
-    solr_doc['read_access_group_ssim'] = ['admin', 'researcher']
+    if self.language == "fi" or self.language == "se"
+      solr_doc['read_access_group_ssim'] = ['admin', 'researcher']
+    else
+      solr_doc['read_access_group_ssim'] = ['admin', 'researcher', 'registered']
+    end
 
     solr_doc['year_isi'] = solr_doc['date_created_ssi'][0..3].to_i
     solr_doc["member_of_collection_ids_ssim"] = self.newspaper_id
