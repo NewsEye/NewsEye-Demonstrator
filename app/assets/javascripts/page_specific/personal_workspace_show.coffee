@@ -101,33 +101,44 @@ class @PersonalWorkspaceShow
         self = @
         API.task_results parent_uuid, uuid, (data)->
             for facet of data['result']
-                datasets = []
-                labels = []
-                dataset = {}
-                dataset['label'] = facet
-                dataset['backgroundColor'] =  'rgba(200, 200, 200, 0.5)'
-                dataset['borderColor'] =  'rgba(50, 50, 50, 1)'
-                dataset['lineTension'] = 0.4
-                dataset['fill'] = 'origin'
-                dataset['borderWidth'] = 1
-                dataset['hidden'] = false
-                values = []
-                for point of data['result'][facet]
-                    labels.push point
-                    values.push data['result'][facet][point]
-                dataset['data'] = values
-                datasets.push dataset
-                self.build_graph("canvas_#{data['uuid']}_#{facet}", labels, datasets)
+                # If the canvas exists
+                if $("#canvas_#{data['uuid']}_#{facet}").length
+                    colors = self.generate_colors(1, "80")
+                    colors_opaq = self.generate_colors(1, "FF")
+                    datasets = []
+                    labels = []
+                    dataset = {}
+                    dataset['label'] = facet
+                    dataset['backgroundColor'] =  colors[0]
+                    dataset['borderColor'] =  colors_opaq[0]
+                    dataset['lineTension'] = 0.4
+                    dataset['fill'] = 'origin'
+                    dataset['borderWidth'] = 1
+                    dataset['hidden'] = false
+                    values = []
+                    for point of data['result'][facet]
+                        labels.push point
+                        values.push data['result'][facet][point]
+                    dataset['data'] = values
+                    datasets.push dataset
+                    if facet == "PUB_YEAR"
+                        chart = self.build_graph("canvas_#{data['uuid']}_#{facet}", labels, datasets, 'line')
+                        # document.getElementById("legend_#{data['uuid']}_#{facet}").innerHTML = chart.generateLegend()
+                    else
+                        self.build_graph("canvas_#{data['uuid']}_#{facet}", labels, datasets, 'bar')
+
 
     build_extract_words: (parent_uuid, uuid)->
         self = @
         API.task_results parent_uuid, uuid, (data)->
+            colors = self.generate_colors(3, "80")
+            colors_opaq = self.generate_colors(3, "FF")
             datasets = []
             labels = []
             dataset1 = {}
             dataset1['label'] = "Absolute Frequency"
-            dataset1['backgroundColor'] =  'rgba(200, 200, 200, 0.5)'
-            dataset1['borderColor'] =  'rgba(50, 50, 50, 1)'
+            dataset1['backgroundColor'] =  colors[0]
+            dataset1['borderColor'] =  colors_opaq[0]
             dataset1['lineTension'] = 0.4
             dataset1['fill'] = 'origin'
             dataset1['borderWidth'] = 1
@@ -136,8 +147,8 @@ class @PersonalWorkspaceShow
 
             dataset2 = {}
             dataset2['label'] = "Relative Frequency"
-            dataset2['backgroundColor'] =  'rgba(200, 200, 200, 0.5)'
-            dataset2['borderColor'] =  'rgba(50, 50, 50, 1)'
+            dataset2['backgroundColor'] =  colors[1]
+            dataset2['borderColor'] =  colors_opaq[1]
             dataset2['lineTension'] = 0.4
             dataset2['fill'] = 'origin'
             dataset2['borderWidth'] = 1
@@ -146,8 +157,8 @@ class @PersonalWorkspaceShow
 
             dataset3 = {}
             dataset3['label'] = "TF-IDF"
-            dataset3['backgroundColor'] =  'rgba(200, 200, 200, 0.5)'
-            dataset3['borderColor'] =  'rgba(50, 50, 50, 1)'
+            dataset3['backgroundColor'] =  colors[2]
+            dataset3['borderColor'] =  colors_opaq[2]
             dataset3['lineTension'] = 0.4
             dataset3['fill'] = 'origin'
             dataset3['borderWidth'] = 1
@@ -165,17 +176,19 @@ class @PersonalWorkspaceShow
             datasets.push dataset1
             datasets.push dataset2
             datasets.push dataset3
-            self.build_graph("canvas_#{data['uuid']}", labels, datasets)
+            self.build_graph("canvas_#{data['uuid']}", labels, datasets, 'bar', multiple_dataset_select=true)
 
     build_extract_bigrams: (parent_uuid, uuid)->
         self = @
         API.task_results parent_uuid, uuid, (data)->
+            colors = self.generate_colors(3, "80")
+            colors_opaq = self.generate_colors(3, "FF")
             datasets = []
             labels = []
             dataset1 = {}
             dataset1['label'] = "Absolute Frequency"
-            dataset1['backgroundColor'] =  'rgba(200, 200, 200, 0.5)'
-            dataset1['borderColor'] =  'rgba(50, 50, 50, 1)'
+            dataset1['backgroundColor'] =  colors[0]
+            dataset1['borderColor'] =  colors_opaq[0]
             dataset1['lineTension'] = 0.4
             dataset1['fill'] = 'origin'
             dataset1['borderWidth'] = 1
@@ -184,8 +197,8 @@ class @PersonalWorkspaceShow
 
             dataset2 = {}
             dataset2['label'] = "Relative Frequency"
-            dataset2['backgroundColor'] =  'rgba(200, 200, 200, 0.5)'
-            dataset2['borderColor'] =  'rgba(50, 50, 50, 1)'
+            dataset2['backgroundColor'] =  colors[1]
+            dataset2['borderColor'] =  colors_opaq[1]
             dataset2['lineTension'] = 0.4
             dataset2['fill'] = 'origin'
             dataset2['borderWidth'] = 1
@@ -194,8 +207,8 @@ class @PersonalWorkspaceShow
 
             dataset3 = {}
             dataset3['label'] = "Dice Score"
-            dataset3['backgroundColor'] =  'rgba(200, 200, 200, 0.5)'
-            dataset3['borderColor'] =  'rgba(50, 50, 50, 1)'
+            dataset3['backgroundColor'] =  colors[2]
+            dataset3['borderColor'] =  colors_opaq[2]
             dataset3['lineTension'] = 0.4
             dataset3['fill'] = 'origin'
             dataset3['borderWidth'] = 1
@@ -213,19 +226,22 @@ class @PersonalWorkspaceShow
             datasets.push dataset1
             datasets.push dataset2
             datasets.push dataset3
-            self.build_graph("canvas_#{data['uuid']}", labels, datasets)
+            self.build_graph("canvas_#{data['uuid']}", labels, datasets, 'bar', multiple_dataset_select=true)
 
     build_generate_time_series: (parent_uuid, uuid)->
         self = @
         API.task_results parent_uuid, uuid, (data)->
             for ts of data['result']
                 datasets = []
+                colors = self.generate_colors(Object.keys(data['result'][ts]).length, "80") # alpha in hex
+                colors_opaq = self.generate_colors(Object.keys(data['result'][ts]).length, "FF") # alpha in hex
+                color_idx = 0
                 for entry of data['result'][ts]
                     labels = []
                     dataset = {}
                     dataset['label'] = entry
-                    dataset['backgroundColor'] =  'rgba(200, 200, 200, 0.5)'
-                    dataset['borderColor'] =  'rgba(50, 50, 50, 1)'
+                    dataset['backgroundColor'] =  colors[color_idx]
+                    dataset['borderColor'] =  colors_opaq[color_idx]
                     dataset['lineTension'] = 0.4
                     dataset['fill'] = 'origin'
                     dataset['borderWidth'] = 1
@@ -237,28 +253,48 @@ class @PersonalWorkspaceShow
                             values.push data['result'][ts][entry][point]
                     dataset['data'] = values
                     datasets.push dataset
-                self.build_graph("canvas_#{data['uuid']}_#{ts}", labels, datasets)
+                    color_idx += 1
+                self.build_graph("canvas_#{data['uuid']}_#{ts}", labels, datasets, 'line')
 
-    build_graph: (canvas_id, labels, datasets)->
+    build_graph: (canvas_id, labels, datasets, graph_type, multiple_dataset_select=false)->
         ctx = $("##{canvas_id}")
-        new Chart(ctx, {
-           type: 'line',
+        opts = {
+            responsive: true,
+            maintainAspectRatio: false,
+            legend: {
+                display: true
+          },
+          # legendCallback: (chart)->
+          #     "<ul><li>t1</li><li>t2</li></ul>"
+          scales: {
+              yAxes: [{
+                  ticks: {
+                      beginAtZero: true
+                  }
+              }]
+          }
+        }
+        if multiple_dataset_select
+            opts['legend']['onClick'] = (e, legendItem)->
+                index = legendItem.datasetIndex
+                ci = this.chart
+                ci.data.datasets.forEach (e, i)->
+                    meta = ci.getDatasetMeta(i)
+                    if i != index
+                        meta.hidden = true
+                    else
+                        meta.hidden = false
+                ci.update()
+        chart = new Chart(ctx, {
+           type: graph_type,
            data: {
                labels: labels,
                datasets: datasets
            },
-           options: {
-               responsive: true,
-               maintainAspectRatio: false,
-               legend: {
-                   display: true
-               },
-               scales: {
-                   yAxes: [{
-                       ticks: {
-                           beginAtZero: true
-                       }
-                   }]
-               }
-           }
+           options: opts
         })
+        return chart
+
+    generate_colors: (number, alpha)->
+        arr = ("##{c}#{alpha}" for c in palette('tol', number))
+        return arr

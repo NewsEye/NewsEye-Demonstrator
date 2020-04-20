@@ -108,6 +108,7 @@ Rails.application.routes.draw do
     post '/topic_models/query_results', to: 'topic_models#query_results'
 
     get '/search_help', to: 'catalog#help'
+    get '/platform_help', to: 'catalog#platform_video'
     get '/kw_suggest', to: 'catalog#kw_suggest'
     post '/tools/query_embd_model', to: 'catalog#query_embd_model'
     post '/catalog/set_working_dataset', to: 'catalog#set_working_dataset'

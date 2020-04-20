@@ -224,6 +224,12 @@ class CatalogController < ApplicationController
     end
   end
 
+  def platform_video
+    respond_to do |format|
+      format.js
+    end
+  end
+
   def kw_suggest
     respond_to do |format|
       format.js

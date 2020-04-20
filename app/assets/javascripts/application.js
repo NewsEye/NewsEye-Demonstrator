@@ -11,3 +11,4 @@
 //= require chartjs-chart-matrix.min
 //= require init_page_specific_js
 //= require_tree ./page_specific
+//= require palette

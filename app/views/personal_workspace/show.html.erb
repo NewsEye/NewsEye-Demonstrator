@@ -16,7 +16,22 @@
     <% @task.subtasks.each do |subtask| %>
       <% processor_name = get_processor_name(@task, subtask) %>
       <div class="row">
-        <% if processor_name == "ExtractFacets" or processor_name == "GenerateTimeSeries" %>
+        <% if processor_name == "ExtractFacets" %>
+          <div id="<%= subtask.uuid %>" class=" col-md-12 subtask">
+            <h3 class="subtask_name"><%= processor_name %></h3>
+            <div id="<%= subtask.uuid %>_report"></div>
+            <% subtask.results['result'].each do |entry, res| %>
+              <% if res.keys.size != 1%> <%# if there is only one value, do not show graph %>
+<!--                <div class="col-md-2" id="legend_<%#= subtask.uuid %>_<%#= entry %>"></div>-->
+                <div class="col-md-10">
+                  <div>
+                    <canvas id="canvas_<%= subtask.uuid %>_<%= entry %>" style="height: 200px;"></canvas>
+                  </div>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+          <% elsif processor_name == "GenerateTimeSeries" %>
             <div id="<%= subtask.uuid %>" class=" col-md-12 subtask">
               <h3 class="subtask_name"><%= processor_name %></h3>
               <div id="<%= subtask.uuid %>_report"></div>

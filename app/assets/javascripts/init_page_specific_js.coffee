@@ -6,6 +6,7 @@ class Init
         @current_page_class =  @execute_page_js(page)
         @setup_cursors_wait()
         @setup_help_modal()
+        @setup_video_modal()
         @setup_kw_suggest_modal()
 
     execute_page_js: (page)->
@@ -23,6 +24,13 @@ class Init
         $('li#help_modal').click (e)->
             $.ajax {
                 url:  window.location.protocol+"//"+window.location.host+'/search_help',
+                method: 'GET'
+            }
+
+    setup_video_modal: ->
+        $('li#video_modal').click (e)->
+            $.ajax {
+                url:  window.location.protocol+"//"+window.location.host+'/platform_help',
                 method: 'GET'
             }
 
