@@ -55,8 +55,8 @@ class CatalogController < ApplicationController
 
     ## Default parameters to send to solr for all search-like requests. See also SearchBuilder#processed_parameters
     config.default_solr_params = {
-        #qf: 'all_text_ten_siv all_text_tfr_siv all_text_tde_siv all_text_tfi_siv all_text_tse_siv title_tfr_siv',
-        qf: %w(all_text_unstemmed_ten_iv^10 all_text_unstemmed_tfr_iv^10 all_text_unstemmed_tfi_iv^10 all_text_unstemmed_tse_iv^10 all_text_unstemmed_tde_iv^10 all_text_ten_siv all_text_tfr_siv all_text_tfi_siv all_text_tse_siv all_text_tde_siv title_ten_siv title_tfr_siv title_tfi_siv title_tde_siv title_tse_siv).join(' '),
+        qf: 'all_text_ten_siv all_text_tfr_siv all_text_tde_siv all_text_tfi_siv all_text_tse_siv title_tfr_siv',
+        # qf: %w(all_text_unstemmed_ten_iv^10 all_text_unstemmed_tfr_iv^10 all_text_unstemmed_tfi_iv^10 all_text_unstemmed_tse_iv^10 all_text_unstemmed_tde_iv^10 all_text_ten_siv all_text_tfr_siv all_text_tfi_siv all_text_tse_siv all_text_tde_siv title_ten_siv title_tfr_siv title_tfi_siv title_tde_siv title_tse_siv).join(' '),
         qt: 'search',
         rows: 10
     }
@@ -97,7 +97,13 @@ class CatalogController < ApplicationController
     config.add_show_field solr_name('date_created', :date_searchable_uniq), helper_method: :convert_date_to_locale, label: 'Date created'
     config.add_show_field solr_name('nb_pages', :int_searchable), label: 'Number of pages'
 
-    config.add_search_field 'all_fields', label: 'All Fields'
+    config.add_search_field 'all_fields', label: 'Stemmed Search'
+    config.add_search_field 'exact_search' do |field|
+      field.label = "Exact Search"
+      field.solr_parameters = {
+          qf: 'all_text_unstemmed_ten_iv all_text_unstemmed_tfr_iv all_text_unstemmed_tfi_iv all_text_unstemmed_tse_iv all_text_unstemmed_tde_iv'
+      }
+    end
 
 
     # Now we see how to over-ride Solr request handler defaults, in this

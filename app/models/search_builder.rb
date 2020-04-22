@@ -26,6 +26,9 @@ class SearchBuilder < Blacklight::SearchBuilder
     solr_parameters[:'hl.simple.pre'] = '<span style="background-color: red; color: white;">'
     solr_parameters[:'hl.simple.post'] = '</span>'
     solr_parameters[:'hl.maxAnalyzedChars'] = 10000000
+    # to highlight text even when querying for exact search (when the field is not stored)
+    solr_parameters[:'hl.q'] = %w(fr fi de se en).map{ |lang| "all_text_t#{lang}_siv:(#{solr_parameters[:q]})" }.join(' ')
+    solr_parameters
   end
 
   def fix_query(solr_parameters)
