@@ -75,4 +75,21 @@ class Article2 # < ApplicationRecord
     end
     out
   end
+
+  def get_page
+    cv = self.canvases_parts[0]
+    page = cv[cv.index("/page_")+6...cv.index("#xywh")]
+    page
+  end
+
+  def get_location
+    coords = self.canvases_parts.map { |c| c[c.rindex('#xywh=')+6..-1].split(',').map(&:to_i) }
+    min_x = coords.map{ |coord| coord[0] }.min
+    max_x = coords.map{ |coord| coord[0] + coord[2] }.max
+    min_y = coords.map{ |coord| coord[1] }.min
+    max_y = coords.map{ |coord| coord[1] + coord[3] }.max
+    canvas_coords = [min_x, max_x, min_y, max_y]
+    canvas_size = [canvas_coords[1]-canvas_coords[0], canvas_coords[3]-canvas_coords[2]]
+    [min_x,min_y,canvas_size[0],canvas_size[1]]
+  end
 end

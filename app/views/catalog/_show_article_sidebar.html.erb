@@ -1,6 +1,6 @@
 <div id="article_links" class="panel panel-default">
   <div class="panel-body">
-    <%= link_to "Original Issue", "#{url_for(controller: 'catalog')}/#{@document[:from_issue_ssi]}", :id=>"originalIssueLink" %>
+    <%= link_to "Original Issue", "#{url_for(controller: 'catalog')}/#{@document[:from_issue_ssi]}?#{{from_article: @document[:id]}.to_query}", :id=>"originalIssueLink" %>
     <%#= link_to "manifest", "#{url_for(controller: 'iiif', action: 'manifest', id: @document[:from_issue_ssi], locale: nil)}" %>
   </div>
 </div>

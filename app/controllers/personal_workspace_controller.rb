@@ -122,4 +122,8 @@ class PersonalWorkspaceController < ApplicationController
     render json: data
   end
 
+  def flowy
+
+  end
+
 end

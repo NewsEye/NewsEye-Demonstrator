@@ -12,3 +12,4 @@
 //= require init_page_specific_js
 //= require_tree ./page_specific
 //= require palette
+//= require flowy.min

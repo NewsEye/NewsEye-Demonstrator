@@ -186,6 +186,11 @@ class CatalogController < ApplicationController
 
   def show
     @response, @document = fetch params[:id]
+    if params[:from_article]
+      a = Article2.from_solr params[:from_article]
+      @article_page = a.get_page
+      @article_location = a.get_location
+    end
     respond_to do |format|
       format.html { setup_next_and_previous_documents }
       format.json { render json: { response: { document: @document } } }
@@ -360,6 +365,94 @@ class CatalogController < ApplicationController
     end
   end
 
+  def mirador_config #params
+    options = {
+        language: params[:locale],
+        data: [
+            {
+                manifestUri: url_for(only_path: false, action: :manifest, controller: 'iiif', locale: nil, id: params[:id]),
+                location: "NewsEye"
+            }
+        ],
+        layout: '1x1',
+        openManifestsPage: false,
+
+
+        mainMenuSettings: {
+            show: false
+        },
+        'availableExternalCommentsPanel': true,
+        availableAnnotationDrawingTools: ['Rectangle', 'Ellipse'],
+        availableAnnotationStylePickers: [],
+        #['StrokeColor','FillColor','StrokeType'],
+        windowSettings: {
+            availableViews: ['ThumbnailsView', 'ImageView', 'ScrollView'],
+            viewType: 'ImageView',
+            bottomPanel: true,
+            bottomPanelVisible: true,
+            sidePanel: true,
+            sidePanelOptions: {
+                toc: true,
+                annotations: true,
+                tocTabAvailable: true,
+                layersTabAvailable: false,
+                searchTabAvailable: false,
+                annotationTabAvailable: true
+            },
+            sidePanelVisible: false,
+            overlay: true,
+            canvasControls: {
+                annotations: {
+                    annotationLayer: true,
+                    annotationCreation: true,
+                    annotationState: 'off',
+                    annotationRefresh: true,
+                },
+                imageManipulation: {
+                    manipulationLayer: true,
+                    controls: {
+                        rotate: true,
+                        brightness: true,
+                        contrast: true,
+                        saturate: true,
+                        grayscale: true,
+                        invert: true,
+                        mirror: false
+                    }
+                }
+            },
+            fullScreen: true,
+            displayLayout: false,
+            # layoutOptions: {
+            #     newObject: true,
+            #     close: true,
+            #     slotRight: true,
+            #     slotLeft: true,
+            #     slotAbove: true,
+            #     slotBelow: true,
+            # }
+        },
+        windowObjects: [
+            {
+                loadedManifest: url_for(only_path: false, action: :manifest, controller: 'iiif', locale: nil, id: params[:id])
+            }
+        ],
+        annotationEndpoint: {
+            name: 'Simple Annotation Store Endpoint',
+            module: 'SimpleASEndpoint',
+            # module: 'LocalStorageEndpoint',
+            options: {url: "#{request.protocol+request.host_with_port}/annotations"}
+        }
+    }
+    config = {
+        id: 'mirador_view',
+        buildPath: '',
+        i18nPath: '/locales/',
+        imagesPath: ''
+    }.merge(options)
+    render json: config
+  end
+
   protected
 
   # Redirect to action: index if this action is a query (not a return to home) and if there is no f or q params
@@ -389,4 +482,7 @@ class CatalogController < ApplicationController
   def track_action
     ahoy.track "Ran action", request.path_parameters
   end
+
+
+
 end

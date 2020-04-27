@@ -94,3 +94,11 @@ class @API
             success: (data)->
                 callback(data)
         }
+    @get_mirador_config: (doc_id, callback)->
+        $.ajax {
+            url:  window.location.protocol+"//"+window.location.host+'/catalog/get_mirador_config',
+            method: 'POST',
+            data:{id: doc_id},
+            success: (data)->
+                callback(data)
+        }

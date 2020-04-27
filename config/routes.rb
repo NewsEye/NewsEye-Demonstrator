@@ -134,6 +134,9 @@ Rails.application.routes.draw do
     post "/datasets/subdataset", to: "datasets#subdataset_modal"
     post "/datasets/apply_subdataset", to: "datasets#apply_subdataset"
 
+    get "/flowy", to: "personal_workspace#flowy"
+    post "/catalog/get_mirador_config", to: "catalog#mirador_config"
+
   end
 
   mount Riiif::Engine => '/iiif', as: 'riiif'
