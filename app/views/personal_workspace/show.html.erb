@@ -5,9 +5,17 @@
   <% when "describe_dataset" %>
     <h2>Description of Dataset "<%= @dataset.title %>"</h2>
   <% when "tm_query" %>
-    <h2>Topic distribution for dataset "<%= @dataset.title %>"</h2>
+    <% if @dataset %>
+      <h2>Topic distribution for dataset "<%= @dataset.title %>"</h2>
+    <% elsif @search %>
+      <h2>Topic distribution for search "<%= @search.description %>"</h2>
+    <% end %>
   <% when "tm_doc_linking" %>
-    <h2>Documents similar to dataset "<%= @dataset.title %>"</h2>
+    <% if @dataset %>
+      <h2>Documents similar to dataset "<%= @dataset.title %>"</h2>
+    <% elsif @search %>
+      <h2>Documents similar to search "<%= @search.description %>"</h2>
+    <% end %>
   <% end %>
 
   <% case @task.task_type %>

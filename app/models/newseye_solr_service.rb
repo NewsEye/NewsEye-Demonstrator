@@ -63,7 +63,8 @@ class NewseyeSolrService
 
   def self.query params
     connect unless @@connection
-    @@connection.get('select', params: params)['response']['docs']
+    # @@connection.get('select', params: params)['response']['docs']
+    @@connection.send_and_receive("select", data: params, method: :post)['response']['docs']
   end
 
   def self.connect

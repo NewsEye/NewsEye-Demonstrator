@@ -26,23 +26,35 @@ class TopicModelsController < ApplicationController
   end
 
   def query_modal
-    @dataset = Dataset.find params[:dataset_id]
+    @dataset = Dataset.find params[:dataset_id] if params[:dataset_id]
+    @search = Search.find params[:search_id] if params[:search_id]
     @models = PersonalResearchAssistantService.get_models
   end
 
   def query
-    dataset = Dataset.find params[:dataset_id]
-    doc_ids = dataset.documents.map{ |doc| doc['id']}
+    if params[:dataset_id]
+      dataset = Dataset.find params[:dataset_id]
+      doc_ids = dataset.documents.map{ |doc| doc['id']}
+    elsif params[:search_id]
+      search = Search.find params[:search_id]
+      doc_ids = helpers.get_doc_ids search
+    end
     model_type, model_name = params[:model_tm_select].split(";;")
     if params[:query_type] == "query"
       data = PersonalResearchAssistantService.tm_query model_type, model_name, doc_ids
       puts data
       if data['task_uuid']
-        Task.create(user: current_user, status: "running", uuid: data['task_uuid'],
-                    started: Time.now, task_type: "tm_query", dataset: dataset,
-                    parameters: {model_type: model_type, model_name: model_name, documents: doc_ids, dataset_title: dataset.title})
+        if params[:dataset_id]
+          Task.create(user: current_user, status: "running", uuid: data['task_uuid'],
+                      started: Time.now, task_type: "tm_query", dataset: dataset,
+                      parameters: {model_type: model_type, model_name: model_name, documents: doc_ids, dataset_title: dataset.title})
+        elsif params[:search_id]
+          Task.create(user: current_user, status: "running", uuid: data['task_uuid'],
+                      started: Time.now, task_type: "tm_query", search: search,
+                      parameters: {model_type: model_type, model_name: model_name, documents: doc_ids, search_description: search.description})
+        end
         respond_to do |format|
-          format.html { redirect_to '/personal_workspace', notice: 'Topic modelling query task was successfully created.' }
+          format.html { redirect_to "/#{I18n.locale}/personal_workspace", notice: 'Topic modelling query task was successfully created.' }
         end
       else
         puts data
@@ -52,11 +64,17 @@ class TopicModelsController < ApplicationController
       data = PersonalResearchAssistantService.doc_linking model_type, model_name, num_docs, doc_ids
       puts data
       if data['task_uuid']
-        Task.create(user: current_user, status: "running", uuid: data['task_uuid'],
-                    started: Time.now, task_type: "tm_doc_linking", dataset: dataset,
-                    parameters: {model_type: model_type, model_name: model_name, documents: doc_ids, dataset_title: dataset.title})
+        if params[:dataset_id]
+          Task.create(user: current_user, status: "running", uuid: data['task_uuid'],
+                      started: Time.now, task_type: "tm_doc_linking", dataset: dataset,
+                      parameters: {model_type: model_type, model_name: model_name, documents: doc_ids, dataset_title: dataset.title})
+        elsif params[:search_id]
+          Task.create(user: current_user, status: "running", uuid: data['task_uuid'],
+                      started: Time.now, task_type: "tm_doc_linking", search: search,
+                      parameters: {model_type: model_type, model_name: model_name, documents: doc_ids, search_description: search.description})
+        end
         respond_to do |format|
-          format.html { redirect_to '/personal_workspace', notice: 'Topic modelling query task was successfully created.' }
+          format.html { redirect_to "/#{I18n.locale}/personal_workspace"  , notice: 'Topic modelling query task was successfully created.' }
         end
       else
         puts data

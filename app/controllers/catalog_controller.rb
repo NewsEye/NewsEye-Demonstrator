@@ -1,7 +1,7 @@
 # -*- encoding : utf-8 -*-
 
 class CatalogController < ApplicationController
-  include BlacklightAdvancedSearch::Controller
+  # include BlacklightAdvancedSearch::Controller
 
   include BlacklightRangeLimit::ControllerOverride
 
@@ -14,12 +14,6 @@ class CatalogController < ApplicationController
 
   # This applies appropriate access controls to all solr queries
   # Hydra::SearchBuilder.default_processor_chain += [:add_access_controls_to_solr_params]
-
-  # TODO add image part in "see extracts" + add position to hl : https://issues.apache.org/jira/browse/SOLR-4722
-  # TODO advanced search
-  # TODO check uusisuometar ocr data (new or old ?)
-  # TODO add comparison of subsets in personnal workspace for topics
-  # TODO newspaper context api (maybe explore controller ? which issue are available, calendar, etc)
 
   # after_action :track_action
 
@@ -58,6 +52,7 @@ class CatalogController < ApplicationController
         qf: 'all_text_ten_siv all_text_tfr_siv all_text_tde_siv all_text_tfi_siv all_text_tse_siv title_tfr_siv',
         # qf: %w(all_text_unstemmed_ten_iv^10 all_text_unstemmed_tfr_iv^10 all_text_unstemmed_tfi_iv^10 all_text_unstemmed_tse_iv^10 all_text_unstemmed_tde_iv^10 all_text_ten_siv all_text_tfr_siv all_text_tfi_siv all_text_tse_siv all_text_tde_siv title_ten_siv title_tfr_siv title_tfi_siv title_tde_siv title_tse_siv).join(' '),
         qt: 'search',
+        defType: 'edismax',
         rows: 10
     }
 

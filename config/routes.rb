@@ -103,7 +103,8 @@ Rails.application.routes.draw do
     get '/topic_models/describe_modal', to: 'topic_models#describe_tm_modal'
     get '/topic_models/visualize/:tm_name', to: 'topic_models#visualize_lda_modal'
     post '/topic_models/describe', to: 'topic_models#describe'
-    get '/topic_models/query_modal/:dataset_id', to: 'topic_models#query_modal'
+    get '/topic_models/query_modal/search/:search_id', to: 'topic_models#query_modal'
+    get '/topic_models/query_modal/dataset/:dataset_id', to: 'topic_models#query_modal'
     post '/topic_models/query', to: 'topic_models#query'
     post '/topic_models/query_results', to: 'topic_models#query_results'
 
@@ -121,6 +122,7 @@ Rails.application.routes.draw do
     post "/saved_searches/save", to: "saved_searches#save"
     post "/saved_searches/confirm_save", to: "saved_searches#confirm_save"
     get "/saved_searches", to: "saved_searches#index"
+    get "/saved_searches/get_ids/:id", to: "saved_searches#get_ids"
     get '/delete_search/:id', to: 'saved_searches#delete_search'
     get "/personal_workspace", to: "personal_workspace#index"
 

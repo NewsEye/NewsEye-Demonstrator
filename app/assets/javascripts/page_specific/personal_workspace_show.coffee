@@ -62,7 +62,7 @@ class @PersonalWorkspaceShow
                 values.push value
             dataset['data'] = values
             datasets.push dataset
-            self.build_graph("canvas_#{data['uuid']}", labels, datasets)
+            self.build_graph("canvas_#{data['uuid']}", labels, datasets, 'bar')
 
 
     load_reports: ->

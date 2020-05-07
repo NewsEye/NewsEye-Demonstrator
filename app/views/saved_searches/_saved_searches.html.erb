@@ -16,6 +16,9 @@
             <%# end %>
 <!--          </td>-->
           <td>
+            <%= link_to "TM", "/topic_models/query_modal/search/#{search.id}", remote: true%>
+          </td>
+          <td>
             <%= link_to "/delete_search/#{search.id}", data: { confirm: 'Are you sure ? All associated tasks will also be deleted.' } do %>
               <span class="glyphicon glyphicon-remove" style="color: red"></span>
             <% end %>

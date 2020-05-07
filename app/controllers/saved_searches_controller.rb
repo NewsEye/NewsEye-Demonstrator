@@ -3,10 +3,27 @@ class SavedSearchesController < ApplicationController
   #include Blacklight::SavedSearches
   #
   #helper BlacklightAdvancedSearch::RenderConstraintsOverride
-  before_action :set_search, only: [:delete_search]
+  before_action :set_search, only: [:delete_search, :get_ids]
 
   def index
 
+  end
+
+  def get_ids
+    search_params = Rack::Utils.parse_nested_query @search.query_url[@search.query_url.index("/catalog?")+9..-1]
+    search_params = Blacklight::Solr::Request.new search_params
+    sb = SearchBuilder.new self
+    sb = sb.with search_params
+    sb = sb.except :add_facetting_to_solr, :add_paging_to_solr, :add_facet_paging_to_solr, :add_solr_fields_to_query, :add_highlight
+    sb = sb.append :only_ids, :add_access_controls_to_solr_params
+    puts sb.processor_chain
+    sb.processor_chain.each do |method| sb.send(method, search_params) end
+    pp "#######"
+    pp search_params
+    pp "#######"
+    solr = Blacklight::Solr::Repository.new CatalogController.blacklight_config
+    resp = solr.search(sb)
+    render json: resp
   end
 
   # DELETE /datasets/1
@@ -22,14 +39,22 @@ class SavedSearchesController < ApplicationController
 
   def save
     @current_url = params['current_url']
-    @search_params = {}
-    @search_params[:q] = params[:q]
-    @search_params[:fq] = params[:fq]
-    @search_params[:qf] = params[:qf]
-    @search_params[:rows] = params[:rows]
-    @search_params[:sort] = params[:sort]
-    @search_params[:defType] = params[:defType]
-    puts @search_params
+    search_params = Rack::Utils.parse_nested_query @current_url[@current_url.index("/catalog?")+9..-1]
+    search_params = Blacklight::Solr::Request.new search_params
+    sb = SearchBuilder.new self
+    sb = sb.with search_params
+    sb = sb.except :add_facetting_to_solr, :add_paging_to_solr, :add_facet_paging_to_solr, :add_solr_fields_to_query, :add_highlight, :add_access_controls_to_solr_params
+    sb.processor_chain.each do |method| puts method; sb.send(method, search_params) end
+    @search_params = sb.to_h
+    #
+    # @search_params = {}
+    # @search_params[:q] = params[:q]
+    # @search_params[:fq] = params[:fq]
+    # @search_params[:qf] = params[:qf]
+    # @search_params[:rows] = params[:rows]
+    # @search_params[:sort] = params[:sort]
+    # @search_params[:defType] = params[:defType]
+    # puts @search_params
   end
 
   def confirm_save

@@ -69,7 +69,11 @@
             </div>
           </li>
         <% when 'tm_query' %>
-          <% text = "Started at: #{t.started} | Topic distribution for dataset \"#{t.dataset.title}\" (using model \"#{t.parameters['model_name']}\")" %>
+          <% if t.dataset %>
+            <% text = "Started at: #{t.started} | Topic distribution for dataset \"#{t.dataset.title}\" (using model \"#{t.parameters['model_name']}\")" %>
+          <% elsif t.search %>
+            <% text = "Started at: #{t.started} | Topic distribution for search \"#{t.search.description}\" (using model \"#{t.parameters['model_name']}\")" %>
+          <% end %>
           <% if t.status == "finished" %>
             <% style = "list-group-item-success" %>
             <% task_text = link_to(text, "/personal_workspace/show/#{t.id}") %>
@@ -90,7 +94,11 @@
             </div>
           </li>
         <% when 'tm_doc_linking' %>
-          <% text = "Started at: #{t.started} | Linked documents for dataset \"#{t.dataset.title}\" (using model \"#{t.parameters['model_name']}\")" %>
+          <% if t.dataset %>
+            <% text = "Started at: #{t.started} | Linked documents for dataset \"#{t.dataset.title}\" (using model \"#{t.parameters['model_name']}\")" %>
+          <% elsif t.search %>
+            <% text = "Started at: #{t.started} | Linked documents for search \"#{t.search.description}\" (using model \"#{t.parameters['model_name']}\")" %>
+          <% end %>
           <% if t.status == "finished" %>
             <% style = "list-group-item-success" %>
             <% task_text = link_to(text, "/#{I18n.locale}/personal_workspace/show/#{t.id}") %>

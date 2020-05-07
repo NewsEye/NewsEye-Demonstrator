@@ -2,19 +2,22 @@
 
   <div id="appliedParams" class="clearfix constraints-container">
     <div class="pull-right">
-      <%
+      <%#
         search_parameters = @response['responseHeader']['params'].deep_dup
         search_parameters.except! *search_parameters.keys.select{ |k| k.index('hl') == 0 }
         search_parameters.except! *search_parameters.keys.select{ |k| k.index('stats') == 0 }
         search_parameters['fq'] = search_parameters['fq'].select{|elt| elt.index('access_group_ssim').nil? }
         search_parameters['current_url'] = request.original_url
+        solr_params = get_solr_params request.original_url
+        puts "#####################"
+        puts solr_params
       %>
       <ul id="search_menu_list">
         <li>
           <%= button_to("Save search", "/saved_searches/save", {class: "btn btn-primary",
                                                                 id: "save_search_button",
                                                                 method: :post,
-                                                                params: search_parameters,
+                                                                params: {'current_url': request.original_url},
                                                                 remote: true,
                                                                 'data-disable-with': 'Saving search...'}) %>
         </li>

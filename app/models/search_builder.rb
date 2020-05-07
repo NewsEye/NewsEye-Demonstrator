@@ -31,6 +31,11 @@ class SearchBuilder < Blacklight::SearchBuilder
     solr_parameters
   end
 
+  def only_ids(solr_parameters)
+    solr_parameters[:fl] = 'id'
+    solr_parameters[:rows] = 500
+  end
+
   def fix_query(solr_parameters)
     solr_parameters[:'facet.field'].uniq!
     #solr_parameters.except! :defType

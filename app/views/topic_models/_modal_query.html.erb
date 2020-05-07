@@ -1,8 +1,15 @@
 <div class="modal-header">
   <button type="button" class="close" data-dismiss="modal">x</button>
-  <h4 class="modal-title" id="params_label">Create a Topic Modelling task for dataset "<%= dataset.title %>"</h4>
+  <% if dataset %>
+    <h4 class="modal-title" id="params_label">Create a Topic Modelling task for dataset "<%= dataset.title %>"</h4>
+  <% elsif search %>
+    <h4 class="modal-title" id="params_label">Create a Topic Modelling task for search "<%= search.description %>"</h4>
+  <% end %>
 </div>
 <div class="modal-body">
+  <% if search %>
+    <span style="font-style: italic">Warning: only the first 500 documents returned by this search will be processed.</span>
+  <% end %>
   <h5>Query for the topic distrubution: </h5>
   <form id="query_tm_form" class="form" novalidate="novalidate" data-remote="false" method='post' action="/topic_models/query">
     <div class="form-group">
@@ -19,7 +26,11 @@
         <% end %>
       </select>
     </div>
-    <input type="hidden" name="dataset_id" value="<%= dataset.id %>"/>
+    <% if dataset %>
+      <input type="hidden" name="dataset_id" value="<%= dataset.id %>"/>
+    <% elsif search %>
+      <input type="hidden" name="search_id" value="<%= search.id %>"/>
+    <% end %>
     <input type="hidden" name="query_type" value="query"/>
     <button type="submit" class="btn btn-info" data-disable-with="Working...">Create task</button>
   </form>
@@ -50,7 +61,11 @@
         <option value="100">100</option>
       </select>
     </div>
-    <input type="hidden" name="dataset_id" value="<%= dataset.id %>"/>
+    <% if dataset %>
+      <input type="hidden" name="dataset_id" value="<%= dataset.id %>"/>
+    <% elsif search %>
+      <input type="hidden" name="search_id" value="<%= search.id %>"/>
+    <% end %>
     <input type="hidden" name="query_type" value="doc-linking"/>
     <button type="submit" class="btn btn-info" data-disable-with="Working...">Create task</button>
   </form>
