@@ -18,7 +18,8 @@ gem 'europeana-api'
 gem 'riiif'
 
 gem 'chart-js-rails'
-gem 'rubyzip'
+gem 'popper_js', '~> 1.14.5'
+gem 'rubyzip', require: 'zip'
 
 gem 'sparql'
 
@@ -50,7 +51,6 @@ gem 'fastimage' # to avoid using hydra::characterize
 gem 'tinymce-rails'
 gem 'font-awesome-rails'
 gem 'material_icons'
-gem 'openseadragon'
 
 gem 'bootsnap', require: false
 

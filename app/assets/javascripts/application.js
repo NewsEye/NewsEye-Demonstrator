@@ -2,14 +2,24 @@
 //= require turbolinks
 // require tether
 //= require jquery
+//= require jquery-ui.min
 //= require blacklight_advanced_search
 //= require blacklight/blacklight
-//= require mirador
+//= require openseadragon
+//= require openseadragon-viewerinputhook
+
+//= require cytoscape.umd
+//= require dagre.min
+//= require cytoscape-dagre
+// require popper-utils
+//= require popper
+//= require cytoscape-popper
+
 //= require blacklight_range_limit
 //= require api
 //= require Chart.min
 //= require chartjs-chart-matrix.min
 //= require init_page_specific_js
 //= require_tree ./page_specific
+//= require svg_utils
 //= require palette
-//= require flowy.min
