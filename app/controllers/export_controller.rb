@@ -64,7 +64,7 @@ class ExportController < ApplicationController
     end
     Zip::File.open(zip_name, Zip::File::CREATE) do |zipfile|
       files_to_send.each do |filename|
-        zipfile.add filename, "/tmp/#{filename}"
+        zipfile.add filename,  "/tmp/#{filename}"
       end
     end
     File.open(zip_name, 'r') do |f|

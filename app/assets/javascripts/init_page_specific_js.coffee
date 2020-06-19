@@ -8,6 +8,7 @@ class Init
         @setup_help_modal()
         @setup_video_modal()
         @setup_kw_suggest_modal()
+        @set_search_default()
 
     execute_page_js: (page)->
         if 'function' is typeof window[page]
@@ -21,7 +22,7 @@ class Init
             $('body').css( 'cursor', 'default' )
 
     setup_help_modal: ->
-        $('li#help_modal').click (e)->
+        $('button#help_modal').click (e)->
             $.ajax {
                 url:  window.location.protocol+"//"+window.location.host+'/search_help',
                 method: 'GET'
@@ -40,6 +41,12 @@ class Init
                 url:  window.location.protocol+"//"+window.location.host+'/kw_suggest',
                 method: 'GET'
             }
+
+    set_search_default: ->
+        if $("#search_field").length > 0
+            $("#search_field").html($("#search_field option").sort (a,b)->
+                return a.text == b.text ? 0 : a.value == "all_fields" ? 1 : -1
+            )
 
 global = @
 $(document).on 'turbolinks:load', ->

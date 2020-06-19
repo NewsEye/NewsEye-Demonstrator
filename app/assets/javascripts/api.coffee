@@ -102,3 +102,27 @@ class @API
             success: (data)->
                 callback(data)
         }
+    @get_datasets_with_doc: (doc_id, callback)->
+        $.ajax {
+                    url:  window.location.protocol+"//"+window.location.host+'/datasets/get_datasets_with_doc',
+                    method: 'POST',
+                    data:{id: doc_id},
+                    success: (data)->
+                        callback(data)
+                }
+    @load_graph: (experiment_id, callback)->
+        $.ajax {
+            url:  window.location.protocol+"//"+window.location.host+'/experiment/load',
+            method: 'POST',
+            data:{experiment_id: experiment_id},
+            success: (data)->
+                callback(data)
+        }
+    @save_graph: (elements, experiment_id, callback)->
+        $.ajax {
+            url:  window.location.protocol+"//"+window.location.host+'/experiment/save',
+            method: 'POST',
+            data:{experiment_id: experiment_id, elements: elements},
+            success: (data)->
+                callback(data)
+        }

@@ -135,9 +135,13 @@ Rails.application.routes.draw do
     post "/datasets/apply_merge_dataset", to: "datasets#apply_merge_dataset"
     post "/datasets/subdataset", to: "datasets#subdataset_modal"
     post "/datasets/apply_subdataset", to: "datasets#apply_subdataset"
+    post "/datasets/get_datasets_with_doc", to: "datasets#get_datasets_with_doc"
 
-    get "/flowy", to: "personal_workspace#flowy"
-    post "/catalog/get_mirador_config", to: "catalog#mirador_config"
+    get "/experiment/show/:id", to: "experiment#show"
+    post "/experiment/add_data_source_modal", to: "experiment#add_data_source_modal"
+    post "/experiment/add_data_source", to: "experiment#add_data_source"
+    post "/experiment/save", to: "experiment#save"
+    post "/experiment/load", to: "experiment#load"
 
   end
 

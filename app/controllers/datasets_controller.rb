@@ -251,6 +251,10 @@ class DatasetsController < ApplicationController
     render json: dataset_docs
   end
 
+  def get_datasets_with_doc
+    render json: current_user.datasets_with_doc(params[:id])
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_dataset

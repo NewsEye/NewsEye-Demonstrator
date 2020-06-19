@@ -27,7 +27,11 @@ class SearchBuilder < Blacklight::SearchBuilder
     solr_parameters[:'hl.simple.post'] = '</span>'
     solr_parameters[:'hl.maxAnalyzedChars'] = 10000000
     # to highlight text even when querying for exact search (when the field is not stored)
-    solr_parameters[:'hl.q'] = %w(fr fi de se en).map{ |lang| "all_text_t#{lang}_siv:(#{solr_parameters[:q]})" }.join(' ')
+    if solr_parameters[:'qf'].index("all_text_unstemmed").nil?
+      solr_parameters[:'hl.q'] = %w(fr fi de se en).map{ |lang| "all_text_t#{lang}_siv:(#{solr_parameters[:q]})" }.join(' ')
+    else
+      solr_parameters[:'hl.q'] = %w(fr fi de se en).map{ |lang| "all_text_unstemmed_t#{lang}_siv:(#{solr_parameters[:q]})" }.join(' ')
+    end
     solr_parameters
   end
 

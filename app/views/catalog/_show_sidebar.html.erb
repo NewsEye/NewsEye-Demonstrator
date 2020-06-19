@@ -1,34 +1,13 @@
-<div class="panel panel-default">
+<div id="article_panel" class="panel panel-default">
   <div class="panel-body">
 
-    <div id="annotationLayerControls" style="display: none">
-      <div class="form-group">
-        <form accept-charset="UTF-8" action="/annotations/search" method="get">
-          <label for="select_layer">Select list:</label>
-          <select class="form-control" id="select_layer" name="layer" autocomplete="off">
-            <option value="no" selected="selected">No layer</option>
-            <option value="word">Word-level</option>
-            <option value="line">Line-level</option>
-            <option value="entities">Entity-level</option>
-            <option value="block">Block-level</option>
-          </select>
-        </form>
-      </div>
-    </div>
+    <p id="article_text"></p>
 
-    <% if params[:from_article] %>
-      <p><a id="goto_page" data-page="<%= @article_page %>">Go to article page</a></p>
-      <p><a id="goto_location" data-location="<%= @article_location %>" style="display: none">Go to article location</a></p>
-    <% end %>
   </div>
 </div>
 
 
-<div id="manage_tools" class="panel panel-default">
-  <div class="panel-body">
-    <%= render 'add_issue_to_dataset_dropdown' %>
-  </div>
-</div>
+
 
 <%= render partial: "named_entities_panel" %>
 

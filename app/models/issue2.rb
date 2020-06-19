@@ -95,8 +95,58 @@ class Issue2
     end
     if with_articles
       i.articles = []
-      NewseyeSolrService.get_articles_ids_from_issue_id(i.id).each do |art_id|
-        i.articles << Article2.from_solr(art_id)
+      ids = NewseyeSolrService.get_articles_ids_from_issue_id(i.id)
+      solr_docs = NewseyeSolrService.query({q: "*:*", fq: "id:(#{ids.join(' ')})", rows: 9999})
+      solr_docs.each do |solr_doc|
+        i.articles << Article2.from_solr_doc(solr_doc)
+      end
+    end
+    if with_word_annots
+      i.word_annots = []
+      (1..i.nb_pages).each do |pagenum|
+        puts pagenum
+        NewseyeSolrService.query({q: "id:#{id}_#{pagenum}_word*", rows: 9999999}).each do |annot|
+          block_annot = {}
+          block_annot['@type'] = 'oa:Annotation'
+          block_annot['motivation'] = 'sc:painting'
+          block_annot['resource'] = {}
+          block_annot['resource']['@type'] = 'cnt:ContentAsText'
+          block_annot['resource']['format'] = 'text/plain'
+          block_annot['resource']['chars'] =  annot[annot.find{|k, hash| k.start_with?('text_')}[0]]
+          block_annot['metadata'] = {}
+          # block_annot['metadata']['word_confidence'] = block_text.size == 0 ? 0 : block_confidence / block_text.size
+          block_annot['on'] = "#{Rails.configuration.newseye_services['host']}/iiif/#{id}/canvas/page_#{pagenum}#{annot['selector']}"
+          i.word_annots << block_annot
+        end
+      end
+    end
+    i
+  end
+
+  def self.from_solr_doc(solr_doc, with_pages: true, with_articles: true, with_word_annots: false)
+    i = Issue2.new
+    i.id = solr_doc['id']
+    i.language = solr_doc['language_ssi']
+    i.newspaper_id = solr_doc['member_of_collection_ids_ssim'][0]
+    i.title = solr_doc['title_ssi']
+    i.date_created = solr_doc['date_created_ssi']
+    i.original_uri = solr_doc['original_uri_ss']
+    i.nb_pages = solr_doc['nb_pages_isi']
+    i.thumbnail_url = solr_doc['thumbnail_url_ss']
+    i.all_text = solr_doc["all_text_t#{i.language}_siv"]
+    i.mets_path = solr_doc["mets_path_ss"] if solr_doc["mets_path_ss"]
+    if with_pages
+      i.pages = []
+      solr_doc['member_ids_ssim'].each do |pageid|
+        i.pages << PageFileSet2.from_solr(pageid)
+      end
+    end
+    if with_articles
+      i.articles = []
+      ids = NewseyeSolrService.get_articles_ids_from_issue_id(i.id)
+      solr_article_docs = NewseyeSolrService.query({q: "*:*", fq: "id:(#{ids.join(' ')})", rows: 9999})
+      solr_article_docs.each do |solr_article_doc|
+        i.articles << Article2.from_solr_doc(solr_article_doc)
       end
     end
     if with_word_annots

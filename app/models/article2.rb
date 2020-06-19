@@ -2,7 +2,7 @@ class Article2 # < ApplicationRecord
   # serialize :canvases_parts, Array
   # after_save :index_record
 
-  attr_accessor :id, :title, :all_text, :date_created, :language, :canvases_parts, :newspaper, :issue_id, :thumbnail_url
+  attr_accessor :id, :title, :all_text, :date_created, :language, :canvases_parts, :newspaper, :issue_id, :thumbnail_url, :bbox
 
   def to_solr(issue_manifest=nil)
     solr_doc = {}
@@ -51,6 +51,21 @@ class Article2 # < ApplicationRecord
     a.issue_id = attrs['from_issue_ssi']
     a.newspaper = attrs['member_of_collection_ids_ssim'].first
     a.canvases_parts = attrs['canvases_parts_ssm']
+    a.bbox = a.get_location
+    a
+  end
+
+  def self.from_solr_doc solr_doc
+    a = Article2.new
+    a.id = solr_doc['id']
+    a.title = solr_doc['title_ssi']
+    a.language = solr_doc['language_ssi']
+    a.all_text = solr_doc["all_text_t#{a.language}_siv"]
+    a.date_created = solr_doc['date_created_ssi']
+    a.issue_id = solr_doc['from_issue_ssi']
+    a.newspaper = solr_doc['member_of_collection_ids_ssim'].first
+    a.canvases_parts = solr_doc['canvases_parts_ssm']
+    a.bbox = a.get_location
     a
   end
 

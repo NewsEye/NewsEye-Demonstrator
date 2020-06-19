@@ -49,8 +49,8 @@ class CatalogController < ApplicationController
 
     ## Default parameters to send to solr for all search-like requests. See also SearchBuilder#processed_parameters
     config.default_solr_params = {
-        qf: 'all_text_ten_siv all_text_tfr_siv all_text_tde_siv all_text_tfi_siv all_text_tse_siv title_tfr_siv',
-        # qf: %w(all_text_unstemmed_ten_iv^10 all_text_unstemmed_tfr_iv^10 all_text_unstemmed_tfi_iv^10 all_text_unstemmed_tse_iv^10 all_text_unstemmed_tde_iv^10 all_text_ten_siv all_text_tfr_siv all_text_tfi_siv all_text_tse_siv all_text_tde_siv title_ten_siv title_tfr_siv title_tfi_siv title_tde_siv title_tse_siv).join(' '),
+        qf: 'all_text_ten_siv all_text_tfr_siv all_text_tde_siv all_text_tfi_siv all_text_tse_siv',
+        pf: 'all_text_ten_siv all_text_tfr_siv all_text_tde_siv all_text_tfi_siv all_text_tse_siv',
         qt: 'search',
         defType: 'edismax',
         rows: 10
@@ -92,12 +92,13 @@ class CatalogController < ApplicationController
     config.add_show_field solr_name('date_created', :date_searchable_uniq), helper_method: :convert_date_to_locale, label: 'Date created'
     config.add_show_field solr_name('nb_pages', :int_searchable), label: 'Number of pages'
 
-    config.add_search_field 'all_fields', label: 'Stemmed Search'
     config.add_search_field 'exact_search' do |field|
       field.label = "Exact Search"
       field.solr_parameters = {
-          qf: 'all_text_unstemmed_ten_iv all_text_unstemmed_tfr_iv all_text_unstemmed_tfi_iv all_text_unstemmed_tse_iv all_text_unstemmed_tde_iv'
+          qf: 'all_text_unstemmed_ten_siv all_text_unstemmed_tfr_siv all_text_unstemmed_tfi_siv all_text_unstemmed_tse_siv all_text_unstemmed_tde_siv',
+          pf: 'all_text_unstemmed_ten_siv all_text_unstemmed_tfr_siv all_text_unstemmed_tfi_siv all_text_unstemmed_tse_siv all_text_unstemmed_tde_siv'
       }
+    config.add_search_field 'all_fields', label: 'Classic Search'
     end
 
 
@@ -180,11 +181,23 @@ class CatalogController < ApplicationController
   end
 
   def show
+    unless params[:id].index("_article_").nil?
+      issue_id = params[:id][0...params[:id].index("_article_")]
+      article_id = params[:id]
+      return redirect_to action: "show", id: issue_id, anchor: article_id
+    end
+
     @response, @document = fetch params[:id]
-    if params[:from_article]
-      a = Article2.from_solr params[:from_article]
-      @article_page = a.get_page
-      @article_location = a.get_location
+    issue = Issue2.from_solr_doc @document
+    @pages_links = issue.pages.map do |p|
+      url = "#{p.iiif_url}/info.json"
+      url = url.gsub("platform.newseye.eu", "localhost:3000").gsub("https://", "http://") if Rails.env == "development"
+      url
+    end
+    @articles = {}
+    issue.articles.each do |art|
+      @articles[art.get_page] ||= []
+      @articles[art.get_page] << art
     end
     respond_to do |format|
       format.html { setup_next_and_previous_documents }
@@ -358,94 +371,6 @@ class CatalogController < ApplicationController
     respond_to do |format|
       format.html { redirect_to url }
     end
-  end
-
-  def mirador_config #params
-    options = {
-        language: params[:locale],
-        data: [
-            {
-                manifestUri: url_for(only_path: false, action: :manifest, controller: 'iiif', locale: nil, id: params[:id]),
-                location: "NewsEye"
-            }
-        ],
-        layout: '1x1',
-        openManifestsPage: false,
-
-
-        mainMenuSettings: {
-            show: false
-        },
-        'availableExternalCommentsPanel': true,
-        availableAnnotationDrawingTools: ['Rectangle', 'Ellipse'],
-        availableAnnotationStylePickers: [],
-        #['StrokeColor','FillColor','StrokeType'],
-        windowSettings: {
-            availableViews: ['ThumbnailsView', 'ImageView', 'ScrollView'],
-            viewType: 'ImageView',
-            bottomPanel: true,
-            bottomPanelVisible: true,
-            sidePanel: true,
-            sidePanelOptions: {
-                toc: true,
-                annotations: true,
-                tocTabAvailable: true,
-                layersTabAvailable: false,
-                searchTabAvailable: false,
-                annotationTabAvailable: true
-            },
-            sidePanelVisible: false,
-            overlay: true,
-            canvasControls: {
-                annotations: {
-                    annotationLayer: true,
-                    annotationCreation: true,
-                    annotationState: 'off',
-                    annotationRefresh: true,
-                },
-                imageManipulation: {
-                    manipulationLayer: true,
-                    controls: {
-                        rotate: true,
-                        brightness: true,
-                        contrast: true,
-                        saturate: true,
-                        grayscale: true,
-                        invert: true,
-                        mirror: false
-                    }
-                }
-            },
-            fullScreen: true,
-            displayLayout: false,
-            # layoutOptions: {
-            #     newObject: true,
-            #     close: true,
-            #     slotRight: true,
-            #     slotLeft: true,
-            #     slotAbove: true,
-            #     slotBelow: true,
-            # }
-        },
-        windowObjects: [
-            {
-                loadedManifest: url_for(only_path: false, action: :manifest, controller: 'iiif', locale: nil, id: params[:id])
-            }
-        ],
-        annotationEndpoint: {
-            name: 'Simple Annotation Store Endpoint',
-            module: 'SimpleASEndpoint',
-            # module: 'LocalStorageEndpoint',
-            options: {url: "#{request.protocol+request.host_with_port}/annotations"}
-        }
-    }
-    config = {
-        id: 'mirador_view',
-        buildPath: '',
-        i18nPath: '/locales/',
-        imagesPath: ''
-    }.merge(options)
-    render json: config
   end
 
   protected
