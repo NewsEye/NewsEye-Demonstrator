@@ -43,5 +43,5 @@
 
 
 # Ignore config files
-config/solr.yml
-config/blacklight.yml
+/config/solr.yml
+/config/blacklight.yml
