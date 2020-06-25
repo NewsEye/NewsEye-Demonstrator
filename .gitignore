@@ -40,3 +40,8 @@
 /lib/GeoLite2-City.mmdb
 
 /vendor/cache
+
+
+# Ignore config files
+/config/solr.yml
+/config/blacklight.yml

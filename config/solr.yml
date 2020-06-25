@@ -1,8 +1,0 @@
-# This is a sample config file that points to a solr server for each environment
-development:
-#  url: http://localhost:8991/solr/newseye_collection
-  url: http://localhost:8983/solr/hydra-development
-test:
-  url: http://solr:8985/solr/hydra-test
-production:
-  url: http://your.production.server:8080/bl_solr/core0
