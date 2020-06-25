@@ -1,16 +1,18 @@
 <div>
   <p><%= link_to "Create a dataset", "/datasets/new" %> to add documents to.</p>
 </div>
-<div>
-  <form autocomplete="off" novalidate="novalidate" data-remote="true" action="/catalog/set_working_dataset" accept-charset="UTF-8" method="post" class="form-inline">
-    <label for="dataset[id]">Working dataset:</label>
-    <select id="working_dataset_select" name="dataset[id]" class="form-control form-control-sm">
-      <%= session[:working_dataset] ||= current_user.datasets.first.id %>
-      <%= options_for_select(current_user.datasets.map{|d| ["#{d.title} (#{d.documents.size} docs)", d.id]}, session[:working_dataset]) %>
-    </select>
-  </form>
-</div>
-<hr/>
+<% if current_user.datasets.first %>
+  <div>
+    <form autocomplete="off" novalidate="novalidate" data-remote="true" action="/catalog/set_working_dataset" accept-charset="UTF-8" method="post" class="form-inline">
+      <label for="dataset[id]">Working dataset:</label>
+      <select id="working_dataset_select" name="dataset[id]" class="form-control form-control-sm">
+        <%= session[:working_dataset] ||= current_user.datasets.first.id%>
+        <%= options_for_select(current_user.datasets.map{|d| ["#{d.title} (#{d.documents.size} docs)", d.id]}, session[:working_dataset]) %>
+      </select>
+    </form>
+  </div>
+  <hr/>
+<% end %>
 
 <h4>Issue</h4>
 <div id="issue_in_datasets_list"></div>

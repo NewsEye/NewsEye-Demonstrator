@@ -55,7 +55,7 @@ class ExportController < ApplicationController
     dataset = Dataset.find(params[:id])
     zip_name = "/tmp/export_#{dataset.title.parameterize(separator: '_')}_#{Time.now.strftime("%d_%m_%Y_%H_%M")}.zip"
     files_to_send = dataset.fetch_documents.map do |solr_doc|
-      filename = "#{solr_doc['relevancy']}_#{solr_doc['date_created_ssi']}_#{solr_doc['id']}.txt"
+      filename = "#{solr_doc['relevancy']}_#{solr_doc['date_created_dtsi'][0...solr_doc['date_created_dtsi'].index('T')]}_#{solr_doc['id']}.txt"
       file_content = solr_doc["all_text_t#{solr_doc['language_ssi']}_siv"]
       File.open("/tmp/#{filename}", 'w') do |f|
         f.write file_content

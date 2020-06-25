@@ -53,6 +53,7 @@ class CatalogController < ApplicationController
         pf: 'all_text_ten_siv all_text_tfr_siv all_text_tde_siv all_text_tfi_siv all_text_tse_siv',
         qt: 'search',
         defType: 'edismax',
+        'facet.method': 'fc',
         rows: 10
     }
 
