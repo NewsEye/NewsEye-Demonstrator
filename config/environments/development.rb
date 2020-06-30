@@ -60,9 +60,20 @@ Rails.application.configure do
   config.file_watcher = ActiveSupport::EventedFileUpdateChecker
 
 
-  if ENV["RAILS_LOG_TO_STDOUT"].present?
-    logger           = ActiveSupport::Logger.new(STDOUT)
-    logger.formatter = config.log_formatter
-    config.logger    = ActiveSupport::TaggedLogging.new(logger)
+  # if ENV["RAILS_LOG_TO_STDOUT"].present?
+  #   logger           = ActiveSupport::Logger.new(STDOUT)
+  #   logger.formatter = config.log_formatter
+  #   config.logger    = ActiveSupport::TaggedLogging.new(logger)
+  # end
+  config.lograge.enabled = true
+  config.lograge.formatter = Lograge::Formatters::Json.new
+  exceptions = %w(controller action format id)
+  config.lograge.custom_options = lambda do |event|
+    {
+        ip: event.payload[:ip],
+        user_id: event.payload[:user_id],
+        user_email: event.payload[:user_email],
+        params: event.payload[:params]
+    }
   end
 end

@@ -19,6 +19,17 @@ class ApplicationController < ActionController::Base
     { locale: I18n.locale }
   end
 
+  def append_info_to_payload(payload)
+    super
+    payload[:ip] = request.remote_ip
+    if current_user
+      payload[:user_id] = current_user.id
+      payload[:user_email] = current_user.email
+      end
+    exceptions = %w(controller action format id)
+    payload[:params] = request.params.except(*exceptions)
+  end
+
   private
 
   def set_locale
