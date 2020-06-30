@@ -1,16 +1,14 @@
 class @DatasetsShow
     constructor: ->
+        self = @
         console.log "datasets show specific"
 
-        $("#zip_export_anchor").click (e)->
-            $('#export_form').attr 'action', "/export_dataset/zipped"
-            Rails.fire $('#export_form')[0], 'submit'
-        $("#csv_export_anchor").click (e)->
-            $('#export_form').attr 'action', "/export_dataset/csv"
-            Rails.fire $('#export_form')[0], 'submit'
-        $("#json_export_anchor").click (e)->
-            $('#export_form').attr 'action', "/export_dataset/json"
-            Rails.fire $('#export_form')[0], 'submit'
+        $("#export_zip_button").click (e)->
+            DatasetsShow.post("/export_dataset/zipped", {id: $("#div_dataset_id").text() } )
+        $("#export_csv_button").click (e)->
+            DatasetsShow.post("/export_dataset/csv", {id: $("#div_dataset_id").text() } )
+        $("#export_json_button").click (e)->
+            DatasetsShow.post("/export_dataset/json", {id: $("#div_dataset_id").text() } )
 
         if @urlParam("sort") == "date"
             if @urlParam("sort_order") == "desc"
@@ -57,3 +55,27 @@ class @DatasetsShow
            return null
         else
            return results[1] || 0
+
+#     /**
+#      * sends a request to the specified url from a form. this will change the window location.
+#      * @param {string} path the path to send the post request to
+#      * @param {object} params the paramiters to add to the url
+#      * @param {string} [method=post] the method to use on the form
+#      */
+
+    @post: (path, params, method='post')->
+        #       // The rest of this code assumes you are not using a library.
+        #       // It can be made less wordy if you use one.
+        form = document.createElement('form')
+        form.method = method
+        form.action = path
+        for key of params
+            #if params.hasOwnProperty(key)
+            hiddenField = document.createElement('input')
+            hiddenField.type = 'hidden'
+            hiddenField.name = key
+            hiddenField.value = params[key]
+            form.appendChild(hiddenField)
+
+        document.body.appendChild(form)
+        form.submit()

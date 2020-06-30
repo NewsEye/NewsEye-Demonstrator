@@ -28,20 +28,23 @@
         </div>
       </div>
 
-      <div id="export-dropdown" class="btn-group">
-        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-          Export dataset as... <span class="caret"></span>
-        </button>
-        <form id="export_form" class="form-inline" novalidate="novalidate" method='post' action="/export_dataset/zipped">
-          <input type="hidden" name="id" value="<%= @dataset.id %>">
-        </form>
-        <ul class="dropdown-menu" role="menu">
-          <li><a id="zip_export_anchor">ZIP</a></li>
-          <li><a id="csv_export_anchor">CSV</a></li>
-          <li><a id="json_export_anchor">JSON</a></li>
-        </ul>
+      <div class="input-group">
+        <span class="input-group-addon">Export as: </span>
+        <span class="input-group-btn">
+            <button id="export_zip_button" class="btn btn-default">
+                ZIP
+            </button>
+            <button id="export_csv_button" class="btn btn-default">
+                CSV
+            </button>
+            <button id="export_json_button" class="btn btn-default">
+                JSON
+            </button>
+        </span>
       </div>
+
       <hr/>
+
       <div>
         <form id="merge_datasets_form" class="form-inline" novalidate="novalidate" data-remote="true" method='post' action="/datasets/merge">
           <div class="form-group">
