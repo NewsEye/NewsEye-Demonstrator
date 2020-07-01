@@ -28,6 +28,41 @@ class ExportController < ApplicationController
     File.delete(filename)
   end
 
+  def excel_export
+    dataset = Dataset.find(params[:id])
+    filename = "/tmp/export_#{dataset.title.parameterize(separator: '_')}_#{Time.now.strftime("%d_%m_%Y_%H_%M")}.ods"
+    ods = RODF::Spreadsheet.new
+    p = Proc.new { |doc|
+      doc.style "headings", family: :cell do
+        property :text, 'font-weight': "bold"
+      end
+      doc.table dataset.title do
+        row do
+          cell 'ID', type: :string, style: "headings"
+          cell 'Language', type: :string, style: "headings"
+          cell 'Date', type: :string, style: "headings"
+          cell 'NewspaperID', type: :string, style: "headings"
+          cell 'IIIF URL', type: :string, style: "headings"
+          cell 'Relevancy', type: :string, style: "headings"
+          cell 'Text', type: :string, style: "headings"
+        end
+        dataset.fetch_documents.map do |solr_doc|
+          row do
+            cell solr_doc['id']
+            cell solr_doc['language_ssi']
+            cell solr_doc['date_created_dtsi']
+            cell solr_doc['member_of_collection_ids_ssim'][0]
+            cell solr_doc['thumbnail_url_ss']
+            cell solr_doc['relevancy']
+            cell solr_doc["all_text_t#{solr_doc['language_ssi']}_siv"].gsub("\"", "\"\"")
+          end
+        end
+      end
+    }
+    p.call ods
+    send_data ods.bytes, type: "application/vnd.oasis.opendocument.spreadsheet", filename: filename.split('/')[-1]
+  end
+
   def json_export
     dataset = Dataset.find(params[:id])
     filename = "/tmp/export_#{dataset.title.parameterize(separator: '_')}_#{Time.now.strftime("%d_%m_%Y_%H_%M")}.json"

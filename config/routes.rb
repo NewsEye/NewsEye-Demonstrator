@@ -86,13 +86,17 @@ Rails.application.routes.draw do
 
     get '/personal_workspace/describe_search/:search_id', to: 'personal_workspace#describe_search'
     get '/personal_workspace/describe_dataset/:dataset_id', to: 'personal_workspace#describe_dataset'
+    get '/personal_workspace/investigate_search/:search_id', to: 'personal_workspace#investigate_search'
+    get '/personal_workspace/investigate_dataset/:dataset_id', to: 'personal_workspace#investigate_dataset'
     get '/personal_workspace/describe_search_modal/:run_uuid', to: 'personal_workspace#describe_search_modal'
     get '/personal_workspace/show/:task_id', to: 'personal_workspace#show'
     get '/personal_workspace/update_tasks', to: 'personal_workspace#update_tasks'
+    get '/personal_workspace/update_experiments', to: 'personal_workspace#update_experiments'
     post '/personal_workspace/get_run_report', to: 'personal_workspace#get_run_report'
     post '/personal_workspace/get_task_report', to: 'personal_workspace#get_task_report'
     post '/personal_workspace/get_task_results', to: 'personal_workspace#get_task_results'
     get '/personal_workspace/delete_task/:uuid', to: 'personal_workspace#delete_task'
+    get '/personal_workspace/delete_experiment/:id', to: 'personal_workspace#delete_experiment'
 
     get '/personal_research_assistant/utilities', to: 'personal_research_assistant#get_utilities'
     post '/personal_research_assistant/user_tasks', to: 'personal_research_assistant#get_user_tasks'
@@ -130,6 +134,7 @@ Rails.application.routes.draw do
     post "/get_dataset_content", to: "api_base#get_dataset_content"
     post "/export_dataset/zipped", to: "export#zipped_export"
     post "/export_dataset/csv", to: "export#csv_export"
+    post "/export_dataset/excel", to: "export#excel_export"
     post "/export_dataset/json", to: "export#json_export"
     post "/datasets/merge", to: "datasets#merge_dataset_modal"
     post "/datasets/apply_merge_dataset", to: "datasets#apply_merge_dataset"

@@ -7,6 +7,8 @@ class @DatasetsShow
             DatasetsShow.post("/export_dataset/zipped", {id: $("#div_dataset_id").text() } )
         $("#export_csv_button").click (e)->
             DatasetsShow.post("/export_dataset/csv", {id: $("#div_dataset_id").text() } )
+        $("#export_excel_button").click (e)->
+            DatasetsShow.post("/export_dataset/excel", {id: $("#div_dataset_id").text() } )
         $("#export_json_button").click (e)->
             DatasetsShow.post("/export_dataset/json", {id: $("#div_dataset_id").text() } )
 
