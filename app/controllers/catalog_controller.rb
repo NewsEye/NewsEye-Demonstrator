@@ -61,8 +61,11 @@ class CatalogController < ApplicationController
     config.index.display_type_field = 'has_model_ssim'
 
     config.add_facet_field solr_name('language', :string_searchable_uniq), helper_method: :convert_language_to_locale, limit: true#, tag: "langtag", ex: "langtag"
-    config.add_facet_field solr_name('date_created', :date_searchable_uniq), helper_method: :convert_date_to_locale, label: 'Date', limit: 5, date: true#, tag: "datetag", ex: "datetag"
-    config.add_facet_field 'year_isi', label: 'Year', range: true #{ assumed_boundaries: [1800, 1950] }
+    # config.add_facet_field solr_name('date_created', :date_searchable_uniq), helper_method: :convert_date_to_locale, label: 'Date', limit: 5, date: true#, tag: "datetag", ex: "datetag"
+    config.add_facet_field 'date_created_dtsi', label: 'Date', partial: 'custom_date_facet', limit: -1
+    # config.add_facet_field 'year_isi', label: 'Year', range: true #{ assumed_boundaries: [1800, 1950] }
+    config.add_facet_field 'month_isi', label: 'Month', helper_method: :map_month_locale, sort: :index
+    config.add_facet_field 'day_isi', label: 'Day', helper_method: :map_day_locale, sort: :index
     config.add_facet_field 'member_of_collection_ids_ssim', helper_method: :get_collection_title_from_id, label: 'Newspaper'#, tag: "collectag", ex: "collectag"
     config.add_facet_field 'has_model_ssim', helper_method: :get_display_value_from_model, label: 'Type'
     config.add_facet_field 'linked_persons_ssim', helper_method: :get_entity_label, label: 'Persons', limit: 20#, tag: "persontag", ex: "persontag"
@@ -157,24 +160,22 @@ class CatalogController < ApplicationController
   end
 
   def index
-    (@response, @document_list) = search_results(params)
+    console
+    if a_query? params
+      (@response, @document_list) = search_results(params)
+    else
+      @response  = ApplicationHelper.initial_facets
+      @document_list = nil
+    end
     respond_to do |format|
       format.html { store_preferred_view }
       format.rss  { render :layout => false }
       format.atom { render :layout => false }
       format.json do
-        if params['fl'] == 'id'
-          @document_list.map!(&:id)
           @presenter = Blacklight::JsonPresenter.new(@response,
                                                      @document_list,
                                                      facets_from_request,
                                                      blacklight_config)
-        else
-          @presenter = Blacklight::JsonPresenter.new(@response,
-                                                     @document_list,
-                                                     facets_from_request,
-                                                     blacklight_config)
-        end
       end
       additional_response_formats(format)
       document_export_formats(format)
@@ -224,6 +225,10 @@ class CatalogController < ApplicationController
     end
   end
 
+  def get_min_max_dates
+    render json: {min: ApplicationHelper.min_date, max: ApplicationHelper.max_date}
+  end
+
   def explore
     puts 'ok'
   end
@@ -236,6 +241,12 @@ class CatalogController < ApplicationController
   # this method allow you to change url parameters like utf8 or locale
   def search_action_url options = {}
     url_for(options.reverse_merge(action: 'index'))
+  end
+
+  def wide_date_histogram
+    respond_to do |format|
+      format.js
+    end
   end
 
   def help

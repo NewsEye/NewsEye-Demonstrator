@@ -95,6 +95,7 @@ Rails.application.routes.draw do
     post '/personal_workspace/get_run_report', to: 'personal_workspace#get_run_report'
     post '/personal_workspace/get_task_report', to: 'personal_workspace#get_task_report'
     post '/personal_workspace/get_task_results', to: 'personal_workspace#get_task_results'
+    post '/personal_workspace/query_task_results', to: 'personal_workspace#query_task_results'
     get '/personal_workspace/delete_task/:uuid', to: 'personal_workspace#delete_task'
     get '/personal_workspace/delete_experiment/:id', to: 'personal_workspace#delete_experiment'
 
@@ -112,6 +113,7 @@ Rails.application.routes.draw do
     post '/topic_models/query', to: 'topic_models#query'
     post '/topic_models/query_results', to: 'topic_models#query_results'
 
+    get '/get_min_max_dates', to: 'catalog#get_min_max_dates'
     get '/search_help', to: 'catalog#help'
     get '/platform_help', to: 'catalog#platform_video'
     get '/kw_suggest', to: 'catalog#kw_suggest'
@@ -122,6 +124,7 @@ Rails.application.routes.draw do
     post '/catalog/modify_doc_relevancy', to: 'catalog#modify_doc_relevancy'
     post '/catalog/article_parts', to: 'catalog#article_parts'
     post '/catalog/linked_entity_search', to: 'catalog#linked_entity_search'
+    get '/wide_date_histogram', to: 'catalog#wide_date_histogram'
 
     post "/saved_searches/save", to: "saved_searches#save"
     post "/saved_searches/confirm_save", to: "saved_searches#confirm_save"
@@ -147,6 +150,7 @@ Rails.application.routes.draw do
     post "/experiment/add_data_source", to: "experiment#add_data_source"
     post "/experiment/save", to: "experiment#save"
     post "/experiment/load", to: "experiment#load"
+    post "/experiment/get_run_id", to: "experiment#get_run_id"
 
   end
 

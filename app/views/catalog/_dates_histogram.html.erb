@@ -1,0 +1,22 @@
+<%
+  year_hist = @response[:facet_counts][:facet_fields][:date_created_dtsi].each_slice(2).to_a.map{ |e| {DateTime.parse(e[0]).year => e[1]} }
+  year_hist = year_hist.inject{|a,b| a.merge(b){|_,x,y| x + y}}
+  year_hist.merge!((year_hist.keys.min..year_hist.keys.max).to_a.map{|e| [e, 0]}.to_h) {|key, oldval, newval| oldval }
+
+  month_year_hist = @response[:facet_counts][:facet_fields][:date_created_dtsi].each_slice(2).to_a.map{ |e| {"#{DateTime.parse(e[0]).year}/%02d" % DateTime.parse(e[0]).month => e[1]} }
+  month_year_hist = month_year_hist.inject{|a,b| a.merge(b){|_,x,y| x + y}}
+  missing_keys = (year_hist.keys.min..year_hist.keys.max).to_a.map{ |e| (1..12).to_a.map{ |f| "#{e}/%02d" % f } }.flatten.map{|t| [t, 0] }.to_h
+  month_year_hist.merge!(missing_keys) {|key, oldval, newval| oldval }
+%>
+<div>
+  <h5 style="margin-left:auto;margin-right:auto;width:10em">Dates Frequencies <a data-remote="true" href="/wide_date_histogram" id="wide_date_histogram"><span class="glyphicon glyphicon-plus-sign"></span></a></h5>
+  <div id="dates_histogram" data-years='<%= year_hist.to_json %>', data-years-months='<%= month_year_hist.to_json %>'>
+    <canvas id="canvas_dates_histogram" style="height: 200px;"></canvas>
+  </div>
+</div>
+
+<div id="modal-wide_date_histogram" class="modal hide fade" role="dialog" aria-labelledby="wide_date_histogram" aria-hidden="true">
+  <div class="modal-dialog" role="document" style="display: table;">
+    <div class="modal-content"></div>
+  </div>
+</div>

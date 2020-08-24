@@ -1,0 +1,30 @@
+<div class="modal-header">
+  <button type="button" class="close" data-dismiss="modal">x</button>
+  <h4 class="modal-title" id="params_label">Dates Frequencies</h4>
+</div>
+<div class="modal-body">
+  <div id="wide_dates_histogram">
+    <canvas id="canvas_wide_dates_histogram" style="height: 500px;"></canvas>
+  </div>
+  <div id="dates_histogram_controls">
+    <a id="download_histogram"
+       download="dates_histogram.png"
+       href=""
+       class="btn btn-primary">Download</a>
+    <button id="reset_zoom_histogram" class="btn btn-primary">Reset Zoom</button>
+    <div id="hist_type" class="pull-right">
+      <label class="active">
+        <input type="radio" name="hist_opts" value="year" autocomplete="off" checked/> By year
+      </label>
+      <label class="">
+        <input type="radio" name="hist_opts" value="month" autocomplete="off"/> By month/year
+      </label>
+    </div>
+<!--    <form>-->
+<!--      <div class="form-group">-->
+<!--        <label class="radio-inline"><input type="radio" name="optradio" checked>By year</label>-->
+<!--        <label class="radio-inline"><input type="radio" name="optradio">By month</label>-->
+<!--      </div>-->
+<!--    </form>-->
+  </div>
+</div>

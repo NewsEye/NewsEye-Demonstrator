@@ -24,6 +24,22 @@ class NewseyeSolrService
     @@connection.get('terms', params: {'terms.fl': "member_of_collection_ids_ssim", 'terms.limit': 100})['terms']['member_of_collection_ids_ssim'].select{|k| k.is_a? String }
   end
 
+  def self.get_min_max_dates
+    connect unless @@connection
+    res = @@connection.get('select', params: {q: "*:*", fq: ["has_model_ssim:Issue"], rows: 0, stats: true, "stats.field": "year_isi"})
+    [ res['stats']['stats_fields']['year_isi']['min'].to_i, res['stats']['stats_fields']['year_isi']['max'].to_i ]
+  end
+
+  def self.get_facets_counts
+    connect unless @@connection
+    res = @@connection.get('select', params: {
+        q: "*:*",
+        fq: ["has_model_ssim:(Issue OR Article)"],
+        rows: 0,
+        "facet.field": ["language_ssi", "date_created_dtsi", "month_isi", "day_isi", "member_of_collection_ids_ssim", "has_model_ssim", "linked_person_ssim", "linked_location_ssim", "linked_organisations_ssim"]})
+    res[:response]
+  end
+
   def self.get_nb_issues_per_year
     nps = NewseyeSolrService.get_newspapers
     connect unless @@connection

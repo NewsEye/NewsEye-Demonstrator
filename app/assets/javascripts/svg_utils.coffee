@@ -12,7 +12,7 @@ class @SVGUtils
             svg_parts.push '<text x="50%" y="50%" dominant-baseline="middle" fill="#EEEEEE" font-weight="bold" font-family="Verdana" font-size="30" text-anchor="middle">Dataset</text>'
         else if type == "search_query"
             svg_parts.push '<text x="50%" y="50%" dominant-baseline="middle" fill="#EEEEEE" font-weight="bold" font-family="Verdana" font-size="30" text-anchor="middle">Search</text>'
-        return {svg: SVGUtils.generate_data(svg_parts, 200, 80), width: 200, height: 80}
+        return {svg: SVGUtils.generate_data(svg_parts.join(''), 200, 80), width: 200, height: 80}
 
 
     @split_by_facet: (status)->
@@ -29,7 +29,7 @@ class @SVGUtils
                                  points=\"#{width/2},0 #{width},#{height/2} #{width/2},#{height} 0,#{height/2}\"
                                  stroke=\"#{color}\" stroke-width=\"10\" fill=\"#F1FAEE\" />"
         svg_parts.push '<text x="50%" y="50%" dominant-baseline="middle" fill="#333333" font-weight="bold" font-family="Verdana" font-size="20" text-anchor="middle">Split</text>'
-        return {svg: SVGUtils.generate_data(svg_parts, width, height), width: width, height: height}
+        return {svg: SVGUtils.generate_data(svg_parts.join(''), width, height), width: width, height: height}
 
     @analysis_tool: (status, tool_name)->
         width = 120
@@ -42,9 +42,25 @@ class @SVGUtils
             when "ready" then "#F4A460"
             else "#FF0000"
         svg_parts.push '<rect x="0" y="0" fill="#F1FAEE" height="'+height+'" rx="5" ry="5" width="'+width+'" stroke-width="10" stroke="'+color+'"/>'
-        tool_name = "<tspan text-anchor=\"middle\" dy=\"0\">#{tool_name}</tspan><tspan text-anchor=\"middle\" dy=\"20\">#{tool_name}</tspan>"
-        svg_parts.push '<text x="50%" y="50%" dominant-baseline="middle" fill="#333333" font-weight="bold" font-family="Verdana" font-size="20" text-anchor="middle">'+tool_name+'</text>'
-        return {svg: SVGUtils.generate_data(svg_parts, width, height), width: width, height: height}
+
+#         tool_name = "<tspan text-anchor=\"middle\" dy=\"0\">#{tool_name}</tspan><tspan text-anchor=\"middle\" dy=\"20\">#{tool_name}</tspan>"
+        ns = 'http://www.w3.org/2000/svg'
+        font_size = 18
+        text_attr = {'dominant-baseline': 'middle', 'text-anchor': 'middle', 'font-family': 'Verdana', 'font-size': font_size, 'font-weight': 'bold', 'fill': '#333333'}
+        text = document.createElementNS(ns, 'text')
+        text.setAttribute(attr, text_attr[attr]) for attr of text_attr
+        tool_name_parts = tool_name.replace(/([a-z0-9])([A-Z])/g, '$1 $2').split(' ')
+        for tool_name_part, index in tool_name_parts
+            text.appendChild $("<tspan x=\"0\" y=\"#{index*20}\">#{tool_name_part}</tspan>")[0]
+
+        bbox = text.getBBox()
+        x = width/2
+        y = (height/2) - bbox.y - bbox.height/2 - (tool_name_parts.length-1)/2*font_size
+        text.setAttribute('transform', "translate(#{x}, #{y})")
+        svg_parts.push text.outerHTML
+#         svg_parts.push '<text x="50%" y="50%" dominant-baseline="middle" fill="#333333" font-weight="bold" font-family="Verdana" font-size="20" text-anchor="middle">'+tool_name+'</text>'
+
+        return {svg: SVGUtils.generate_data(svg_parts.join(''), width, height), width: width, height: height}
 
 
     @generate_data: (svg_parts, width, height)->

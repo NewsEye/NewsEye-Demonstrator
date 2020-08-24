@@ -18,8 +18,11 @@
 //= require blacklight_range_limit
 //= require api
 //= require Chart.min
+//= require hammer.min
+//= require chartjs-plugin-zoom
 //= require chartjs-chart-matrix.min
 //= require init_page_specific_js
 //= require_tree ./page_specific
 //= require svg_utils
+//= require pra_utils
 //= require palette

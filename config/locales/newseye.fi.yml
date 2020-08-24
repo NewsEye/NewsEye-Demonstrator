@@ -1,5 +1,26 @@
 fi:
   newseye:
+    month:
+      1: 'Tammikuu'
+      2: 'Helmikuu'
+      3: 'Maaliskuu'
+      4: 'Huhtikuu'
+      5: 'Toukokuu'
+      6: 'Kesäkuu'
+      7: 'Heinäkuu'
+      8: 'Elokuu'
+      9: 'Syyskuu'
+      10: 'Lokakuu'
+      11: 'Marraskuu'
+      12: 'Joulukuu'
+    day:
+      :0: 'Sunnuntai'
+      1: 'Maanantai'
+      2: 'Tiistai'
+      3: 'Keskiviikko'
+      4: 'Torstai'
+      5: 'Perjantai'
+      6: 'Lauantai'
     language:
       fr: 'Ranskalainen'
       en: 'Englanti'

@@ -47,6 +47,14 @@ class @API
             success: (data)->
                 callback(data)
         }
+    @query_task_results: (task_uuid, callback)->
+        $.ajax {
+            url:  window.location.protocol+"//"+window.location.host+'/personal_workspace/query_task_results',
+            method: 'POST',
+            data:{task_uuid: task_uuid},
+            success: (data)->
+                callback(data)
+        }
     @topic_query_results: (task_uuid, callback)->
         $.ajax {
             url:  window.location.protocol+"//"+window.location.host+'/topic_models/query_results',
@@ -68,6 +76,14 @@ class @API
             url:  window.location.protocol+"//"+window.location.host+'/personal_workspace/get_task_report',
             method: 'POST',
             data:{task_uuid: task_uuid},
+            success: (data)->
+                callback(data)
+        }
+    @get_run_id_from_experiment_id: (experiment_id, callback)->
+        $.ajax {
+            url:  window.location.protocol+"//"+window.location.host+'/experiment/get_run_id',
+            method: 'POST',
+            data:{experiment_id: experiment_id},
             success: (data)->
                 callback(data)
         }
@@ -99,6 +115,13 @@ class @API
             url:  window.location.protocol+"//"+window.location.host+'/catalog/get_mirador_config',
             method: 'POST',
             data:{id: doc_id},
+            success: (data)->
+                callback(data)
+        }
+    @get_min_max_dates: (callback)->
+        $.ajax {
+            url:  window.location.protocol+"//"+window.location.host+'/get_min_max_dates',
+            method: 'GET',
             success: (data)->
                 callback(data)
         }

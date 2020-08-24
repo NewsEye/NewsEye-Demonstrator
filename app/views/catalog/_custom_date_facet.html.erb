@@ -1,0 +1,32 @@
+<div id="date_pickers">
+  <form>
+    <div class="form-group">
+      <label for="f[date_created_dtsi][from]">From</label>
+      <input type="text" id="date_facet_from" name="f[date_created_dtsi][from]" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label for="f[date_created_dtsi][to]">To</label>
+      <input type="text" id="date_facet_to" name="f[date_created_dtsi][to]" autocomplete="off">
+    </div>
+    <%=
+        params = search_state.params_for_search.except(:page)
+        params[:f].delete :date_created_dtsi if params[:f]
+        render_hash_as_hidden_fields(params)
+    %>
+    <div class="form-group">
+      <button class="btn btn-default" type="submit" href="#">Limit</button>
+    </div>
+  </form>
+</div>
+<ul class="facet-values list-unstyled">
+  <% paginator = facet_paginator(facet_field, display_facet) %>
+
+  <%#= render_facet_limit_list paginator, facet_field.key %>
+
+  <% unless paginator.last_page? || params[:action] == "facet" %>
+    <li class="more_facets_link">
+      <%= link_to t("more_#{field_name}_html", scope: 'blacklight.search.facets', default: :more_html, field_name: facet_field.label),
+                  search_facet_path(id: facet_field.key), class: "more_facets_link" %>
+    </li>
+  <% end %>
+</ul>
