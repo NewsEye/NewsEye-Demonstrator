@@ -164,7 +164,7 @@ class CatalogController < ApplicationController
     if a_query? params
       (@response, @document_list) = search_results(params)
     else
-      @response  = ApplicationHelper.initial_facets
+      @response  = NewseyeVariables::FacetsCounts::InitialFacets
       @document_list = nil
     end
     respond_to do |format|
@@ -226,7 +226,7 @@ class CatalogController < ApplicationController
   end
 
   def get_min_max_dates
-    render json: {min: ApplicationHelper.min_date, max: ApplicationHelper.max_date}
+    render json: {min: NewseyeVariables::DateSpan::MinDate, max: NewseyeVariables::DateSpan::MaxDate}
   end
 
   def explore

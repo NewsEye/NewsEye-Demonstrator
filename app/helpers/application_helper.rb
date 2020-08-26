@@ -1,20 +1,5 @@
 module ApplicationHelper
 
-  # To keep hold of the min/max dates the documents span. Only set once at startup
-  @@min_date, @@max_date = NewseyeSolrService.get_min_max_dates
-  def self.min_date
-    @@min_date
-  end
-  def self.max_date
-    @@max_date
-  end
-
-  # To keep hold of the facets counts to avoid querying everytime '/'
-  @@initial_facets = NewseyeSolrService.get_facets_counts
-  def self.initial_facets
-    @@initial_facets
-  end
-
   def map_month_locale(options={})
     t("newseye.month.#{options}")
   end
