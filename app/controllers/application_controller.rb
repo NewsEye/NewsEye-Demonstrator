@@ -25,9 +25,9 @@ class ApplicationController < ActionController::Base
     if current_user
       payload[:user_id] = current_user.id
       payload[:user_email] = current_user.email
-      end
+    end
     exceptions = %w(controller action format id)
-    payload[:params] = request.params.except(*exceptions)
+    payload[:params] = request.filtered_parameters
   end
 
   private
