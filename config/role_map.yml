@@ -59,6 +59,7 @@ development:
     - user@newseye.eu
     - pra@newseye.eu
     - newseye.maunoury@gmail.com
+    - erno.liukkonen@helsinki.fi
 
 production:
   admin:
@@ -120,3 +121,4 @@ production:
     - tuula.paakkonen@helsinki.fi
     - pra@newseye.eu
     - newseye.maunoury@gmail.com
+    - erno.liukkonen@helsinki.fi

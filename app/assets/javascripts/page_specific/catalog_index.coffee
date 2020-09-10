@@ -9,6 +9,7 @@ class @CatalogIndex
         @setup_date_facet()
         @setup_date_histogram()
         @setup_wide_date_histogram()
+        @setup_add_all_docs_to_dataset()
 
         $('#apply_global_dataset_changes').click ->
             working_dataset_id = $('#working_dataset_select').children('option:selected')[0].value
@@ -159,7 +160,6 @@ class @CatalogIndex
                 b64data = $("#canvas_wide_dates_histogram")[0].toDataURL()
                 $("#download_histogram").attr('href', b64data)
             $("#reset_zoom_histogram").click {canvas_id: "canvas_wide_dates_histogram" }, (e)->
-                console.log
                 Chart.helpers.each Chart.instances, (instance)->
                     if instance.chart.canvas.id == e.data.canvas_id
                         instance.chart.resetZoom()
@@ -214,6 +214,8 @@ class @CatalogIndex
                     zoom: {
                         enabled: true,
                         mode: 'x',
+                        sensitivity: 0,
+                        speed: 1
                     }
                 }
             }
@@ -226,6 +228,30 @@ class @CatalogIndex
            },
            options: opts
         })
+
+    setup_add_all_docs_to_dataset: ->
+        $("#modal-add_all_docs").on "shown.bs.modal", (e)->
+            $("#validate_add_all_docs").click (e)->
+                $("#validate_add_all_docs")[0].disabled = true
+                $("#log_add_docs").text("Processing...")
+                dataset_id = $("#add_docs_dataset_select").val()
+                relevancy = $("#add_docs_dataset_relevancy_select").val()
+                query_params = JSON.parse($("#query_params").html())
+                total_docs = $("#query_total_res").html()
+                query_params["fl"] = 'id'
+                query_params["rows"] = 100
+                query_params["start"] = 0
+
+                numberOfIterations = Math.ceil(total_docs/query_params["rows"])
+                async_loop = (q_params, i)->
+                    API.add_query_to_dataset JSON.stringify(q_params), dataset_id, relevancy, (data)->
+                        $("#log_add_docs").text(data["message"])
+                        if i+1 < numberOfIterations
+                            q_params["start"] = q_params["start"] + q_params["rows"]
+                            async_loop(q_params, i+1)
+                        else
+                            $("#validate_add_all_docs")[0].disabled = false
+                async_loop(query_params, 0)
 
     setup_select: ->
         self = @

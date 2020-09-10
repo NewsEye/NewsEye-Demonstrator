@@ -149,3 +149,11 @@ class @API
             success: (data)->
                 callback(data)
         }
+    @add_query_to_dataset: (params, dataset_id, relevancy, callback)->
+        $.ajax {
+            url:  window.location.protocol+"//"+window.location.host+'/add_query_to_dataset',
+            method: 'POST',
+            data:{params: params, dataset_id: dataset_id, relevancy: relevancy},
+            success: (data)->
+                callback(data)
+        }

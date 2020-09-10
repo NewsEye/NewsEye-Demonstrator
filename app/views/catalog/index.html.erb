@@ -1,4 +1,8 @@
 <% if @response %>
+
+  <div id="query_params" style="display: none"><%= @response[:responseHeader][:params].to_json %></div>
+  <div id="query_total_res" style="display: none"><%= @response[:response][:numFound] %></div>
+
   <div id="sidebar" class="<%= sidebar_classes %>">
     <% if current_user %>
       <%= render 'search_sidebar' %>

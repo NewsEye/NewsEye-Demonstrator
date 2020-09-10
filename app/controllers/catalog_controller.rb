@@ -160,7 +160,6 @@ class CatalogController < ApplicationController
   end
 
   def index
-    console
     if a_query? params
       (@response, @document_list) = search_results(params)
     else
@@ -247,6 +246,32 @@ class CatalogController < ApplicationController
     respond_to do |format|
       format.js
     end
+  end
+
+  def add_all_docs_to_dataset
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def add_query_to_dataset
+    query_params = params[:params]
+    query_params = JSON.parse(query_params)
+    dataset = Dataset.find params[:dataset_id]
+    relevancy = params[:relevancy]
+    res = NewseyeSolrService.query_full query_params
+    total_res = res["response"]["numFound"]
+    to_add = res["response"]["docs"].map do |doc|
+      {id: doc["id"], type: doc["id"].include?("_article_") ? "article" : "issue", relevancy: relevancy.to_i}
+    end
+    dataset.add_docs to_add
+    if dataset.save
+      message = "#{to_add.size + query_params["start"].to_i}/#{total_res} documents were added to the dataset \"#{dataset.title}\"."
+    else
+      message = "There was an error adding documents to the dataset."
+    end
+
+    render json: {message: message}
   end
 
   def help

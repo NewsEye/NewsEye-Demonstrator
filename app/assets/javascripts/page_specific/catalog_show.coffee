@@ -206,11 +206,13 @@ class @CatalogShow
         if article == null
             $("#article_text").html ""
             $("#article_panel")[0].scrollTop = 0
+            $("#article_panel").hide()
         else
             div = $("<div>")
             div.append $("<p><span style=\"color: #888888; font-weight: bold;\">ArticleID: </span>#{article.id}</p>")
             div.append $("<hr/>")
             div.append $("<p>#{article.all_text.replace(new RegExp("\\\\n", "g"), "<br/>").slice(1,-1)}</p>")
+            $("#article_panel").show()
             $("#article_text").html div.html()
             $("#article_panel")[0].scrollTop = 0
 

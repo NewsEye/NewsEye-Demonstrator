@@ -125,6 +125,8 @@ Rails.application.routes.draw do
     post '/catalog/article_parts', to: 'catalog#article_parts'
     post '/catalog/linked_entity_search', to: 'catalog#linked_entity_search'
     get '/wide_date_histogram', to: 'catalog#wide_date_histogram'
+    get '/add_all_docs_to_dataset_modal', to: 'catalog#add_all_docs_to_dataset'
+    post '/add_query_to_dataset', to: 'catalog#add_query_to_dataset'
 
     post "/saved_searches/save", to: "saved_searches#save"
     post "/saved_searches/confirm_save", to: "saved_searches#confirm_save"
