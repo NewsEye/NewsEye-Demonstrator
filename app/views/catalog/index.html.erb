@@ -2,6 +2,23 @@
 
   <div id="query_params" style="display: none"><%= @response[:responseHeader][:params].to_json %></div>
   <div id="query_total_res" style="display: none"><%= @response[:response][:numFound] %></div>
+  <%
+    dates = []
+    @response[:facet_counts][:facet_fields][:date_created_dtsi].each_with_index { |elt, idx| dates << elt if idx.even? }
+    dates.sort!
+    min_date_facet = dates[0][0...10].split("-")
+    max_date_facet = dates[-1][0...10].split("-")
+  %>
+  <div id="min_date_facet" style="display: none"
+       data-year="<%= min_date_facet[0] %>"
+       data-month="<%= max_date_facet[1].to_i - 1 %>"
+       data-day="<%= max_date_facet[2] %>">
+  </div>
+  <div id="max_date_facet" style="display: none"
+       data-year="<%= max_date_facet[0] %>"
+       data-month="<%= max_date_facet[1].to_i - 1 %>"
+       data-day="<%= max_date_facet[2] %>">
+  </div>
 
   <div id="sidebar" class="<%= sidebar_classes %>">
     <% if current_user %>

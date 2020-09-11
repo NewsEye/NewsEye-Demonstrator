@@ -61,6 +61,16 @@ class @CatalogIndex
         self = @
         API.get_min_max_dates (data)->
             min_year = data["min"]
+            min_date_facet = new Date(
+                $("#min_date_facet").data("year"),
+                $("#min_date_facet").data("month"),
+                $("#min_date_facet").data("day")
+            )
+            max_date_facet = new Date(
+                $("#max_date_facet").data("year"),
+                $("#max_date_facet").data("month"),
+                $("#max_date_facet").data("day")
+            )
             max_year = data["max"]
 
             params = new URLSearchParams(window.location.search);
@@ -70,12 +80,12 @@ class @CatalogIndex
                 $("#date_facet_from").val(current_from_date)
                 current_from_date = $.datepicker.parseDate("dd/mm/yy", current_from_date)
             else
-                current_from_date = new Date(min_year, 0, 1)
+                current_from_date = min_date_facet
             if current_to_date
                 $("#date_facet_to").val(current_to_date)
                 current_to_date = $.datepicker.parseDate("dd/mm/yy", current_to_date)
             else
-                current_to_date = new Date(max_year, 11, 31)
+                current_to_date = max_date_facet
 
             $.datepicker.setDefaults {
                 changeMonth: true,
@@ -86,16 +96,16 @@ class @CatalogIndex
                 onSelect: (dateText, instance)->
                     $("#date_facet_to").datepicker("option", "minDate", dateText)
                 yearRange: "#{min_year}:#{max_year}"
-                minDate: new Date(min_year, 0, 1)
-                maxDate: new Date(max_year, 11, 31)
+                minDate: min_date_facet
+                maxDate: max_date_facet
                 defaultDate: current_from_date
             }
             date_to = $("#date_facet_to").datepicker {
                 onSelect: (dateText, instance)->
                     $("#date_facet_from").datepicker("option", "maxDate", dateText)
                 yearRange: "#{min_year}:#{max_year}"
-                minDate: new Date(min_year, 0, 1)
-                maxDate: new Date(max_year, 11, 31)
+                minDate: min_date_facet
+                maxDate: max_date_facet
                 defaultDate: current_to_date
             }
         $("#date_pickers form").submit ()->
