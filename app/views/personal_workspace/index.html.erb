@@ -1,13 +1,45 @@
 <div class="row">
-  <div class="col-sm-12">
-    <%= render 'personal_research_assistant/tasks' %>
-  </div>
-</div>
-<div class="row">
-  <div class="col-sm-6">
-    <%= render 'datasets/datasets' %>
-  </div>
-  <div class="col-sm-6">
-    <%= render 'saved_searches/saved_searches' %>
-  </div>
+    <div class="col-md-2">
+        <nav class="nav-sidebar">
+            <ul class="list-group list-group-flush" id="menu_list">
+                <li class="list-group-item active" data-div="tab_home">
+                    Home
+                </li>
+                <li class="list-group-item" data-div="tab_datasets">
+                    Datasets
+                </li>
+                <li  class="list-group-item" data-div="tab_searches">
+                    Saved Searches
+                </li>
+                <li  class="list-group-item" data-div="tab_experiments">
+                    Experiments
+                </li>
+                <li  class="list-group-item" data-div="tab_tasks">
+                    Tasks
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <div class="col-md-10">
+        <div class="tab-content">
+            <div class="menu_tab" id="tab_home">
+                <ul>
+                    <li><h4><%= link_to 'Topic Models', "/#{I18n.locale}/topic_models" %></h4></li>
+                    <li><h4><%= link_to 'Statistics', "/#{I18n.locale}/explore" %></h4></li>
+                </ul>
+            </div>
+            <div class="menu_tab" id="tab_datasets" style="display:none">
+                <%= render 'datasets/datasets' %>
+            </div>
+            <div class="menu_tab" id="tab_searches" style="display:none">
+                <%= render 'saved_searches/saved_searches' %>
+            </div>
+            <div class="menu_tab" id="tab_experiments" style="display:none">
+                <%= render 'experiment/index' %>
+            </div>
+            <div class="menu_tab" id="tab_tasks" style="display:none">
+                <%= render 'personal_research_assistant/tasks' %>
+            </div>
+        </div>
+    </div>
 </div>
