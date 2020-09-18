@@ -43,6 +43,17 @@ class PersonalWorkspaceController < ApplicationController
     end
   end
 
+  def update_experiments
+    Experiment.where(user: current_user).where.not(task: nil).each do |experiment|
+      data = PersonalResearchAssistantService.get_result experiment.task.uuid
+      experiment.task.update(status: data['run_status'], uuid: data['uuid'],
+               started: data['run_started'], finished: data['run_finished'],parameters: data['user_parameters'],
+               results: data['result']) unless data.nil?
+      experiment.task.subtasks
+      experiment.update(description: Experiment.process_pra_output(data))
+    end
+  end
+
   def delete_task
     task = Task.where(uuid: params[:uuid]).first
     unless task.nil?
@@ -55,6 +66,25 @@ class PersonalWorkspaceController < ApplicationController
     end
     respond_to do |format|
       format.js { render file: "personal_workspace/update_tasks", layout: false}
+    end
+  end
+
+  def delete_experiment
+    experiment = Experiment.where(id: params[:id]).first
+    unless experiment.nil?
+      if experiment.user == current_user
+        exp_task = experiment.task
+        experiment.delete
+        unless exp_task.nil?
+          exp_task.subtasks.each do |subtask|
+            subtask.delete
+          end
+          exp_task.delete
+        end
+      end
+    end
+    respond_to do |format|
+      format.js { render file: "personal_workspace/update_experiments", layout: false}
     end
   end
 
@@ -74,6 +104,22 @@ class PersonalWorkspaceController < ApplicationController
     end
   end
 
+  def investigate_search
+    search = Search.find(params[:search_id])
+    data = PersonalResearchAssistantService.investigate_search JSON.parse(search.query)
+    puts data
+    if data['uuid']
+      t = Task.create(user: current_user, status: data['run_status'], uuid: data['uuid'],
+                      started: data['run_started'], finished: data['run_finished'], search: search)
+      Experiment.create(user: current_user, title: "Investigation of search \"#{search.description}\"", task: Task.where(uuid: data['uuid'])[0])
+    else
+      puts data
+    end
+    respond_to do |format|
+      format.js { render file: "personal_workspace/update_experiments", layout: false}
+    end
+  end
+
   def describe_dataset
     dataset = Dataset.find(params[:dataset_id])
     username = User.find(dataset.user_id).email
@@ -88,6 +134,24 @@ class PersonalWorkspaceController < ApplicationController
     end
     respond_to do |format|
       format.js { render file: "personal_workspace/update_tasks", layout: false}
+    end
+  end
+
+  def investigate_dataset
+    dataset = Dataset.find(params[:dataset_id])
+    username = User.find(dataset.user_id).email
+    data = PersonalResearchAssistantService.investigate_dataset dataset.title, username
+    puts "##"
+    puts data
+    if data['uuid']
+      t = Task.create(user: current_user, status: data['run_status'], uuid: data['uuid'],
+                  started: data['run_started'], dataset: dataset)
+      Experiment.create(user: current_user, title: "Investigation of dataset \"#{dataset.title}\"", task: Task.where(uuid: data['uuid'])[0])
+    else
+      puts data
+    end
+    respond_to do |format|
+      format.js { render file: "personal_workspace/update_experiments", layout: false}
     end
   end
 
@@ -119,6 +183,11 @@ class PersonalWorkspaceController < ApplicationController
     data = task.results
     data['uuid'] = params[:task_uuid]
     data['processor_name'] = processor_name
+    render json: data
+  end
+
+  def query_task_results
+    data = PersonalResearchAssistantService.get_analysis_task params[:task_uuid]
     render json: data
   end
 

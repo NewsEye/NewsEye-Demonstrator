@@ -1,0 +1,32 @@
+#graph_container {
+    width: auto;
+    height: 60vh;
+    display: block;
+    border: 1px black solid;
+}
+
+#selected_node_panel .panel-subtitle {
+    font-weight: bold;
+    font-size: 16px;
+    text-align: center;
+    margin-top: 10px;
+}
+#selected_node_panel dd {
+    text-indent: 8%;
+}
+
+#selected_node_panel .select_link {
+    cursor: pointer;
+}
+
+#inputs_attr:empty {
+    margin-bottom: 1em;
+}
+
+a.select_link {
+    display: block;
+}
+
+.collection_param {
+    margin: 0;
+}

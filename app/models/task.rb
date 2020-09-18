@@ -2,6 +2,7 @@ class Task < ApplicationRecord
   belongs_to :user
   belongs_to :dataset, required: false
   belongs_to :search, required: false
+  has_one :experiment, required: false
   # after_create :generate_subtasks
 
   def subtasks

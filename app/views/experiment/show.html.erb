@@ -1,0 +1,79 @@
+<div class="row">
+    <div class="col-md-2">
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <%= button_to "Add a data source",
+                        "/experiment/add_data_source_modal",
+                        method: "post",
+                        remote: true,
+                        params: {experiment_id: @experiment.id},
+                        class: "btn btn-primary" %>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="panel panel-default" id="selected_node_panel" style="display: none;">
+                <div class="panel-body">
+                    <div class="input-group">
+                        <span class="input-group-btn">
+                            <button id="run_experiment_from_button" class="btn btn-success">
+                                <span class="glyphicon glyphicon-play"></span>
+                            </button>
+                            <button id="node_results_button" class="btn btn-info">
+                                <span class="glyphicon glyphicon-list-alt"></span>
+                            </button>
+                            <button id="node_parameters_button" class="btn btn-secondary">
+                                <span class="glyphicon glyphicon-cog"></span>
+                            </button>
+                            <button id="delete_node_button" class="btn btn-danger">
+                                <span class="glyphicon glyphicon-remove-sign"></span>
+                            </button>
+                        </span>
+                    </div>
+                    <hr/>
+                    <div id="attributes_panel">
+                        <p class="panel-subtitle">Attributes</p>
+                        <dl id="node_attrs">
+                            <dt>Type</dt>
+                            <dd id="type_attr"></dd>
+                            <dt>ID</dt>
+                            <dd id="id_attr"></dd>
+                            <dt>Parameters</dt>
+                            <dd id="params_attr"></dd>
+                        </dl>
+                        <hr/>
+                    </div>
+                    <div id="task_panel">
+                        <p class="panel-subtitle">Task</p>
+                    </div>
+                </div>
+            </div>
+          </div>
+    </div>
+
+    <div class="col-md-10">
+        <div id="graph_container"></div>
+    </div>
+</div>
+
+<div id="modal-add_data_source" class="modal hide fade" role="dialog" aria-labelledby="add_data_source" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content"></div>
+  </div>
+</div>
+<div id="modal-add_output" class="modal hide fade" role="dialog" aria-labelledby="add_output" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content"></div>
+  </div>
+</div>
+<div id="modal-parameters" class="modal hide fade" role="dialog" aria-labelledby="parameters" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content"></div>
+  </div>
+</div>
+<div id="modal-results" class="modal hide fade" role="dialog" aria-labelledby="results" aria-hidden="true">
+  <div class="modal-dialog" role="document" style="display: table;">
+    <div class="modal-content"></div>
+  </div>
+</div>

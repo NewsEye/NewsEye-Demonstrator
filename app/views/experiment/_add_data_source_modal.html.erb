@@ -1,0 +1,39 @@
+<div class="modal-header">
+  <button type="button" class="close" data-dismiss="modal">x</button>
+  <h4 class="modal-title" id="params_label">Add a data source</h4>
+</div>
+<div class="modal-body">
+  <div class="row">
+
+    <div class="col-md-6">
+      <form id="dataset_select_form">
+        <label for="dataset_select">Select a dataset</label>
+        <select id="dataset_select" name="dataset_select" class="form-control" autocomplete="off">
+          <option value="" disabled selected>Select a dataset</option>
+          <% current_user.datasets.each do |dataset| %>
+            <option value="<%= dataset.id %>"><%= dataset.title %></option>
+          <% end %>
+        </select>
+        <input type="hidden" name="experiment_id" value="<%= experiment_id %>"/>
+        <button id="dataset_select_form_submit" class="btn btn-primary">Add data source</button>
+      </form>
+    </div>
+
+    <div class="col-md-6">
+      <form novalidate="novalidate" data-remote="true" action="/experiment/add_data_source" accept-charset="UTF-8" method="post">
+        <label for="search_select">Select a search</label>
+        <select id="search_select" name="search_select" class="form-control" autocomplete="off">
+          <option value="" disabled selected>Select a search</option>
+          <% current_user.searches.each do |search| %>
+            <option value="<%= search.id %>"><%= search.description %></option>
+          <% end %>
+        </select>
+        <button type="submit" class="btn btn-primary" name="submit" value="search">Add data source</button>
+      </form>
+    </div>
+
+  </div>
+  <div class="row">
+
+  </div>
+</div>

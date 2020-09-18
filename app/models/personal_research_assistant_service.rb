@@ -84,9 +84,21 @@ class PersonalResearchAssistantService
     query_api url, body
   end
 
+  def self.investigate_search(query)
+    url = "https://newseye-wp5.cs.helsinki.fi/api/investigator/"
+    body = {search_query: query}
+    query_api url, body
+  end
+
   def self.describe_dataset(dataset_title, username)
     url = "https://newseye-wp5.cs.helsinki.fi/api/investigator/"
     body = {dataset: {name: dataset_title, user: username}, parameters: {describe: "T"}}
+    query_api url, body
+  end
+
+  def self.investigate_dataset(dataset_title, username)
+    url = "https://newseye-wp5.cs.helsinki.fi/api/investigator/"
+    body = {dataset: {name: dataset_title, user: username}}
     query_api url, body
   end
 
