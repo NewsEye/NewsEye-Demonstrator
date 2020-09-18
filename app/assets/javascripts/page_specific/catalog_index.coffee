@@ -59,55 +59,53 @@ class @CatalogIndex
 
     setup_date_facet: ->
         self = @
-        API.get_min_max_dates (data)->
-            min_year = data["min"]
-            min_date_facet = new Date(
-                $("#min_date_facet").data("year"),
-                $("#min_date_facet").data("month"),
-                $("#min_date_facet").data("day")
-            )
-            max_date_facet = new Date(
-                $("#max_date_facet").data("year"),
-                $("#max_date_facet").data("month"),
-                $("#max_date_facet").data("day")
-            )
-            max_year = data["max"]
+        min_year = $("#min_date_facet").data("year")
+        max_year = $("#max_date_facet").data("year")
+        min_date_facet = new Date(
+            $("#min_date_facet").data("year"),
+            $("#min_date_facet").data("month"),
+            $("#min_date_facet").data("day")
+        )
+        max_date_facet = new Date(
+            $("#max_date_facet").data("year"),
+            $("#max_date_facet").data("month"),
+            $("#max_date_facet").data("day")
+        )
+        params = new URLSearchParams(window.location.search);
+        current_from_date = params.get("f[date_created_dtsi][from]")
+        current_to_date = params.get("f[date_created_dtsi][to]")
+        if current_from_date
+            $("#date_facet_from").val(current_from_date)
+            current_from_date = $.datepicker.parseDate("dd/mm/yy", current_from_date)
+        else
+            current_from_date = min_date_facet
+        if current_to_date
+            $("#date_facet_to").val(current_to_date)
+            current_to_date = $.datepicker.parseDate("dd/mm/yy", current_to_date)
+        else
+            current_to_date = max_date_facet
 
-            params = new URLSearchParams(window.location.search);
-            current_from_date = params.get("f[date_created_dtsi][from]")
-            current_to_date = params.get("f[date_created_dtsi][to]")
-            if current_from_date
-                $("#date_facet_from").val(current_from_date)
-                current_from_date = $.datepicker.parseDate("dd/mm/yy", current_from_date)
-            else
-                current_from_date = min_date_facet
-            if current_to_date
-                $("#date_facet_to").val(current_to_date)
-                current_to_date = $.datepicker.parseDate("dd/mm/yy", current_to_date)
-            else
-                current_to_date = max_date_facet
-
-            $.datepicker.setDefaults {
-                changeMonth: true,
-                changeYear: true,
-                dateFormat: "dd/mm/yy"
-            }
-            date_from = $("#date_facet_from").datepicker {
-                onSelect: (dateText, instance)->
-                    $("#date_facet_to").datepicker("option", "minDate", dateText)
-                yearRange: "#{min_year}:#{max_year}"
-                minDate: min_date_facet
-                maxDate: max_date_facet
-                defaultDate: current_from_date
-            }
-            date_to = $("#date_facet_to").datepicker {
-                onSelect: (dateText, instance)->
-                    $("#date_facet_from").datepicker("option", "maxDate", dateText)
-                yearRange: "#{min_year}:#{max_year}"
-                minDate: min_date_facet
-                maxDate: max_date_facet
-                defaultDate: current_to_date
-            }
+        $.datepicker.setDefaults {
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy"
+        }
+        date_from = $("#date_facet_from").datepicker {
+            onSelect: (dateText, instance)->
+                $("#date_facet_to").datepicker("option", "minDate", dateText)
+            yearRange: "#{min_year}:#{max_year}"
+            minDate: min_date_facet
+            maxDate: max_date_facet
+            defaultDate: current_from_date
+        }
+        date_to = $("#date_facet_to").datepicker {
+            onSelect: (dateText, instance)->
+                $("#date_facet_from").datepicker("option", "maxDate", dateText)
+            yearRange: "#{min_year}:#{max_year}"
+            minDate: min_date_facet
+            maxDate: max_date_facet
+            defaultDate: current_to_date
+        }
         $("#date_pickers form").submit ()->
             $(this).find(":input").filter( ()->
                 return !this.value
