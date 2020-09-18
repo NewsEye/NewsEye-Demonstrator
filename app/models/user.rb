@@ -16,6 +16,7 @@ class User < ApplicationRecord
   has_many :datasets
   has_many :tasks
   has_many :searches
+  has_many :compound_articles
 
 
   # Method added by Blacklight; Blacklight uses #to_s on your
@@ -27,7 +28,7 @@ class User < ApplicationRecord
 
   def datasets_with_doc doc_id
     self.datasets.map do |dataset|
-      [dataset.id, dataset.title, dataset.relevancy_for_doc(doc_id)] if dataset.contains doc_id
+      [dataset.id, dataset.title, dataset.relevancy_for_doc(doc_id)] if dataset.contains doc_id.to_s
     end.delete_if(&:nil?)
   end
 

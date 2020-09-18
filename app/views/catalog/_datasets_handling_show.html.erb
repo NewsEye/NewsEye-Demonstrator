@@ -16,7 +16,7 @@
   <h4>Issue</h4>
   <div id="issue_in_datasets_list"></div>
   <div>
-    <form autocomplete="off" novalidate="novalidate" data-remote="false" action="/catalog/modify_doc_relevancy" accept-charset="UTF-8" method="post" class="form-inline">
+    <form autocomplete="off" novalidate="novalidate" data-remote="true" action="/catalog/modify_doc_relevancy" accept-charset="UTF-8" method="post" class="form-inline">
       <label for="specific_dataset_relevancy">Set relevancy towards <span class="working_dataset_span"><%= Dataset.find(session['working_dataset']).title %></span>: </label>
       <select name="specific_dataset_relevancy" class="form-control form-control-sm">
         <%= options_for_select [["Delete", -1],["Not relevant", 0],["Somewhat relevant",1],["Relevant",2],["Very relevant",3]] %>
@@ -29,22 +29,43 @@
     </form>
   </div>
 
-  <div id="article_dataset_panel">
-    <hr/>
-    <h4>Selected Article</h4>
-    <div id="article_in_datasets_list"></div>
-    <div>
-      <form autocomplete="off" novalidate="novalidate" data-remote="false" action="/catalog/modify_doc_relevancy" accept-charset="UTF-8" method="post" class="form-inline">
-        <label for="specific_dataset_relevancy">Set relevancy towards <span class="working_dataset_span"><%= Dataset.find(session['working_dataset']).title %></span>: </label>
-        <select name="specific_dataset_relevancy" class="form-control form-control-sm">
-          <%= options_for_select [["Delete", -1],["Not relevant", 0],["Somewhat relevant",1],["Relevant",2],["Very relevant",3]] %>
-        </select>
-        <input type="hidden" name="doc_id" value="<%= @document.id %>"/>
-        <input type="hidden" name="current_url" value="<%= request.original_url %>"/>
-        <button class="specific_apply_relevancy btn btn-default" type="submit" href="#" data-disable-with="Working...">
-          Apply
-        </button>
-      </form>
+    <div id="article_dataset_panel" style="display: none;">
+        <hr/>
+        <h4>Selected Article</h4>
+        <div id="article_in_datasets_list"></div>
+        <div>
+            <form autocomplete="off" novalidate="novalidate" data-remote="true" action="/catalog/modify_doc_relevancy" accept-charset="UTF-8" method="post" class="form-inline">
+                <label for="specific_dataset_relevancy">Set relevancy towards <span class="working_dataset_span"><%= Dataset.find(session['working_dataset']).title %></span>: </label>
+                <select name="specific_dataset_relevancy" class="form-control form-control-sm">
+                    <%= options_for_select [["Delete", -1],["Not relevant", 0],["Somewhat relevant",1],["Relevant",2],["Very relevant",3]] %>
+                </select>
+                <input type="hidden" name="doc_id" value=""/>
+                <input type="hidden" name="current_url" value="<%= request.original_url %>"/>
+                <button class="specific_apply_relevancy btn btn-default" type="submit" href="#" data-disable-with="Working...">
+                    Apply
+                </button>
+            </form>
+        </div>
     </div>
-  </div>
+
+    <div id="compound_article_dataset_panel" style="display: none;">
+        <hr/>
+        <h4>Selected Compound Article</h4>
+        <div id="compound_article_in_datasets_list"></div>
+        <div>
+            <form autocomplete="off" novalidate="novalidate" data-remote="true" action="/catalog/modify_doc_relevancy" accept-charset="UTF-8" method="post" class="form-inline">
+                <label for="specific_dataset_relevancy">Set relevancy towards <span class="working_dataset_span"><%= Dataset.find(session['working_dataset']).title %></span>: </label>
+                <select name="specific_dataset_relevancy" class="form-control form-control-sm">
+                    <%= options_for_select [["Delete", -1],["Not relevant", 0],["Somewhat relevant",1],["Relevant",2],["Very relevant",3]] %>
+                </select>
+                <input type="hidden" name="doc_id" value=""/>
+                <input type="hidden" name="current_url" value="<%= request.original_url %>"/>
+                <input type="hidden" name="compound" value="true>"/>
+                <input type="hidden" name="compound_title" value=""/>
+                <button class="specific_apply_relevancy btn btn-default" type="submit" href="#" data-disable-with="Working...">
+                    Apply
+                </button>
+            </form>
+        </div>
+    </div>
 <% end %>

@@ -33,6 +33,22 @@
     z-index: 3;
 }
 
+.compound_article_highlight {
+    background-color: #9999FF;
+    opacity: 0.2;
+    outline-style: solid;
+    outline-width: 1px;
+    z-index: 3;
+}
+
+.selected_compound_article_highlight {
+    background-color: #BBCCFF;
+    opacity: 0.4;
+    outline-style: solid;
+    outline-width: 1px;
+    z-index: 3;
+}
+
 .hover_article_highlight {
     background-color: #CCCCCC;
     opacity: 0.6;
@@ -45,4 +61,102 @@
     outline-style: solid;
     outline-width: 1px;
     z-index: 5;
+}
+
+#viewer_container {
+    position: relative;
+}
+#page_counter {
+    position: absolute;
+    background-color: #8AF;
+    border-color: #000;
+    border-style: solid;
+    font-weight: bold;
+    border-width: 2px;
+    top: 1vh;
+    right: 3.5vh;
+    padding: 0px 2px;
+}
+/********************************************/
+/*********** Compound articles **************/
+/********************************************/
+
+.scrollable-panel {
+    height: 25vh;
+    overflow-y: scroll;
+}
+
+.li-handle {
+    cursor: move;
+    cursor: -webkit-grabbing;
+    padding-right: 10px;
+}
+.delete_article_part {
+    float: right;
+}
+.delete_compound {
+    float: right;
+}
+.blue-background-class {
+    background-color: #C8EBFB;
+}
+.compound_list li {
+    padding: 8px 10px;
+}
+
+
+/* The switch - the box around the slider */
+.compound_article_switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 20px;
+}
+
+/* Hide default HTML checkbox */
+.compound_article_switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* The slider */
+.compound_article_slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 20px;
+}
+
+.compound_article_slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 2px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .compound_article_slider {
+    background-color: #2196F3;
+}
+
+input:focus + .compound_article_slider {
+    box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .compound_article_slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
 }

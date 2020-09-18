@@ -1,0 +1,24 @@
+$("#compound_log").css("color", "green");
+$("#compound_log").text("Compound article was correctly created.");
+
+if(typeof li == "undefined") {
+    let li;
+    let text;
+    let delete_span;
+}
+li = $("<li class=\"list-group-item\" data-id=\"<%= @ca.id %>\" data-parts=\"<%= @ca.parts.to_json %>\"></li>");
+text = $("<div class=\"compound_title\" style=\"display: inline; width: 80%; overflow-wrap: anywhere;\"><%= @ca.title %></div>");
+delete_span = $("<a class=\"delete_compound\"><span class=\"glyphicon glyphicon-remove\" style=\"color: red\"></span></a>");
+li.append(text);
+li.append(delete_span);
+$("#existing_compound_list ul").append(li);
+$("#existing_compound_list").show();
+$("#modal-confirm_compound").modal('hide');
+$('#compoundMode').parent().trigger('click')
+// Close modale
+// Add flash message with error or OK
+// Set up the "Existing compound articles" panel
+    // list of compound articles on this issue
+    // add pill if belong to dataset
+    // click a compound in the list display it in the viewer
+    // Possibility to add a compound article to the working dataset

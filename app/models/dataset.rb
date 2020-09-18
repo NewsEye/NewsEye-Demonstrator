@@ -35,9 +35,15 @@ class Dataset < ApplicationRecord
   end
 
   def nb_issues
-    self.documents.select do |doc|
-      doc['type'] == 'issue'
-    end.size
+      self.documents.select do |doc|
+          doc['type'] == 'issue'
+      end.size
+  end
+
+  def nb_compound
+      self.documents.select do |doc|
+          doc['type'] == 'compound'
+      end.size
   end
 
   def relevancy_for_doc doc_id
@@ -64,15 +70,24 @@ class Dataset < ApplicationRecord
     end
   end
 
-  def fetch_documents
-    ids = self.documents.map{ |doc| doc['id']}
-    return [] if ids.empty?
-    solr_docs = NewseyeSolrService.query({q: "*:*", fq: "id:(#{ids.join(' ')})", rows: 9999})
-    solr_docs.map! do |solr_doc|
-      solr_doc['relevancy'] = self.relevancy_for_doc solr_doc['id']
-      solr_doc
+    def fetch_documents
+        solr_ids = self.documents.select{ |doc| doc['type'] != "compound" }.map{ |doc| doc['id'] }
+        return [] if solr_ids.empty?
+        solr_docs = NewseyeSolrService.query({q: "*:*", fq: "id:(#{solr_ids.join(' ')})", rows: 9999})
+        solr_docs.map! do |solr_doc|
+            solr_doc['relevancy'] = self.relevancy_for_doc solr_doc['id']
+            solr_doc
+        end
+        out = solr_docs
+        compounds = self.documents.select{ |doc| doc['type'] == "compound" }
+        compounds.each do |compound|
+            ca = CompoundArticle.find compound['id']
+            solr_doc = ca.to_solr_doc
+            solr_doc['relevancy'] = compound['relevancy']
+            out << solr_doc
+        end
+        out
     end
-  end
 
   def fetch_facets
     ids = self.documents.map{ |doc| doc['id']}

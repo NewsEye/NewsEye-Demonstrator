@@ -127,6 +127,9 @@ Rails.application.routes.draw do
     get '/wide_date_histogram', to: 'catalog#wide_date_histogram'
     get '/add_all_docs_to_dataset_modal', to: 'catalog#add_all_docs_to_dataset'
     post '/add_query_to_dataset', to: 'catalog#add_query_to_dataset'
+    post "/confirm_compound_article", to: "catalog#confirm_compound_article"
+    post "/create_compound_article", to: "catalog#create_compound_article"
+    post "/delete_compound_article", to: "catalog#delete_compound_article"
 
     post "/saved_searches/save", to: "saved_searches#save"
     post "/saved_searches/confirm_save", to: "saved_searches#confirm_save"

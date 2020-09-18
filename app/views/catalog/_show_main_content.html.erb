@@ -5,46 +5,62 @@
 
 <% if can?(:show, @document) %>
 
-  <div id="document" class="document <%= render_document_class %>" itemscope  itemtype="<%= @document.itemtype %>">
-    <div class="row">
-      <div class="col-md-3">
+    <div id="document" class="document <%= render_document_class %>" itemscope  itemtype="<%= @document.itemtype %>">
+        <div class="row">
+            <div class="col-md-3">
 
-        <div class="panel panel-default">
-          <div class="panel-body">
-            <span id="page_controls">
-              <button type="button" class="btn btn-default btn-xs">
-                <span class="material-icons" id="page_previous">keyboard_arrow_left</span>
-              </button>
-              Page <span id="current_page"></span> out of <span id="total_page"><%= @document[:nb_pages_isi] %></span></span>
-            <button type="button" class="btn btn-default btn-xs">
-              <span class="material-icons" id="page_next">keyboard_arrow_right</span>
-            </button>
-            </span>
-          </div>
-        </div>
+<!--        <div class="panel panel-default">-->
+<!--          <div class="panel-body">-->
+<!--            <span id="page_controls">-->
+<!--              <button type="button" class="btn btn-default btn-xs">-->
+<!--                <span class="material-icons" id="page_previous">keyboard_arrow_left</span>-->
+<!--              </button>-->
+<!--              Page <span id="current_page"></span> out of <span id="total_page"><%#= @document[:nb_pages_isi] %></span></span>-->
+<!--            <button type="button" class="btn btn-default btn-xs">-->
+<!--              <span class="material-icons" id="page_next">keyboard_arrow_right</span>-->
+<!--            </button>-->
+<!--            </span>-->
+<!--          </div>-->
+<!--        </div>-->
+                <% compound_articles = current_user.compound_articles.select{ |ca| ca.issue == @document.id } %>
+                <% style = "display: none" if compound_articles.empty? %>
+                <div id="existing_compound_list" class="panel panel-default" style="<%= style %>">
+                    <div class="panel-heading">Compound articles</div>
+                    <div class="panel-body scrollable-panel">
+                        <ul class="list-group">
+                            <% compound_articles.each do |ca| %>
+                                <li class="list-group-item" data-id="<%= ca.id %>" data-parts="<%= ca.parts.to_json %>">
+                                    <div class="compound_title" style="display: inline; width: 80%; overflow-wrap: anywhere;"><%= ca.title %></div>
+                                    <a class="delete_compound"><span class="glyphicon glyphicon-remove" style="color: red"></span></a>
+                                </li>
+                            <% end %>
+                        </ul>
+                    </div>
+                </div>
 
-        <div id="manage_tools" class="panel panel-default">
-          <div class="panel-heading">Dataset Membership</div>
-          <div class="panel-body">
-            <%= render 'datasets_handling_show' %>
-          </div>
-        </div>
+                <div id="manage_tools" class="panel panel-default">
+                    <div class="panel-heading">Dataset Membership</div>
+                    <div class="panel-body">
+                        <%= render 'datasets_handling_show' %>
+                    </div>
+                </div>
 
-      </div>
-      <div class="col-md-9">
-        <div id="doc_<%= @document.id.to_s.parameterize %>">
-          <div id="openseadragon_view" data-pages="<%= @pages_links.to_json %>" data-articles="<%= @articles.to_json %>"></div>
+            </div>
+            <div id="viewer_container" class="col-md-9">
+                <div id="page_counter"><span id="current_page"></span> out of <span id="total_page"><%= @document[:nb_pages_isi] %></div>
+                <div id="doc_<%= @document.id.to_s.parameterize %>">
+                    <div id="openseadragon_view" data-pages="<%= @pages_links.to_json %>" data-articles="<%= @articles.to_json %>"></div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 <% else %>
-  <div class="col-md-8">
-    <p>
-      This document is under copyright and cannot be accessed by users outside the NewsEye consortium. You can however access it from its original location :
-      <a href="<%= @document[:original_uri_ss] %>" target="_blank"><%= @document[:original_uri_ss] %></a> (opens in a new window).
-    </p>
-  </div>
+    <div class="col-md-8">
+        <p>
+            This document is under copyright and cannot be accessed by users outside the NewsEye consortium. You can however access it from its original location :
+            <a href="<%= @document[:original_uri_ss] %>" target="_blank"><%= @document[:original_uri_ss] %></a> (opens in a new window).
+        </p>
+    </div>
 <% end %>
 
 <% if @document.respond_to?(:export_as_openurl_ctx_kev) %>

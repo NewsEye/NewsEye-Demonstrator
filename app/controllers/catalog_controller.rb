@@ -102,7 +102,7 @@ class CatalogController < ApplicationController
           qf: 'all_text_unstemmed_ten_siv all_text_unstemmed_tfr_siv all_text_unstemmed_tfi_siv all_text_unstemmed_tse_siv all_text_unstemmed_tde_siv',
           pf: 'all_text_unstemmed_ten_siv all_text_unstemmed_tfr_siv all_text_unstemmed_tfi_siv all_text_unstemmed_tse_siv all_text_unstemmed_tde_siv'
       }
-    config.add_search_field 'all_fields', label: 'Classic Search'
+    config.add_search_field 'all_fields', label: 'Stemmed Search'
     end
 
 
@@ -306,6 +306,37 @@ class CatalogController < ApplicationController
     end
   end
 
+  def confirm_compound_article
+    @article_parts = params[:article_parts]
+    @issue_id = params[:issue_id]
+  end
+
+  def create_compound_article
+    @ca = CompoundArticle.new
+    @ca.title = params[:compound_title]
+    @ca.user = current_user
+    @ca.issue = params[:issue_id]
+    @ca.parts = params[:parts]
+    respond_to do |format|
+      if @ca.save
+        format.js
+      else
+        puts "#### create_compound_article error"
+        format.js
+      end
+    end
+  end
+
+  def delete_compound_article
+      @ca = CompoundArticle.find(params[:compound_id])
+      if @ca.user == current_user
+          res = @ca.destroy
+          render json: {message: 'ok'}
+      else
+          render json: {message: "wrong user rights"}
+      end
+  end
+
   def confirm_modify_dataset
     current_relevancies = Hash[params['relevancy'].to_unsafe_h.map { |k,v| [k, v.to_i ]}]
     @target_relevancy = params['global_dataset_relevancy'].to_i
@@ -354,10 +385,13 @@ class CatalogController < ApplicationController
 
   def modify_doc_relevancy
     @doc_id = params['doc_id']
+    @compound = params['compound']
+    doc_type = @compound ? "compound" : @doc_id.include?("_article_") ? "article" : "issue"
+    display_doc_type = @compound ? "compound article" : @doc_id.include?("_article_") ? "article" : "issue"
     @new_relevancy = params['specific_dataset_relevancy'].to_i
     if params['current_dataset'] # when called from dataset/show
       current_dataset = Dataset.find(params['current_dataset'].to_i)
-    else # when called from catalog/index
+    else # when called from catalog/index or catalog/show
       current_dataset = Dataset.find(session['working_dataset'])
     end
     @dataset_name = current_dataset.title
@@ -365,30 +399,30 @@ class CatalogController < ApplicationController
     doc_index = current_dataset.documents.index { |doc| doc['id'] == @doc_id}
     if doc_index.nil?
       if @new_relevancy != -1
-        current_dataset.documents << {id: @doc_id, type: @doc_id.include?("_article_") ? "article" : "issue", relevancy: @new_relevancy}
-        message = "Added document #{@doc_id} to the dataset #{@dataset_name} (#{helpers.get_relevancy_text @new_relevancy})."
+        current_dataset.documents << {id: @doc_id, type: doc_type, relevancy: @new_relevancy}
+        message = "Added #{display_doc_type} \"#{params[:compound] ? params[:compound_title] : @doc_id}\" to the dataset #{@dataset_name} (#{helpers.get_relevancy_text @new_relevancy})."
       else
         message = "Nothing was done."
       end
     else
       if @new_relevancy == -1
         current_dataset.documents.delete_at doc_index
-        message = "Removed document #{@doc_id} from the dataset #{@dataset_name}."
+        message = "Removed #{display_doc_type} \"#{params[:compound] ? params[:compound_title] : @doc_id}\" from the dataset #{@dataset_name}."
       else
         current_dataset.documents[doc_index]['relevancy'] = @new_relevancy
         if @previous_relevancy == @new_relevancy
           message = "Nothing was done."
         else
-          message = "Relevancy for document #{@doc_id} was set to #{helpers.get_relevancy_text @new_relevancy}."
+          message = "Relevancy for #{display_doc_type} \"#{params[:compound] ? params[:compound_title] : @doc_id}\"was set to #{helpers.get_relevancy_text @new_relevancy}."
         end
       end
     end
     respond_to do |format|
       if current_dataset.save
-        format.js
+        format.js { flash[:notice] = message}
         format.html { redirect_to params[:current_url], notice: message }
       else
-        format.js
+        format.js { flash[:error] = "There was an error updating the dataset."}
         format.html { redirect_to params[:current_url], notice: 'There was an error updating the dataset.' }
       end
     end

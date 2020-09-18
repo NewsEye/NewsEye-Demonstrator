@@ -3,8 +3,13 @@
   <div class="documentHeader row">
     <h3 class="index_title document-title-heading col-md-12">
       <span class="document-counter"><%= "#{idx+1}. " %></span>
-      <% text = document['title_ssi'].nil? ? "Article" : document['title_ssi'] %>
-      <%= link_to text, controller: "catalog", action: "show", id: document['id'] %>
+        <% if document['title_ssi'].nil? %> <!-- Article -->
+            <%= link_to "Article", controller: "catalog", action: "show", id: document['id'] %>
+        <% elsif document['from_issue_ssi'].nil? %><!-- Issue -->
+            <%= link_to document['title_ssi'], controller: "catalog", action: "show", id: document['id'] %>
+        <% else %> <!-- Compound -->
+            <%= link_to document['title_ssi'], controller: "catalog", action: "show", id: document['from_issue_ssi'] %>
+        <% end %>
     </h3>
   </div>
   <dl class="document-metadata dl-horizontal dl-invert col-md-8">
@@ -17,11 +22,12 @@
     <div class="dataset_info document_<%= document.id %>">
       <div class="in_datasets_list">
         <input type="checkbox" id="" class="dataset_check"/>
-        <% in_datasets = current_user.datasets_with_doc(document.id) %>
+        <% in_datasets = current_user.datasets_with_doc(document['id'].to_s) %>
         <% unless in_datasets.empty? %>
           <p>
             Currently belongs to:
             <% in_datasets.each do |dataset_id, dataset_title, relevancy| %>
+                  <% puts "##################   #{relevancy}" %>
               <% badge_type, tooltip = get_info_from_relevancy relevancy %>
               <%= link_to dataset_path(dataset_id) do %>
                 <span class="dataset-<%= dataset_id %> badge badge-<%= badge_type %>" title="<%= tooltip %>" data-relevancy="<%= relevancy %>"><%= dataset_title %></span>
@@ -33,7 +39,7 @@
     </div>
   </dl>
   <div class="document-thumbnail col-md-4">
-    <a href="/catalog/<%= document['id'] %>">
+    <a href="/catalog/<%= document['from_issue_ssi'] %>">
       <img src="<%= document['thumbnail_url_ss'] %>" alt="Default"/>
     </a>
   </div>

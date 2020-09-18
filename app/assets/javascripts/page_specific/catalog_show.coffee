@@ -5,11 +5,14 @@ class @CatalogShow
     maskS = null
     maskW = null
     isDragged = false
+    compoundMode = false
+    compoundArticleParts = []
 
     constructor: ->
         self = @
         console.log 'show'
         @setup_select()
+        @setup_compound()
         @load_osd()
 
     setup_select: ->
@@ -55,10 +58,9 @@ class @CatalogShow
              prefixUrl: "/openseadragon/images/",
              sequenceMode: true,
              initialPage: initialPage,
-             showReferenceStrip: false,
              tileSources: pages_urls,
-             nextButton:     "page_next",
-             previousButton: "page_previous"
+#             nextButton:     "page_next",
+#             previousButton: "page_previous"
          })
 
          self.viewer.addHandler("page", (data)->
@@ -72,6 +74,8 @@ class @CatalogShow
              if window.location.hash != ""
                 article_id = window.location.hash.slice(1)
              pagenum = self.viewer.currentPage()
+             $("#current_page").html("#{pagenum+1}")
+             selected_compound_article = $("#existing_compound_list li.active").data('parts')
              for article in articles[pagenum+1]
                  bbox = article['bbox']
                  loc = self.viewer.viewport.imageToViewportRectangle(bbox[0], bbox[1], bbox[2], bbox[3])
@@ -79,10 +83,21 @@ class @CatalogShow
                     article_class =  "selected_article_highlight"
                     self.display_mask(loc)
                     self.display_article_text article
-                    self.viewer.viewport.zoomTo(2, new OpenSeadragon.Point(loc.x+loc.width/2, loc.y+loc.height/2))
+                    self.viewer.viewport.zoomTo(2)
+                    self.viewer.viewport.panTo(new OpenSeadragon.Point(loc.x+loc.width/2, loc.y+loc.height/2))
                     self.set_article_dataset_form(article_id)
                  else
-                    article_class =  "base_article_highlight"
+                    array_elt = compoundArticleParts.filter (x)-> x.id == article.id
+                    if array_elt.length == 0
+                        if selected_compound_article and article.id in selected_compound_article
+                            article_class =  "selected_compound_article_highlight"
+                            if article.id == selected_compound_article[0]
+                                self.viewer.viewport.zoomTo(2)
+                                self.viewer.viewport.panTo(new OpenSeadragon.Point(loc.x+loc.width/2, loc.y+loc.height/2))
+                        else
+                            article_class =  "base_article_highlight"
+                    else
+                        article_class =  "compound_article_highlight"
                  elt = $("<div id=\"#{article['id']}\" class=\"#{article_class}\"></div>")
                  elt.attr("data-loc", JSON.stringify({'x': loc.x, 'y': loc.y, 'width': loc.width, 'height': loc.height}))
                  elt.attr("data-text", JSON.stringify(article['all_text']))
@@ -124,43 +139,198 @@ class @CatalogShow
                                 event.delta.y = 0 if bounds.y != constrainedBounds.y
                             self.viewer.viewport.panBy( self.viewer.viewport.deltaPointsFromPixels( event.delta.negate() ), gestureSettings.flickEnabled && !self.viewer.constrainDuringPan)
                      clickHandler: (event)->
+                         selected_compound_article = $("#existing_compound_list li.active").data('parts')
                          elt = event.eventSource.element
                          if $(elt).attr('data-noclick') != undefined
                              $(elt).removeAttr('data-noclick')
                          else
-                             self.hide_mask()
-                             self.set_article_dataset_form null
-                             # one overlay can be selected at a time
-                             if $(elt).attr('class') != "selected_article_highlight"
-                                 for e in $(".selected_article_highlight")
-                                     $(e).attr("class", "base_article_highlight" )
-                                 $(elt).attr('class', "selected_article_highlight" )
-                                 self.display_article_text {id: $(elt).attr("id"), all_text: $(elt).data("text")}
-                                 overlay_loc = $(elt).data("loc")
-                                 self.display_mask(overlay_loc)
-                                 self.set_article_dataset_form $(elt).attr('id')
-                                 history.replaceState(null, null, "##{$(elt).attr("id")}"); # url fragment
+                             if compoundMode
+                                 array_elt = compoundArticleParts.filter (x)-> x.id == elt.id
+                                 if array_elt.length == 0  # Add a new textblock to the compound list
+                                     compoundArticleParts.push {id: elt.id, text: $(elt).data("text")}
+                                     list_elt = $("<li data-id=\"#{elt.id}\" class=\"list-group-item\"></li>")
+                                     text = $("<div class=\"text_part\" style=\"display: inline;\">#{$(elt).data("text").slice(1,-1).substring(0,37)}...</div>")
+                                     delete_span = $("<a class=\"delete_article_part\"><span class=\"glyphicon glyphicon-remove\" style=\"color: red\"></span></a>")
+                                     move_span = $("<span class=\"glyphicon glyphicon-menu-hamburger li-handle\" style=\"color: black\"></span>")
+                                     list_elt.append move_span
+                                     list_elt.append text
+                                     list_elt.append delete_span
+                                     $("#compound_list").append list_elt
                              else
-                                 $(elt).attr('class', "hover_article_highlight" )
-                                 self.display_article_text null
-                                 history.replaceState(null, null, ' '); # url fragment
+                                 self.hide_mask()
+                                 self.set_article_dataset_form null
+                                 # one overlay can be selected at a time
+                                 if $(elt).hasClass("selected_article_highlight")
+                                     $(elt).removeClass("selected_article_highlight" )
+                                     $(elt).addClass("hover_article_highlight" )
+                                     self.display_article_text null
+                                     history.replaceState(null, null, ' '); # url fragment
+                                 else
+                                     for e in $(".selected_article_highlight")
+                                         array_elt = compoundArticleParts.filter (x)-> x.id == e.id
+                                         if array_elt.length == 0
+                                             if selected_compound_article and e.id in selected_compound_article
+                                                 $(e).attr('class', "selected_compound_article_highlight")
+                                             else
+                                                 $(e).attr('class', "base_article_highlight" )
+                                         else
+                                             $(e).attr('class', "compound_article_highlight" )
+                                     $(elt).attr('class', "selected_article_highlight" )
+                                     self.display_article_text {id: $(elt).attr("id"), all_text: $(elt).data("text")}
+                                     overlay_loc = $(elt).data("loc")
+                                     self.display_mask(overlay_loc)
+                                     self.set_article_dataset_form $(elt).attr('id')
+                                     history.replaceState(null, null, "##{$(elt).attr("id")}"); # url fragment
                      enterHandler: (event)->
                          elt = event.eventSource.element
                          if $(elt).attr('class') != "selected_article_highlight"
                              $(elt).attr('class', "hover_article_highlight" )
                      exitHandler: (event)->
+                         selected_compound_article = $("#existing_compound_list li.active").data('parts')
                          elt = event.eventSource.element
                          if $(elt).attr('class') != "selected_article_highlight"
-                             $(elt).attr('class', "base_article_highlight" )
+                             array_elt = compoundArticleParts.filter (x)-> x.id == elt.id
+                             if array_elt.length == 0
+                                 if selected_compound_article and elt.id in selected_compound_article
+                                     $(elt).attr('class', "selected_compound_article_highlight")
+                                 else
+                                     $(elt).attr('class', "base_article_highlight" )
+                             else
+                                $(elt).attr('class', "compound_article_highlight" )
                  })
           )
+
+    setup_compound: ->
+        self = @
+        articles = $('#openseadragon_view').data("articles")
+        $("#compoundMode").change (e)->
+            self.hide_mask()
+            self.set_article_dataset_form null
+            $("div.selected_article_highlight").attr('class', "base_article_highlight" )
+            $("div.compound_article_highlight").attr('class', "base_article_highlight" )
+            $("div.selected_compound_article_highlight").attr('class', "base_article_highlight" )
+            $("#existing_compound_list li.active").removeClass 'active'
+            self.display_article_text null
+            history.replaceState(null, null, ' '); # url fragment
+            compoundMode = e.currentTarget.checked
+            $("#compound_list").html("")
+            compoundArticleParts = []
+            if compoundMode
+                $("#compound_article_panel div hr").show()
+                $("#compound_list").show()
+                $("#help_compound").show()
+                $("#create_compound_button").show()
+            else
+                $("#compound_article_panel div hr").hide()
+                $("#compound_list").hide()
+                $("#help_compound").hide()
+                $("#create_compound_button").hide()
+
+        sortable = Sortable.create($("#compound_list")[0],{
+            animation: 150
+            ghostClass: 'blue-background-class' # Set up correct CSS !!!!!!!
+            onSort: (e)->
+                ids = $.map e.target.children, (elt)->
+                    return $(elt).data('id')
+                compoundArticleParts.sort (a,b)->
+                    return ids.indexOf(a.id) - ids.indexOf(b.id)
+            handle: ".li-handle"
+        })
+
+        $("#compound_list").on "mouseenter", "li", (e)->
+            article_id = $(e.currentTarget).data("id")
+            $("##{article_id}").attr('class', "hover_article_highlight" )
+
+        $("#compound_list").on "mouseleave", "li", (e)->
+            article_id = $(e.currentTarget).data("id")
+            array_elt = compoundArticleParts.filter (x)-> x.id == article_id
+            if array_elt.length == 0
+                $("##{article_id}").attr('class', "base_article_highlight" )
+            else
+                $("##{article_id}").attr('class', "compound_article_highlight" )
+
+        $("#compound_list").on "click", "div.text_part", (e)->
+            article_id = $(e.currentTarget.parentElement).data("id")
+#            for pagenum, parts of articles
+#                for part in parts
+#                    if
+
+        $("#compound_list").on "click", "a.delete_article_part", (e)->
+            article_id = $(e.currentTarget.parentElement).data("id")
+            for i in [0...compoundArticleParts.length]
+                if compoundArticleParts[i].id == article_id
+                    $(e.currentTarget.parentElement).remove()
+                    compoundArticleParts.splice(i,1)
+                    $("##{article_id}").attr('class', "base_article_highlight" )
+                    break
+        $("#compound_article_panel").on "click", "#create_compound_button", (e)->
+            article_id = compoundArticleParts[0].id
+            $.ajax {
+                url:  window.location.protocol+"//"+window.location.host+'/confirm_compound_article',
+                method: 'POST',
+                data: {issue_id: article_id.substr(0, article_id.indexOf("_article_")), article_parts: compoundArticleParts}
+            }
+
+        $("body").on "click", "#create_compound_form_button", (e)->
+            title = $(e.currentTarget).parent().find("input[type='text']")[0].value
+            $("#compound_log").show()
+            $("#compound_log").css("font-weight", "bold")
+            if title.match /^.*[0-9a-z].*$/
+                Rails.fire($('#create_compound_article_form')[0], 'submit')
+            else
+                $("#compound_log").css("color", "red")
+                $("#compound_log").text "The title must contain at least one alphanumeric character."
+                e.preventDefault()
+
+        $("#existing_compound_list").on "click", "a.delete_compound", (e)->
+            compound_id = $(e.currentTarget.parentElement).data('id')
+            API.delete_compound_article compound_id, (data)->
+                if data['message'] == "ok"
+                    e.currentTarget.parentElement.remove()
+            e.stopPropagation()
+
+        $("#existing_compound_list").on "click", "li", (e)->
+            others = $("div.selected_compound_article_highlight")
+            others.removeClass("selected_compound_article_highlight")
+            others.addClass("base_article_highlight")
+            if $(e.currentTarget).hasClass "active"
+                $(e.currentTarget).removeClass "active"
+                self.set_compound_article_dataset_form null, null
+            else
+                $(e.currentTarget.parentElement).find("li").removeClass 'active'
+                $(e.currentTarget).addClass "active"
+
+                compound_id = $(e.currentTarget).data('id')
+                compound_title = $(e.currentTarget).find("div.compound_title").text()
+                self.set_compound_article_dataset_form compound_id, compound_title
+                parts_ids = $(e.currentTarget).data('parts')
+                compound_page = -1
+                for pagenum, parts of articles
+                    for part in parts
+                        if part.id == parts_ids[0]
+                            compound_page = pagenum
+                            break
+                    break if compound_page != -1
+                if compound_page != -1 # if page of article was found
+                    if self.viewer.currentPage() != compound_page-1
+                        self.viewer.goToPage(compound_page-1)
+                    else
+                        part = articles[compound_page].filter( (p)-> p.id == parts_ids[0] )
+                        if part.length != 0
+                            bbox = part[0]['bbox']
+                            loc = self.viewer.viewport.imageToViewportRectangle(bbox[0], bbox[1], bbox[2], bbox[3])
+                            self.viewer.viewport.zoomTo(2)
+                            self.viewer.viewport.panTo(new OpenSeadragon.Point(loc.x+loc.width/2, loc.y+loc.height/2))
+                        for part_id in parts_ids
+                            $("##{part_id}").addClass("selected_compound_article_highlight")
+
+
 
     set_article_dataset_form: (article_id)->
         if article_id == null
             $("#article_dataset_panel").hide()
         else
             $("#article_dataset_panel input[name=\"doc_id\"]").attr('value', article_id)
-
             # datasets memberships
             API.get_datasets_with_doc article_id, (data)->
                 if data.length > 0
@@ -178,6 +348,30 @@ class @CatalogShow
                     $("#article_in_datasets_list").html ""
 
             $("#article_dataset_panel").show()
+
+    set_compound_article_dataset_form: (compound_id, compound_title)->
+        if compound_id == null
+            $("#compound_article_dataset_panel").hide()
+        else
+            $("#compound_article_dataset_panel input[name=\"doc_id\"]").attr('value', compound_id)
+            $("#compound_article_dataset_panel input[name=\"compound_title\"]").attr('value', compound_title)
+            # datasets memberships
+            API.get_datasets_with_doc compound_id, (data)->
+                if data.length > 0
+                    datasets = $("<p style=\"font-style: italic;\">Currently belongs to: </p>")
+                    for obj in data
+                        relevancy_mapping = {0: ['dark', 'Not relevant'], 1: ['light', 'Somewhat relevant'], 2: ['info', 'Relevant'], 3: ['primary', 'Very relevant']}
+                        badge_type = relevancy_mapping[obj[2]][0]
+                        tooltip = relevancy_mapping[obj[2]][1]
+                        a = $("<a href=\"/datasets/#{obj[0]}\"></a>")
+                        span = $("<span class=\"dataset-#{obj[0]} badge badge-#{badge_type}\" title=\"#{tooltip}\" data-relevancy=\"#{obj[2]}\">#{obj[1]}</span>")
+                        a.append span
+                        datasets.append a
+                    $("#compound_article_in_datasets_list").html datasets[0].outerHTML
+                else
+                    $("#compound_article_in_datasets_list").html ""
+
+            $("#compound_article_dataset_panel").show()
 
 
     display_mask: (overlay_loc)->

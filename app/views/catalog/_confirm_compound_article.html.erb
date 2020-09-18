@@ -1,0 +1,51 @@
+<div class="modal-header">
+  <button type="button" class="close" data-dismiss="modal">x</button>
+  <h3 class="modal-title" id="params_label">Create a new compound article</h3>
+</div>
+
+<div class="modal-body">
+
+  <div class="panel-group">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title">
+          <a data-toggle="collapse" href="#collapse_art_content">Overview of the article</a>
+        </h4>
+      </div>
+      <div id="collapse_art_content" class="panel-collapse collapse">
+        <div class="panel-body">
+          <% article_parts.values.each do |part| %>
+            <p><%= part["text"][1...-1].gsub("\\n", " ").html_safe %></p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <form id="create_compound_article_form" class="form-inline" novalidate="novalidate" data-remote="true" method='post' action="/create_compound_article">
+    <div class="form-group">
+      <label for="compound_title">Title:</label>
+      <input type="text" name="compound_title" class="form-control" id="compound_title">
+    </div>
+    <input type="hidden" name="issue_id" value="<%= issue_id %>"/>
+    <% article_parts.values.each do |part| %>
+          <input type="hidden" name="parts[]" value="<%= part["id"] %>"/>
+    <% end %>
+    <button id="create_compound_form_button" type="submit" class="btn btn-primary" data-disable-with="Working..." style="float: right;">Create compound article</button>
+  </form>
+
+
+</div>
+<div id="compound_log" class="modal-footer" style="display: none"></div>
+
+<!--<div class="modal-footer">-->
+<!--  <button type="button" class="btn" data-dismiss="modal">Cancel</button>-->
+<!--  <form id="apply_dataset_global_changes" class="form-inline" novalidate="novalidate" data-remote="false" method='post' action="/catalog/apply_modify_dataset">-->
+<!--    <input type="hidden" name="target_relevancy" value="<%#= @target_relevancy %>"/>-->
+<!--    <input type="hidden" name="current_url" value="<%#= @current_url %>"/>-->
+    <%# @relevancy_changes.values.map{|li| li.map{|l| l[0]}}.flatten.each do |doc_id| %>
+<!--      <input type="hidden" name="docs[]" value="<%#= doc_id %>"/>-->
+    <%# end %>
+<!--    <button type="submit" class="btn btn-info" data-disable-with="Working...">Apply changes</button>-->
+<!--  </form>-->
+<!--</div>-->

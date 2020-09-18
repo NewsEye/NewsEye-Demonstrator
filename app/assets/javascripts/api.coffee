@@ -127,12 +127,12 @@ class @API
         }
     @get_datasets_with_doc: (doc_id, callback)->
         $.ajax {
-                    url:  window.location.protocol+"//"+window.location.host+'/datasets/get_datasets_with_doc',
-                    method: 'POST',
-                    data:{id: doc_id},
-                    success: (data)->
-                        callback(data)
-                }
+            url:  window.location.protocol+"//"+window.location.host+'/datasets/get_datasets_with_doc',
+            method: 'POST',
+            data:{id: doc_id},
+            success: (data)->
+                callback(data)
+        }
     @load_graph: (experiment_id, callback)->
         $.ajax {
             url:  window.location.protocol+"//"+window.location.host+'/experiment/load',
@@ -154,6 +154,14 @@ class @API
             url:  window.location.protocol+"//"+window.location.host+'/add_query_to_dataset',
             method: 'POST',
             data:{params: params, dataset_id: dataset_id, relevancy: relevancy},
+            success: (data)->
+                callback(data)
+        }
+    @delete_compound_article: (compound_id, callback)->
+        $.ajax {
+            url:  window.location.protocol+"//"+window.location.host+'/delete_compound_article',
+            method: 'POST',
+            data:{compound_id: compound_id},
             success: (data)->
                 callback(data)
         }

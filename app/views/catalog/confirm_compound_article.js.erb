@@ -1,0 +1,4 @@
+$("#modal-confirm_compound").find(".modal-content").html("<%= j (render partial: 'confirm_compound_article', locals: {issue_id: @issue_id, article_parts: @article_parts}) %>");
+$("#modal-confirm_compound").modal();
+$('#modal-confirm_compound')[0].classList.remove('hide');
+

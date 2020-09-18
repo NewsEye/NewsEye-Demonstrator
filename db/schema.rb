@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20200221084504) do
+ActiveRecord::Schema.define(version: 20200915123128) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -64,6 +64,16 @@ ActiveRecord::Schema.define(version: 20200221084504) do
     t.index ["user_id"], name: "index_bookmarks_on_user_id"
   end
 
+  create_table "compound_articles", force: :cascade do |t|
+    t.string "title"
+    t.string "issue"
+    t.bigint "user_id"
+    t.string "parts", default: [], array: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_compound_articles_on_user_id"
+  end
+
   create_table "datasets", force: :cascade do |t|
     t.string "title"
     t.bigint "user_id"
@@ -72,6 +82,17 @@ ActiveRecord::Schema.define(version: 20200221084504) do
     t.jsonb "documents", default: []
     t.index ["title", "user_id"], name: "index_datasets_on_title_and_user_id", unique: true
     t.index ["user_id"], name: "index_datasets_on_user_id"
+  end
+
+  create_table "experiments", force: :cascade do |t|
+    t.string "title"
+    t.bigint "user_id"
+    t.jsonb "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "task_id"
+    t.index ["task_id"], name: "index_experiments_on_task_id"
+    t.index ["user_id"], name: "index_experiments_on_user_id"
   end
 
   create_table "feedbacks", force: :cascade do |t|
@@ -157,7 +178,10 @@ ActiveRecord::Schema.define(version: 20200221084504) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "compound_articles", "users"
   add_foreign_key "datasets", "users"
+  add_foreign_key "experiments", "tasks"
+  add_foreign_key "experiments", "users"
   add_foreign_key "named_entity_mentions", "named_entities"
   add_foreign_key "searches", "users"
   add_foreign_key "tasks", "datasets"

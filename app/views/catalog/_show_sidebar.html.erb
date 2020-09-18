@@ -1,4 +1,27 @@
-<div id="article_panel" class="panel panel-default">
+<div id="compound_article_panel" class="panel panel-default">
+  <div class="panel-heading">
+    <p style="display: inline;">Create a compound article</p>
+    <label class="compound_article_switch" style="float: right;">
+      <input id="compoundMode" type="checkbox" autocomplete="off">
+      <span class="compound_article_slider"></span>
+    </label>
+  </div>
+  <div class="panel-body">
+    <p id="help_compound" style="display: none">Select different articles from the issue to merge them. Drag and drop elements from the list to change their order.</p>
+
+    <hr style="display: none"/>
+
+    <div id="text-popup"></div>
+    <ul id="compound_list" class="list-group" style="display: none">
+    </ul>
+
+    <hr style="display: none"/>
+    <button id="create_compound_button" class="btn btn-primary" style="display: none">Create</button>
+
+
+  </div>
+</div>
+<div id="article_panel" class="panel panel-default" style="display: none">
   <div class="panel-body">
 
     <p id="article_text"></p>
@@ -10,58 +33,3 @@
 
 
 <%= render partial: "named_entities_panel" %>
-
-<!--
-<script type="text/javascript">
-    $( document ).on('turbolinks:load', function() {
-        document.getElementById('select_layer').addEventListener('change', function(event){select_layer_changed(event);}, false);
-
-
-        $('li.ne_mention').click(function(e) {
-            e.preventDefault();
-            let x, y, w, h;
-            [x, y, w, h] = e.target.children[0].textContent.split(',').map(val => parseInt(val.trim()));
-            console.log([x, y, w, h]);
-            let wid = mirador_instance.viewer.workspace.windows[0].id;
-            mirador_instance.eventEmitter.publish('fitBounds.'+wid, {'x': x, 'y': y,'width': w, 'height': h});
-        });
-
-    });
-
-
-    function select_layer_changed(event) {
-        let mirador_window = mirador_instance.viewer.workspace.windows[0];
-        let annotation_endpoint = mirador_window.endpoint;
-        let select_element = document.getElementById('select_layer');
-        let current_canvas_id = mirador_window.focusModules.ImageView.canvasID;
-        let layer_value = select_element.options[select_element.selectedIndex].value;
-        switch (layer_value) {
-            case 'no':
-                annotation_endpoint.annotationsList = []
-                mirador_instance.eventEmitter.publish('ANNOTATIONS_LIST_UPDATED', {
-                    'windowId': mirador_window.id,
-                    'annotationsList': annotation_endpoint.annotationsList
-                });
-                if (mirador_window.focusModules.ImageView.annotationState === 'on') {
-                    $('.mirador-osd-annotations-layer').click();
-                }
-                break;
-            default:
-                mirador_window.endpoint.search({'uri': current_canvas_id + '_' + layer_value}, function (data) {
-                    jQuery.each(data, function (index, value) {
-                        value.endpoint = annotation_endpoint
-                    });
-                    annotation_endpoint.annotationsList = data;
-                    mirador_instance.eventEmitter.publish('ANNOTATIONS_LIST_UPDATED', {
-                        'windowId': mirador_window.id,
-                        'annotationsList': annotation_endpoint.annotationsList
-                    });
-                });
-                if (mirador_window.focusModules.ImageView.annotationState === 'off') {
-                    $('.mirador-osd-annotations-layer').click();
-                }
-                break;
-        }
-    }
-</script>
--->

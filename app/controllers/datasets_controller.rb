@@ -195,7 +195,7 @@ class DatasetsController < ApplicationController
   def apply_merge_dataset
     d = Dataset.find(params[:dataset_id])
     to_merge = params[:relevancy].keys.map do |doc_id|
-      {id: doc_id, type: doc_id.include?("_article_") ? "article" : "issue", relevancy: params[:relevancy][doc_id].to_i}
+      {id: doc_id, type: doc_id.include?("_article_") ? "article" : doc_id.include?("_") ? "issue" : "compound", relevancy: params[:relevancy][doc_id].to_i}
     end
     d.add_docs to_merge
     respond_to do |format|

@@ -21,6 +21,7 @@
 //= require hammer.min
 //= require chartjs-plugin-zoom
 //= require chartjs-chart-matrix.min
+//= require sortable.min
 //= require init_page_specific_js
 //= require_tree ./page_specific
 //= require svg_utils

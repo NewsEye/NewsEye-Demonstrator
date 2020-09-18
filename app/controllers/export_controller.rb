@@ -10,11 +10,12 @@ class ExportController < ApplicationController
       lang = solr_doc['language_ssi']
       text_entry = solr_doc["all_text_t#{lang}_siv"].gsub("\"", "\"\"")
       text_entry = "\"#{text_entry}\""
+      thumb = solr_doc['thumbnail_url_ss_list'].nil? ? solr_doc['thumbnail_url_ss'] : solr_doc['thumbnail_url_ss_list']
       to_write << ["\"#{solr_doc['id']}\"",
                    "\"#{lang}\"",
                    "\"#{solr_doc['date_created_dtsi']}\"",
                    "\"#{solr_doc['member_of_collection_ids_ssim'][0]}\"",
-                   "\"#{solr_doc['thumbnail_url_ss']}\"",
+                   "\"#{thumb}\"",
                    "\"#{solr_doc['relevancy']}\"",
                    text_entry].join(',')
     end
@@ -47,12 +48,13 @@ class ExportController < ApplicationController
           cell 'Text', type: :string, style: "headings"
         end
         dataset.fetch_documents.map do |solr_doc|
+        thumb = solr_doc['thumbnail_url_ss_list'].nil? ? solr_doc['thumbnail_url_ss'] : solr_doc['thumbnail_url_ss_list']
           row do
             cell solr_doc['id']
             cell solr_doc['language_ssi']
             cell solr_doc['date_created_dtsi']
             cell solr_doc['member_of_collection_ids_ssim'][0]
-            cell solr_doc['thumbnail_url_ss']
+            cell thumb
             cell solr_doc['relevancy']
             cell solr_doc["all_text_t#{solr_doc['language_ssi']}_siv"].gsub("\"", "\"\"")
           end
@@ -69,11 +71,12 @@ class ExportController < ApplicationController
     to_write = []
     dataset.fetch_documents.map do |solr_doc|
       lang = solr_doc['language_ssi']
+      thumb = solr_doc['thumbnail_url_ss_list'].nil? ? solr_doc['thumbnail_url_ss'] : solr_doc['thumbnail_url_ss_list'].split("\n")
       to_write << { id: solr_doc['id'],
                     language: lang,
                     date: solr_doc['date_created_dtsi'],
                     newspaper_id: solr_doc['member_of_collection_ids_ssim'][0],
-                    iiif_url: solr_doc['thumbnail_url_ss'],
+                    iiif_url: thumb,
                     relevancy: solr_doc['relevancy'],
                     text: solr_doc["all_text_t#{lang}_siv"] }
     end
