@@ -39,8 +39,12 @@
     </div>
   </dl>
   <div class="document-thumbnail col-md-4">
-    <a href="/catalog/<%= document['from_issue_ssi'] %>">
-      <img src="<%= document['thumbnail_url_ss'] %>" alt="Default"/>
-    </a>
+  <% if document['title_ssi'].nil? %> <!-- Article -->
+      <%= link_to image_tag(document['thumbnail_url_ss']), controller: "catalog", action: "show", id: document['id'] %>
+  <% elsif document['from_issue_ssi'].nil? %><!-- Issue -->
+      <%= link_to image_tag(document['thumbnail_url_ss']), controller: "catalog", action: "show", id: document['id'] %>
+  <% else %> <!-- Compound -->
+      <%= link_to image_tag(document['thumbnail_url_ss']), controller: "catalog", action: "show", id: document['from_issue_ssi'] %>
+  <% end %>
   </div>
 </div>
