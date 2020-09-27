@@ -96,13 +96,13 @@ class CatalogController < ApplicationController
     config.add_show_field solr_name('date_created', :date_searchable_uniq), helper_method: :convert_date_to_locale, label: 'Date created'
     config.add_show_field solr_name('nb_pages', :int_searchable), label: 'Number of pages'
 
+    config.add_search_field 'all_fields', label: 'Stemmed Search'
     config.add_search_field 'exact_search' do |field|
       field.label = "Exact Search"
       field.solr_parameters = {
           qf: 'all_text_unstemmed_ten_siv all_text_unstemmed_tfr_siv all_text_unstemmed_tfi_siv all_text_unstemmed_tse_siv all_text_unstemmed_tde_siv',
           pf: 'all_text_unstemmed_ten_siv all_text_unstemmed_tfr_siv all_text_unstemmed_tfi_siv all_text_unstemmed_tse_siv all_text_unstemmed_tde_siv'
       }
-    config.add_search_field 'all_fields', label: 'Stemmed Search'
     end
 
 

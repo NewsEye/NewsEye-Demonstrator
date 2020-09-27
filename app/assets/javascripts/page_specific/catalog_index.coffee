@@ -6,6 +6,7 @@ class @CatalogIndex
         self = @
         console.log 'index'
         @setup_select()
+        @setup_search_field()
         @setup_date_facet()
         @setup_date_histogram()
         @setup_wide_date_histogram()
@@ -56,6 +57,11 @@ class @CatalogIndex
             else
                 $('.dataset_check').prop("checked", false )
 
+    setup_search_field: ->
+        self = @
+        urlParams = new URLSearchParams(window.location.search)
+        val = urlParams.get("search_field")
+        $("#search_field").val(val) unless val == null
 
     setup_date_facet: ->
         self = @
