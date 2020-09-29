@@ -67,7 +67,7 @@ class CatalogController < ApplicationController
     config.add_facet_field 'month_isi', label: 'Month', helper_method: :map_month_locale, sort: :index
     config.add_facet_field 'day_isi', label: 'Day', helper_method: :map_day_locale, sort: :index
     config.add_facet_field 'member_of_collection_ids_ssim', helper_method: :get_collection_title_from_id, label: 'Newspaper'#, tag: "collectag", ex: "collectag"
-    config.add_facet_field 'has_model_ssim', helper_method: :get_display_value_from_model, label: 'Type'
+    # config.add_facet_field 'has_model_ssim', helper_method: :get_display_value_from_model, label: 'Type'
     config.add_facet_field 'linked_persons_ssim', helper_method: :get_entity_label, label: 'Persons', limit: 20#, tag: "persontag", ex: "persontag"
     config.add_facet_field 'linked_locations_ssim', helper_method: :get_entity_label, label: 'Locations', limit: 20#, tag: "locationtag", ex: "locationtag"
     config.add_facet_field 'linked_organisations_ssim', helper_method: :get_entity_label, label: 'Organisations', limit: 20#, tag: "organisationtag", ex: "organisationtag"
@@ -96,13 +96,46 @@ class CatalogController < ApplicationController
     config.add_show_field solr_name('date_created', :date_searchable_uniq), helper_method: :convert_date_to_locale, label: 'Date created'
     config.add_show_field solr_name('nb_pages', :int_searchable), label: 'Number of pages'
 
-    config.add_search_field 'all_fields', label: 'Stemmed Search'
+    config.add_search_field 'all_fields' do |field|
+        field.label = "All (Stemmed Search)"
+        field.solr_parameters = {
+            fq: ['has_model_ssim:(Article OR Issue)']
+        }
+    end
     config.add_search_field 'exact_search' do |field|
-      field.label = "Exact Search"
-      field.solr_parameters = {
-          qf: 'all_text_unstemmed_ten_siv all_text_unstemmed_tfr_siv all_text_unstemmed_tfi_siv all_text_unstemmed_tse_siv all_text_unstemmed_tde_siv',
-          pf: 'all_text_unstemmed_ten_siv all_text_unstemmed_tfr_siv all_text_unstemmed_tfi_siv all_text_unstemmed_tse_siv all_text_unstemmed_tde_siv'
-      }
+        field.label = "All (Exact Search)"
+        field.solr_parameters = {
+            qf: 'all_text_unstemmed_ten_siv all_text_unstemmed_tfr_siv all_text_unstemmed_tfi_siv all_text_unstemmed_tse_siv all_text_unstemmed_tde_siv',
+            pf: 'all_text_unstemmed_ten_siv all_text_unstemmed_tfr_siv all_text_unstemmed_tfi_siv all_text_unstemmed_tse_siv all_text_unstemmed_tde_siv'
+        }
+    end
+    config.add_search_field 'articles_exact_search' do |field|
+        field.label = "Articles (Exact Search)"
+        field.solr_parameters = {
+            qf: 'all_text_unstemmed_ten_siv all_text_unstemmed_tfr_siv all_text_unstemmed_tfi_siv all_text_unstemmed_tse_siv all_text_unstemmed_tde_siv',
+            pf: 'all_text_unstemmed_ten_siv all_text_unstemmed_tfr_siv all_text_unstemmed_tfi_siv all_text_unstemmed_tse_siv all_text_unstemmed_tde_siv',
+            fq: ['has_model_ssim:Article']
+        }
+    end
+    config.add_search_field 'articles_stemmed_search' do |field|
+        field.label = "Articles (Stemmed Search)"
+        field.solr_parameters = {
+            fq: ['has_model_ssim:Article']
+        }
+    end
+    config.add_search_field 'issues_exact_search' do |field|
+        field.label = "Issues (Exact Search)"
+        field.solr_parameters = {
+            qf: 'all_text_unstemmed_ten_siv all_text_unstemmed_tfr_siv all_text_unstemmed_tfi_siv all_text_unstemmed_tse_siv all_text_unstemmed_tde_siv',
+            pf: 'all_text_unstemmed_ten_siv all_text_unstemmed_tfr_siv all_text_unstemmed_tfi_siv all_text_unstemmed_tse_siv all_text_unstemmed_tde_siv',
+            fq: ['has_model_ssim:Issue']
+        }
+    end
+    config.add_search_field 'issues_stemmed_search' do |field|
+        field.label = "Issues (Stemmed Search)"
+        field.solr_parameters = {
+            fq: ['has_model_ssim:Issue']
+        }
     end
 
 
