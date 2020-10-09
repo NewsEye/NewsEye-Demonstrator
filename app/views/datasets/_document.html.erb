@@ -27,7 +27,6 @@
           <p>
             Currently belongs to:
             <% in_datasets.each do |dataset_id, dataset_title, relevancy| %>
-                  <% puts "##################   #{relevancy}" %>
               <% badge_type, tooltip = get_info_from_relevancy relevancy %>
               <%= link_to dataset_path(dataset_id) do %>
                 <span class="dataset-<%= dataset_id %> badge badge-<%= badge_type %>" title="<%= tooltip %>" data-relevancy="<%= relevancy %>"><%= dataset_title %></span>

@@ -1,140 +1,55 @@
-<% named_entities = get_named_entities_for_doc(@document.id) %>
-<% kb_urls = get_kb_urls named_entities.map{ |k,v| v.map{|label, mentions_solr| label } }.flatten %>
-<div id="named_entities_persons_list" class="panel panel-default">
-  <div class="panel-heading">
-    <h4 class="panel-title"><a data-toggle="collapse" href="#collapse1">
-      Persons
-      <span style="color: grey">
-        (<%= named_entities[:PER].keys.size %> entities,
-        <%= named_entities[:PER].keys.map{ |nel| named_entities[:PER][nel].size }.reduce(:+) %> mentions)
-      </span>
-    </a></h4>
-  </div>
-  <div id="collapse1" class="panel-collapse collapse">
-    <ul class="list-group">
-      <% named_entities[:PER].keys.sort_by{|label| -named_entities[:PER][label].size }.each do |label| %>
-        <li class="list-group-item">
-          <a data-toggle="collapse" href="#collapse1_<%= label %>"><%= label == "" ? "Unlinked Person" : get_entity_label(label) %></a>
-          (<%= named_entities[:PER][label].size %> mention<%= "s" if named_entities[:PER][label].size > 1 %>)
-          <% unless kb_urls[label].nil? %>
-            <%= link_to kb_urls[label], class: "pull-right", target: :_blank do %>
-              <span class="glyphicon glyphicon-info-sign" style="color: black"></span>
-            <% end %>
-          <% end %>
-        </li>
-        <div id="collapse1_<%= label %>" class="panel-collapse collapse">
-          <ul class="list-group">
-            <% named_entities[:PER][label].each do |ne| %>
-              <li class="list-group-item ne_mention">
-                &emsp;<%= ne['mention_ssi'] %>
-                <% case ne['stance_fsi'] %>
-                <% when -1 %>
-                  (-)
-                <% when 0 %>
-                  (=)
-                <% when 1 %>
-                  (+)
-                <% end %>
-                <!--                <p style="display: none;">-->
-                <%#= get_bbox_from_annotations ne['selector_ssim'] %>
-                <!--                </p>-->
-              </li>
-            <% end %>
-          </ul>
+<div id="@named_entities_panels">
+    <%# @named_entities = get_named_entities_for_doc(@document.id) %>
+    <% kb_urls = get_kb_urls @named_entities.map{ |k,v| v.map{|label, mentions_solr| label } }.flatten %>
+    <% mapping = {"PER": "Persons", "LOC": "Locations", "ORG": "Organizations", "HumanProd": "Human Productions"}.with_indifferent_access %>
+
+    <div id="@named_entities" style="display: none" data-ne="<%= @named_entities.to_json %>"></div>
+    <% @named_entities.keys.each do |ne_type| %>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" href="#entities_<%= ne_type %>">
+                        <%= mapping[ne_type] %>
+                        <span style="color: grey">
+                (<%= @named_entities[ne_type].keys.size %> entities,
+                            <%= @named_entities[ne_type].keys.map{ |nel| @named_entities[ne_type][nel].size }.reduce(:+) %> mentions)
+              </span>
+                    </a>
+                </h4>
+            </div>
+            <div id="entities_<%= ne_type %>" class="panel-collapse collapse">
+                <ul class="list-group">
+                    <% @named_entities[ne_type].keys.sort_by{|label| -@named_entities[ne_type][label].size }.each do |label| %>
+                        <li class="list-group-item">
+                            <a data-toggle="collapse" href="#entities_<%= ne_type %>_<%= label %>"><%= label == "" ? "Unlinked #{mapping[ne_type]}" : get_entity_label(label) %></a>
+                            (<%= @named_entities[ne_type][label].size %> mention<%= "s" if @named_entities[ne_type][label].size > 1 %>)
+                            <% unless kb_urls[label].nil? %>
+                                <%= link_to kb_urls[label], class: "pull-right", target: :_blank do %>
+                                    <span class="glyphicon glyphicon-info-sign" style="color: black"></span>
+                                <% end %>
+                            <% end %>
+                        </li>
+                        <div id="entities_<%= ne_type %>_<%= label %>" class="panel-collapse collapse">
+                            <ul class="list-group">
+                                <% @named_entities[ne_type][label].each do |ne| %>
+                                    <li class="list-group-item ne_mention">
+                                        &emsp;<%= ne['mention_ssi'] %>
+                                        <% case ne['stance_fsi'] %>
+                                        <% when -1 %>
+                                            (-)
+                                        <% when 0 %>
+                                            (=)
+                                        <% when 1 %>
+                                            (+)
+                                        <% end %>
+                                    </li>
+                                <% end %>
+                            </ul>
+                        </div>
+                    <% end %>
+                </ul>
+            </div>
         </div>
-      <% end %>
-    </ul>
-  </div>
-</div>
-<div id="named_entities_locations_list" class="panel panel-default">
-  <div class="panel-heading">
-    <h4 class="panel-title"><a data-toggle="collapse" href="#collapse2">
-      Locations
-      <span style="color: grey">
-        (<%= named_entities[:LOC].keys.size %> entities,
-        <%= named_entities[:LOC].keys.map{ |nel| named_entities[:LOC][nel].size }.reduce(:+) %> mentions)
-      </span>
-    </a></h4>
-  </div>
-  <div id="collapse2" class="panel-collapse collapse">
-    <ul class="list-group">
-      <% named_entities[:LOC].keys.sort_by{|label| -named_entities[:LOC][label].size }.each do |label| %>
-        <li class="list-group-item">
-          <a data-toggle="collapse" href="#collapse2_<%= label %>"><%= label == "" ? "Unlinked Location" : get_entity_label(label) %></a>
-          (<%= named_entities[:LOC][label].size %> mention<%= "s" if named_entities[:LOC][label].size > 1 %>)
-          <% unless kb_urls[label].nil? %>
-            <%= link_to kb_urls[label], class: "pull-right", target: :_blank do %>
-              <span class="glyphicon glyphicon-info-sign" style="color: black"></span>
-            <% end %>
-          <% end %>
-        </li>
-        <div id="collapse2_<%= label %>" class="panel-collapse collapse">
-          <ul class="list-group">
-            <% named_entities[:LOC][label].each do |ne| %>
-              <li class="list-group-item ne_mention" style="text-indent: 3em;">
-                &emsp;<%= ne['mention_ssi'] %>
-                <% case ne['stance_fsi'] %>
-                <% when -1 %>
-                  (-)
-                <% when 0 %>
-                  (=)
-                <% when 1 %>
-                  (+)
-                <% end %>
-                <!--                <p style="display: none;">-->
-                <%#= get_bbox_from_annotations ne['selector_ssim'] %>
-                <!--                </p>-->
-              </li>
-            <% end %>
-          </ul>
-        </div>
-      <% end %>
-    </ul>
-  </div>
-</div>
-<div id="named_entities_organizations_list" class="panel panel-default">
-  <div class="panel-heading">
-    <h4 class="panel-title"><a data-toggle="collapse" href="#collapse3">
-      Organisations
-      <span style="color: grey">
-        (<%= named_entities[:ORG].keys.size %> entities,
-        <%= named_entities[:ORG].keys.map{ |nel| named_entities[:ORG][nel].size }.reduce(:+) %> mentions)
-      </span>
-    </a></h4>
-  </div>
-  <div id="collapse3" class="panel-collapse collapse">
-    <ul class="list-group">
-      <% named_entities[:ORG].keys.sort_by{|label| -named_entities[:ORG][label].size }.each do |label| %>
-        <li class="list-group-item">
-          <a data-toggle="collapse" href="#collapse3_<%= label %>"><%= label == "" ? "Unlinked Organisation" : get_entity_label(label) %></a>
-          (<%= named_entities[:ORG][label].size %> mention<%= "s" if named_entities[:ORG][label].size > 1 %>)
-          <% unless kb_urls[label].nil? %>
-            <%= link_to kb_urls[label], class: "pull-right", target: :_blank do %>
-              <span class="glyphicon glyphicon-info-sign" style="color: black"></span>
-            <% end %>
-          <% end %>
-        </li>
-        <div id="collapse3_<%= label %>" class="panel-collapse collapse">
-          <ul class="list-group">
-            <% named_entities[:ORG][label].each do |ne| %>
-              <li class="list-group-item ne_mention">
-                &emsp;<%= ne['mention_ssi'] %>
-                <% case ne['stance_fsi'] %>
-                <% when -1 %>
-                  (-)
-                <% when 0 %>
-                  (=)
-                <% when 1 %>
-                  (+)
-                <% end %>
-                <!--                <p style="display: none;">-->
-                <%#= get_bbox_from_annotations ne['selector_ssim'] %>
-                <!--                </p>-->
-              </li>
-            <% end %>
-          </ul>
-        </div>
-      <% end %>
-    </ul>
-  </div>
+
+    <% end %>
 </div>

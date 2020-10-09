@@ -71,6 +71,7 @@ class CatalogController < ApplicationController
     config.add_facet_field 'linked_persons_ssim', helper_method: :get_entity_label, label: 'Persons', limit: 20#, tag: "persontag", ex: "persontag"
     config.add_facet_field 'linked_locations_ssim', helper_method: :get_entity_label, label: 'Locations', limit: 20#, tag: "locationtag", ex: "locationtag"
     config.add_facet_field 'linked_organisations_ssim', helper_method: :get_entity_label, label: 'Organisations', limit: 20#, tag: "organisationtag", ex: "organisationtag"
+    config.add_facet_field 'linked_humanprods_ssim', helper_method: :get_entity_label, label: 'Human Productions', limit: 20
 
     config.add_facet_fields_to_solr_request!
 
@@ -432,7 +433,11 @@ class CatalogController < ApplicationController
     doc_index = current_dataset.documents.index { |doc| doc['id'] == @doc_id}
     if doc_index.nil?
       if @new_relevancy != -1
-        current_dataset.documents << {id: @doc_id, type: doc_type, relevancy: @new_relevancy}
+          if doc_type == "compound"
+            current_dataset.documents << {id: @doc_id, type: doc_type, relevancy: @new_relevancy, parts: CompoundArticle.find(@doc_id).parts}
+          else
+            current_dataset.documents << {id: @doc_id, type: doc_type, relevancy: @new_relevancy}
+          end
         message = "Added #{display_doc_type} \"#{params[:compound] ? params[:compound_title] : @doc_id}\" to the dataset #{@dataset_name} (#{helpers.get_relevancy_text @new_relevancy})."
       else
         message = "Nothing was done."
@@ -471,10 +476,35 @@ class CatalogController < ApplicationController
     # f[linked_persons_ssim][]=entity_PERS_Q25670&f[linked_persons_ssim][]=entity_PERS_Q4719463
     url = url_for controller: "catalog", action: "index"
     url = "#{url}?#{entities.map{ |ne_id| "f[linked_persons_ssim][]=#{ne_id}" }.join("&")}"
-    puts url
     respond_to do |format|
       format.html { redirect_to url }
     end
+  end
+
+  def get_named_entities_kburl_label
+      ids = params[:linked_ids]
+      if ids.nil?
+          ids = []
+      else
+          ids.delete ""
+      end
+      priority_language = [I18n.locale, 'en', 'de', 'fr', 'fi', 'sv']
+      fl = "id,kb_url_ssi,#{priority_language.map{ |lang| "label_#{lang}_ssi" }.join(',')}"
+      if ids.empty?
+          data = {}
+      else
+          data = NewseyeSolrService.query({q: "*:*", fq: "id:(#{ids.join(' ')})", fl: fl, rows: 99999}).map do |res|
+              label = ""
+              priority_language.each do |lang|
+                  unless res["label_#{lang}_ssi"].nil?
+                    label = res["label_#{lang}_ssi"]
+                    break
+                  end
+              end
+              [res['id'], {url: res['kb_url_ssi'], label: label}]
+          end.to_h
+      end
+      render json: data
   end
 
   protected

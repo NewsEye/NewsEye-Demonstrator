@@ -165,3 +165,11 @@ class @API
             success: (data)->
                 callback(data)
         }
+    @get_named_entities_kburl_label: (linked_ids, callback)->
+        $.ajax {
+            url:  window.location.protocol+"//"+window.location.host+'/catalog/get_named_entities_kburl_label',
+            method: 'POST',
+            data:{linked_ids: linked_ids},
+            complete: (data)->
+                callback(data)
+        }

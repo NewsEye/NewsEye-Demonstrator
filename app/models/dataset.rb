@@ -71,14 +71,16 @@ class Dataset < ApplicationRecord
   end
 
     def fetch_documents
+        out = []
         solr_ids = self.documents.select{ |doc| doc['type'] != "compound" }.map{ |doc| doc['id'] }
-        return [] if solr_ids.empty?
-        solr_docs = NewseyeSolrService.query({q: "*:*", fq: "id:(#{solr_ids.join(' ')})", rows: 9999})
-        solr_docs.map! do |solr_doc|
-            solr_doc['relevancy'] = self.relevancy_for_doc solr_doc['id']
-            solr_doc
+        unless solr_ids.empty?
+            solr_docs = NewseyeSolrService.query({q: "*:*", fq: "id:(#{solr_ids.join(' ')})", rows: 9999})
+            solr_docs.map! do |solr_doc|
+                solr_doc['relevancy'] = self.relevancy_for_doc solr_doc['id']
+                solr_doc
+            end
+            out = solr_docs
         end
-        out = solr_docs
         compounds = self.documents.select{ |doc| doc['type'] == "compound" }
         compounds.each do |compound|
             ca = CompoundArticle.find compound['id']
@@ -97,6 +99,37 @@ class Dataset < ApplicationRecord
   def fetch_linked_entities
     docs = self.fetch_documents
     docs.map{ |doc| doc['linked_entities_ssim'] }.flatten
+  end
+
+  def get_entities
+      output = {LOC: {}, PER: {}, ORG: {}, HumanProd: {}}
+      solr_ids = self.documents.select{ |doc| doc['type'] != "compound" }.map{ |doc| doc['id'] }
+      nems = []
+      articles_ids = solr_ids.select{ |solr_id| solr_id.include? '_article_' }
+      compound_parts = self.documents.select{ |doc| doc['type'] == "compound" }.map{ |doc| CompoundArticle.find(doc['id']).parts }.flatten
+      part_ids = articles_ids + compound_parts
+      puts part_ids
+      nems += NewseyeSolrService.query({q: '*:*', fq:"article_id_ssi:(#{part_ids.join(' OR ')})", rows: 1000000}) unless part_ids.empty?
+      issues_ids = solr_ids.select{ |solr_id| !solr_id.include? '_article_' }
+      nems += NewseyeSolrService.query({q: '*:*', fq:"issue_id_ssi:(#{issues_ids.join(' OR ')})", rows: 1000000}) unless issues_ids.empty?
+
+      nems.select {|ne_solr| ne_solr['type_ssi'] == "LOC"}.each do |ne_solr|
+          output[:LOC][ne_solr['linked_entity_ssi']] = [] unless output[:LOC].has_key? ne_solr['linked_entity_ssi']
+          output[:LOC][ne_solr['linked_entity_ssi']].append(ne_solr)
+      end
+      nems.select {|ne_solr| ne_solr['type_ssi'].start_with? "PER"}.each do |ne_solr|
+          output[:PER][ne_solr['linked_entity_ssi']] = [] unless output[:PER].has_key? ne_solr['linked_entity_ssi']
+          output[:PER][ne_solr['linked_entity_ssi']].append(ne_solr)
+      end
+      nems.select {|ne_solr| ne_solr['type_ssi'].start_with? "ORG"}.each do |ne_solr|
+          output[:ORG][ne_solr['linked_entity_ssi']] = [] unless output[:ORG].has_key? ne_solr['linked_entity_ssi']
+          output[:ORG][ne_solr['linked_entity_ssi']].append(ne_solr)
+      end
+      nems.select {|ne_solr| ne_solr['type_ssi'] == "HumanProd"}.each do |ne_solr|
+          output[:HumanProd][ne_solr['linked_entity_ssi']] = [] unless output[:HumanProd].has_key? ne_solr['linked_entity_ssi']
+          output[:HumanProd][ne_solr['linked_entity_ssi']].append(ne_solr)
+      end
+      output
   end
 end
 

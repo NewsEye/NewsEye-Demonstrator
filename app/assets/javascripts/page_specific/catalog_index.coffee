@@ -25,30 +25,6 @@ class @CatalogIndex
                     hidden = $("<input type=\"hidden\" name=\"relevancy[#{doc_id}]\" value=\"#{relevancy}\"></input>")
                     $("#global_dataset_relevancy_form").append hidden
 
-        $(window).scroll (e)->
-            # Get the position of the location where the scroller starts.
-            if $(".scroller_anchor").offset()
-                scroller_anchor = $(".scroller_anchor").offset().top
-                #Check if the user has scrolled and the current position is after the scroller start location and if its not already fixed at the top
-                if $(this).scrollTop() >= scroller_anchor && $('#dataset_handling_div').css('position') != 'fixed'
-                # Change the CSS of the scroller to hilight it and fix it at the top of the screen.
-                    $('#dataset_handling_div').css {
-                        'position': 'fixed',
-                        'top': '0px'
-                    }
-                # Changing the height of the scroller anchor to that of scroller so that there is no change in the overall height of the page.
-                    $('.scroller_anchor').css('height', '50px')
-                else if $(this).scrollTop() < scroller_anchor && $('#dataset_handling_div').css('position') != 'relative'
-                # If the user has scrolled back to the location above the scroller anchor place it back into the content.
-
-                    # Change the height of the scroller anchor to 0 and now we will be adding the scroller back to the content.
-                    $('.scroller_anchor').css('height', '0px')
-
-                    # Change the CSS and put it back to its original position.
-                    $('#dataset_handling_div').css {
-                        'position': 'relative'
-                    }
-
         $('.dataset_check').prop("checked", false )
 
         $('#select_all_checkbox').change (e)->

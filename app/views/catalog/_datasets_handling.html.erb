@@ -1,42 +1,47 @@
 <% if has_search_parameters? %>
-  <div class="scroller_anchor"></div>
-  <div id="dataset_handling_div" class="sidenav" style="margin-top: 20px;">
-    <% if current_user.datasets.empty? %>
-      <div class="">
-        <p><%= link_to "Create a dataset", "/datasets/new" %> to add documents to.</p>
-      </div>
-    <% else %>
-      <div class="">
-        <form autocomplete="off" novalidate="novalidate" data-remote="true" action="/catalog/set_working_dataset" accept-charset="UTF-8" method="post" class="form-inline">
-          <label for="dataset[id]">Working dataset:</label>
-          <select id="working_dataset_select" name="dataset[id]" class="form-control form-control-sm">
-            <%= session[:working_dataset] ||= current_user.datasets.first.id %>
-            <%= options_for_select(current_user.datasets.map{|d| ["#{d.title} (#{d.documents.size} docs)", d.id]}, session[:working_dataset]) %>
-          </select>
-        </form>
-      </div>
-      <div class="form-check">
-        <label class="form-check-label" for="select_all_checkbox">Select all visible documents</label>
-        <input class="form-check-input" type="checkbox" value="" id="select_all_checkbox">
-      </div>
-      <div class="">
-        <form id="global_dataset_relevancy_form" class="form-inline" novalidate="novalidate" data-remote="true" method='post' action="/catalog/confirm_modify_dataset">
+    <div class="panel panel-default">
+        <div class="panel-heading">Dataset membership</div>
+    <div class="panel-body">
+        <div>
+            <p><%= link_to "Create a dataset", "/datasets/new" %> to add documents to.</p>
+        </div>
+        <% if current_user.datasets.first %>
+            <div>
+                <form autocomplete="off" novalidate="novalidate" data-remote="true" action="/catalog/set_working_dataset" accept-charset="UTF-8" method="post" class="form-inline">
+                    <label for="dataset[id]">Working dataset:</label>
+                    <select id="working_dataset_select" name="dataset[id]" class="form-control form-control-sm">
+                        <%= session[:working_dataset] ||= current_user.datasets.first.id%>
+                        <%= options_for_select(current_user.datasets.map{|d| ["#{d.title} (#{d.documents.size} docs)", d.id]}, session[:working_dataset]) %>
+                    </select>
+                </form>
+            </div>
+            <hr/>
+        <% end %>
+        <div id="dataset_handling_div" class="sidenav" style="margin-top: 20px;">
+                <div class="form-check">
+                    <label class="form-check-label" for="select_all_checkbox">Select all visible documents</label>
+                    <input class="form-check-input" type="checkbox" value="" id="select_all_checkbox">
+                </div>
+                <div class="">
+                    <form id="global_dataset_relevancy_form" class="form-inline" novalidate="novalidate" data-remote="true" method='post' action="/catalog/confirm_modify_dataset">
 
-          <div class="form-group">
-            <label for="global_dataset_relevancy">Relevancy</label>
-            <select name="global_dataset_relevancy" class="form-control form-control-sm">
-              <%= options_for_select [["Delete", -1],["Not relevant", 0],["Somewhat relevant",1],["Relevant",2],["Very relevant",3]] %>
-            </select>
-          </div>
-          <!-- Hidden fields are generated from JS catalog#index -->
-          <div class="form-group">
-            <button class="btn btn-default" type="submit" href="#" id="apply_global_dataset_changes">
-              Apply relevancy for all selected documents
-            </button>
-          </div>
-        </form>
-      </div>
-    <% end %>
+                        <div class="form-group">
+                            <label for="global_dataset_relevancy">Relevancy</label>
+                            <select name="global_dataset_relevancy" class="form-control form-control-sm">
+                                <%= options_for_select [["Delete", -1],["Not relevant", 0],["Somewhat relevant",1],["Relevant",2],["Very relevant",3]] %>
+                            </select>
+                        </div>
+                        <!-- Hidden fields are generated from JS catalog#index -->
+                        <div class="form-group">
+                            <button class="btn btn-default" type="submit" href="#" id="apply_global_dataset_changes">
+                                Apply relevancy for all selected documents
+                            </button>
+                        </div>
+                    </form>
+                </div>
 
-  </div>
+        </div>
+    </div>
+</div>
+
 <% end %>

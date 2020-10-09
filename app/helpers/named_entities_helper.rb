@@ -1,7 +1,7 @@
 module NamedEntitiesHelper
 
   def get_named_entities_for_doc doc_id
-    output = {LOC: {}, PER: {}, ORG: {}, MISC: {}}
+    output = {LOC: {}, PER: {}, ORG: {}, HumanProd: {}}
     if doc_id.index('_article_').nil?
       nems = NewseyeSolrService.query({q:"issue_id_ssi:#{doc_id}", rows: 1000000})
     else
@@ -12,12 +12,16 @@ module NamedEntitiesHelper
       output[:LOC][ne_solr['linked_entity_ssi']].append(ne_solr)
     end
     nems.select {|ne_solr| ne_solr['type_ssi'].start_with? "PER"}.each do |ne_solr|
-      output[:PER][ne_solr['linked_entity_ssi']] = [] unless output[:PER].has_key? ne_solr['linked_entity_ssi']
-      output[:PER][ne_solr['linked_entity_ssi']].append(ne_solr)
+        output[:PER][ne_solr['linked_entity_ssi']] = [] unless output[:PER].has_key? ne_solr['linked_entity_ssi']
+        output[:PER][ne_solr['linked_entity_ssi']].append(ne_solr)
     end
-    nems.select {|ne_solr| ne_solr['type_ssi'] == "ORG"}.each do |ne_solr|
-      output[:ORG][ne_solr['linked_entity_ssi']] = [] unless output[:ORG].has_key? ne_solr['linked_entity_ssi']
-      output[:ORG][ne_solr['linked_entity_ssi']].append(ne_solr)
+    nems.select {|ne_solr| ne_solr['type_ssi'].start_with? "ORG"}.each do |ne_solr|
+        output[:ORG][ne_solr['linked_entity_ssi']] = [] unless output[:ORG].has_key? ne_solr['linked_entity_ssi']
+        output[:ORG][ne_solr['linked_entity_ssi']].append(ne_solr)
+    end
+    nems.select {|ne_solr| ne_solr['type_ssi'] == "HumanProd"}.each do |ne_solr|
+      output[:HumanProd][ne_solr['linked_entity_ssi']] = [] unless output[:HumanProd].has_key? ne_solr['linked_entity_ssi']
+      output[:HumanProd][ne_solr['linked_entity_ssi']].append(ne_solr)
     end
     output
   end
@@ -33,7 +37,6 @@ module NamedEntitiesHelper
   def get_entity_label(options={})
     priority_language = [I18n.locale, 'en', 'de', 'fr', 'fi', 'sv']
     doc = NewseyeSolrService.get_by_id options
-    puts "####{doc}" if doc.nil?
     unless doc.nil?
       priority_language.each do |lang|
         return doc["label_#{lang}_ssi"] unless doc["label_#{lang}_ssi"].nil?

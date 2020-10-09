@@ -73,6 +73,7 @@ class @CatalogShow
              article_id = null
              if window.location.hash != ""
                 article_id = window.location.hash.slice(1)
+             self.set_named_entities [article_id]
              pagenum = self.viewer.currentPage()
              $("#current_page").html("#{pagenum+1}")
              selected_compound_article = $("#existing_compound_list li.active").data('parts')
@@ -160,12 +161,13 @@ class @CatalogShow
                                  self.hide_mask()
                                  self.set_article_dataset_form null
                                  # one overlay can be selected at a time
-                                 if $(elt).hasClass("selected_article_highlight")
+                                 if $(elt).hasClass("selected_article_highlight")  # unselect article
                                      $(elt).removeClass("selected_article_highlight" )
                                      $(elt).addClass("hover_article_highlight" )
                                      self.display_article_text null
                                      history.replaceState(null, null, ' '); # url fragment
-                                 else
+                                     self.set_named_entities []
+                                 else  # select article
                                      for e in $(".selected_article_highlight")
                                          array_elt = compoundArticleParts.filter (x)-> x.id == e.id
                                          if array_elt.length == 0
@@ -176,11 +178,12 @@ class @CatalogShow
                                          else
                                              $(e).attr('class', "compound_article_highlight" )
                                      $(elt).attr('class', "selected_article_highlight" )
-                                     self.display_article_text {id: $(elt).attr("id"), all_text: $(elt).data("text")}
+                                     self.display_article_text {id: $(elt).attr("id"), all_text: $(elt).data("text").slice(1,-1)}
                                      overlay_loc = $(elt).data("loc")
                                      self.display_mask(overlay_loc)
                                      self.set_article_dataset_form $(elt).attr('id')
                                      history.replaceState(null, null, "##{$(elt).attr("id")}"); # url fragment
+                                     self.set_named_entities [$(elt).attr("id")]
                      enterHandler: (event)->
                          elt = event.eventSource.element
                          if $(elt).attr('class') != "selected_article_highlight"
@@ -204,6 +207,7 @@ class @CatalogShow
         self = @
         articles = $('#openseadragon_view').data("articles")
         $("#compoundMode").change (e)->
+            self.set_named_entities []
             self.hide_mask()
             self.set_article_dataset_form null
             $("div.selected_article_highlight").attr('class', "base_article_highlight" )
@@ -296,6 +300,7 @@ class @CatalogShow
             if $(e.currentTarget).hasClass "active"
                 $(e.currentTarget).removeClass "active"
                 self.set_compound_article_dataset_form null, null
+                self.set_named_entities []
             else
                 $(e.currentTarget.parentElement).find("li").removeClass 'active'
                 $(e.currentTarget).addClass "active"
@@ -304,6 +309,7 @@ class @CatalogShow
                 compound_title = $(e.currentTarget).find("div.compound_title").text()
                 self.set_compound_article_dataset_form compound_id, compound_title
                 parts_ids = $(e.currentTarget).data('parts')
+                self.set_named_entities parts_ids
                 compound_page = -1
                 for pagenum, parts of articles
                     for part in parts
@@ -374,6 +380,7 @@ class @CatalogShow
             $("#compound_article_dataset_panel").show()
 
 
+
     display_mask: (overlay_loc)->
         self = @
         maskN = $("<div id=\"mask_north\" class=\"selection_mask\"></div>")
@@ -405,7 +412,7 @@ class @CatalogShow
             div = $("<div>")
             div.append $("<p><span style=\"color: #888888; font-weight: bold;\">ArticleID: </span>#{article.id}</p>")
             div.append $("<hr/>")
-            div.append $("<p>#{article.all_text.replace(new RegExp("\\\\n", "g"), "<br/>").slice(1,-1)}</p>")
+            div.append $("<p>#{article.all_text.replace(new RegExp("\\\\n", "g"), "<br/>")}</p>")
             $("#article_panel").show()
             $("#article_text").html div.html()
             $("#article_panel")[0].scrollTop = 0
@@ -422,3 +429,76 @@ class @CatalogShow
         else
             $("#page_next").parent().prop("disabled", false )
 
+    load_named_entities_panels: ->
+        API.update_named_entities_panels JSON.stringify($("#named_entities").data('ne')), (data)->
+            $("#named_entities").html(data.responseText)
+            $("#named_entities").show()
+
+    set_named_entities: (selected_articles_ids)->
+        selected_articles_ids = selected_articles_ids.filter( (el)-> el != null )
+        mapping = {"PER": "Persons", "LOC": "Locations", "ORG": "Organizations", "HumanProd": "Human Productions"}
+        stance_mapping = {'-1': '-', '0': '=', '1': '+'}
+        to_display = {}
+        named_entities = $("#named_entities").data('ne')
+        if selected_articles_ids.length == 0
+            to_display = named_entities
+        else
+            for ne_type of named_entities
+                for linked of named_entities[ne_type]
+                    for mention in named_entities[ne_type][linked]
+                        if selected_articles_ids.includes(mention['article_id_ssi'])
+                            to_display[ne_type] ||= {}
+                            to_display[ne_type][linked] ||= []
+                            to_display[ne_type][linked].push mention
+        API.get_named_entities_kburl_label Object.keys(to_display).map( (k)-> Object.keys(to_display[k]) ).flat(), (named_entities_infos)->
+            named_entities_infos = named_entities_infos.responseJSON
+            $("#named_entities").html("")
+            for ne_type of to_display
+                panel = $('<div class="panel panel-default"></div>')
+                panel_heading = $('<div class="panel-heading"></div>')
+                panel_title = $('<h4 class="panel-title"></h4>')
+                a = $('<a data-toggle="collapse" href="#entities_' + ne_type + '">')
+                a.append document.createTextNode(mapping[ne_type])
+                span = $('<span style="color: grey"></span>')
+                nb = Object.values(to_display[ne_type]).reduce( (acc,val,i,a)->
+                    return acc+val.length
+                , 0)
+                content = '(' + Object.keys(to_display[ne_type]).length + ' entities, ' + nb + ' mentions)'
+                span.append document.createTextNode(content)
+                a.append span
+                panel_title.append a
+                panel_heading.append panel_title
+                panel.append panel_heading
+
+                panel_content = $('<div id="entities_' + ne_type + '" class="panel-collapse collapse">')
+                ul = $('<ul class="list-group"></ul>')
+                for linked in Object.keys(to_display[ne_type]).sort( (a,b)-> return to_display[ne_type][a].length < to_display[ne_type][b].length )
+                    if to_display[ne_type][linked]
+                        li = $('<li class="list-group-item"></li>')
+                        if linked == ""
+                            entity_label = "Unlinked #{mapping[ne_type]}"
+                        else
+                            if named_entities_infos[linked]
+                                entity_label = named_entities_infos[linked]['label']
+                            else
+                                entity_label = ""  # when linked not indexed in solr
+                        linked_a = $('<a data-toggle="collapse" href="#entities_' + ne_type + '_' + linked + '">'+entity_label+'</a>')
+                        text = document.createTextNode(" (#{to_display[ne_type][linked].length} mention#{if to_display[ne_type][linked].length > 1 then "s" else ""})")
+                        li.append linked_a
+                        li.append text
+                        if named_entities_infos[linked]
+                            kb_link = $('<a class="pull-right" target="_blank" href="' + named_entities_infos[linked]['url'] + '"><span class="glyphicon glyphicon-info-sign" style="color: black"></span></a>')
+                            li.append kb_link
+                        mentions = $('<div id="entities_' + ne_type + '_' + linked + '" class="panel-collapse collapse">')
+                        mentions_list = $('<ul class="list-group"></ul>')
+                        for ne in to_display[ne_type][linked]
+                            li2 = $('<li class="list-group-item ne_mention"></li>')
+                            li2.append document.createTextNode("#{ne['mention_ssi']} (#{stance_mapping[ne['stance_fsi']]})")
+                            mentions_list.append li2
+                        mentions.append mentions_list
+                        ul.append li
+                        ul.append mentions
+                panel_content.append ul
+                panel.append panel_content
+                $("#named_entities").append panel
+                # console.log panel

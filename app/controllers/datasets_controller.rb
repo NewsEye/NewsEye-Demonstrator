@@ -14,6 +14,7 @@ class DatasetsController < ApplicationController
   def show
     session['working_dataset'] = @dataset.id
     @documents_list = @dataset.fetch_documents
+    @named_entities = @dataset.get_entities
     @documents_list.sort_by! do |doc|
       case params[:sort]
       when "date"

@@ -9,10 +9,7 @@ module Blacklight::FacetsHelperBehavior
   # @param [Hash] options
   # @return [Boolean]
   def has_facet_values? fields = facet_field_names, options = {}
-    puts fields
-    puts facets_from_request(fields)
     facets_from_request(fields).any? do |display_facet|
-      puts display_facet
       !display_facet.items.empty? && should_render_facet?(display_facet)
     end
   end

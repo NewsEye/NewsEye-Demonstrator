@@ -69,16 +69,34 @@ class ExportController < ApplicationController
     dataset = Dataset.find(params[:id])
     filename = "/tmp/export_#{dataset.title.parameterize(separator: '_')}_#{Time.now.strftime("%d_%m_%Y_%H_%M")}.json"
     to_write = []
+    named_entities = dataset.get_entities
+    named_entities = named_entities.values.map{|h| h.values }.flatten
+    puts named_entities
     dataset.fetch_documents.map do |solr_doc|
       lang = solr_doc['language_ssi']
       thumb = solr_doc['thumbnail_url_ss_list'].nil? ? solr_doc['thumbnail_url_ss'] : solr_doc['thumbnail_url_ss_list'].split("\n")
+      entities = named_entities.select{ |ne| solr_doc['article_parts_ssim'].include? ne['article_id_ssi'] }
+      entities = entities.map do |ne|
+        {
+          mention: ne['mention_ssi'],
+          indexStart: ne['article_index_start_isi'],
+          indexEnd: ne['article_index_end_isi'],
+          stance: if ne['stance_fsi'] == 0
+                    "neutral"
+                  else
+                    ne['stance_fsi'] > 0 ? "positive" : "negative"
+                  end,
+          linked_entity_url: ne['linked_entity_ssi'] == "" ? nil : "https://www.wikidata.org/wiki/#{ne['linked_entity_ssi'].split('_')[-1]}"
+        }
+      end
       to_write << { id: solr_doc['id'],
                     language: lang,
                     date: solr_doc['date_created_dtsi'],
                     newspaper_id: solr_doc['member_of_collection_ids_ssim'][0],
                     iiif_url: thumb,
                     relevancy: solr_doc['relevancy'],
-                    text: solr_doc["all_text_t#{lang}_siv"] }
+                    text: solr_doc["all_text_t#{lang}_siv"],
+                    named_entities: entities }
     end
     File.open(filename, 'w') do |f|
       f.write to_write.to_json

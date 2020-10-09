@@ -83,17 +83,14 @@
       </div>
 
       <hr/>
-      <div>
-        <%#= button_to "Search for documents with similar linked entities",
-                      "/catalog/linked_entity_search",
-                      method: "post",
-                      params: {dataset_id: @dataset.id}%>
-      </div>
-      <hr/>
 
-      <div>
-        <%= render partial: "datasets/datasets_handling" %>
-      </div>
+        <div>
+            <%= render partial: "datasets/datasets_handling" %>
+        </div>
+        <hr/>
+        <div>
+            <%= render partial: "catalog/named_entities_panel" %>
+        </div>
     </div>
 
     <div class="col-md-9 documents-list">

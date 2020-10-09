@@ -26,6 +26,7 @@ class CompoundArticle < ActiveRecord::Base
                                             })
       solr_doc['thumbnail_url_ss_list'] = text_parts.map{|d| d["thumbnail_url_ss"] }.join("\n")
       solr_doc["all_text_t#{solr_doc['language_ssi']}_siv"] = text_parts.map{|d| d["all_text_t#{solr_doc['language_ssi']}_siv"] }.join("\n")
+      solr_doc["article_parts_ssim"] = text_parts.map{|d| d["id"] }
       solr_doc
   end
 

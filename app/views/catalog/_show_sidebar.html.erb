@@ -30,6 +30,5 @@
 </div>
 
 
-
-
-<%= render partial: "named_entities_panel" %>
+<% named_entities = get_named_entities_for_doc(@document.id) %>
+<div id="named_entities" data-ne="<%= named_entities.to_json %>"></div>

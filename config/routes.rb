@@ -124,6 +124,7 @@ Rails.application.routes.draw do
     post '/catalog/modify_doc_relevancy', to: 'catalog#modify_doc_relevancy'
     post '/catalog/article_parts', to: 'catalog#article_parts'
     post '/catalog/linked_entity_search', to: 'catalog#linked_entity_search'
+    post '/catalog/get_named_entities_kburl_label', to: 'catalog#get_named_entities_kburl_label'
     get '/wide_date_histogram', to: 'catalog#wide_date_histogram'
     get '/add_all_docs_to_dataset_modal', to: 'catalog#add_all_docs_to_dataset'
     post '/add_query_to_dataset', to: 'catalog#add_query_to_dataset'
