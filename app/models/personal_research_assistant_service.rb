@@ -25,8 +25,8 @@ class PersonalResearchAssistantService
   end
 
   def self.list_utilities
-    url = "https://newseye-wp5.cs.helsinki.fi/api/analysis/utilities/"
-    res = query_api url, nil
+    url = "https://newseye-wp5.cs.helsinki.fi/api/analysis/processors/"
+    res = query_api url, nil, true, false
     return res.nil? ? [] : res
   end
 

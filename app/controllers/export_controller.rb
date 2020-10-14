@@ -48,7 +48,7 @@ class ExportController < ApplicationController
           cell 'Text', type: :string, style: "headings"
         end
         dataset.fetch_documents.map do |solr_doc|
-        thumb = solr_doc['thumbnail_url_ss_list'].nil? ? solr_doc['thumbnail_url_ss'] : solr_doc['thumbnail_url_ss_list']
+          thumb = solr_doc['thumbnail_url_ss_list'].nil? ? solr_doc['thumbnail_url_ss'] : solr_doc['thumbnail_url_ss_list']
           row do
             cell solr_doc['id']
             cell solr_doc['language_ssi']
