@@ -44,7 +44,8 @@ class @ExperimentShow
                 if $("#dataset_select option:selected").val() != ""
                     self.addNode {
                         id: "dataset_data_source_#{self.getNextId("dataset_data_source")}"
-                        type: "text_collection"
+                        type: "dataset"
+                        output_type: "dataset"
                         params: {
                             source: "dataset"
                             source_id: $("#dataset_select option:selected").val()
@@ -54,6 +55,67 @@ class @ExperimentShow
                     }
                     $('#modal-add_data_source').modal('hide')
                 return false
+        $("#modal-add_output").on "shown.bs.modal", (e)->
+            tools = JSON.parse $("#pra_tools").data('tools')
+            # in PRA: text_collection = dataset
+            console.log tools
+            available_tools = tools.filter (tool)-> tool['input_type'] == self.cy.nodes(":selected").data("output_type")
+            console.log available_tools
+            # HOTFIX because some analysis tool can be called directly on datasets (not indicated by API right now)
+            other_tools = tools.filter (tool)-> tool['name'] == "SplitByFacet"
+            if $("#node_type").text() == "dataset"
+                Array::push.apply available_tools, other_tools
+            for tool in available_tools
+                console.log tool
+                tool_div = $("<div class=\"btn btn-primary\">#{tool['name']}</div>")
+                tool_div.attr("data-outputtype", tool['output_type'])
+                tool_div.attr("data-inputtype", tool['input_type'])
+                tool_div.attr("data-tooltype", tool['name'])
+                tool_div.addClass "active"
+                tool_div.on "click", {tool: tool}, (e)->
+                    $("#tools_grid .btn").removeClass "active"
+                    $(e.target).addClass "active"
+                    $("#tool_description").text(e.data.tool['description'])
+                    $("#tool_parameters").html ""
+                    for param in e.data.tool['parameters']
+                        switch param['type']
+                            when 'string'
+                                container = $('<div class="input-group"></div>')
+                                label = $('<span class="input-group-addon"></span>')
+                                label.attr "title", param['description']
+                                label.append document.createTextNode(param['name'])
+                                input = $('<input class="form-control" type="text" placeholder="' + param['default'] + '"/>')
+                                container.append label
+                                container.append input
+                                $("#tool_parameters").append container
+                            else
+                                console.log "default"
+                $("#tools_grid").append tool_div
+            $($("#tools_grid").children()[0]).trigger "click"
+            $("#add_tool_button").on "click", (event)->
+                tool_type = $("#tools_grid div.active").data('tooltype')
+                added_node_id = "#{tool_type}_#{self.getNextId(tool_type)}"
+                parameters = {}
+                $("#tool_parameters > div").each (index)->
+                    key = $(@).find("span").text()
+                    val = if $(@).find("input").val() == "" then $(@).find("input").attr("placeholder") else $(@).find("input").val()
+                    parameters[key] = val
+                self.addNode {
+                    id: added_node_id
+                    type: tool_type
+                    output_type: $("#tools_grid div.active").data('outputtype')
+                    class: "analysis_tool"
+                    inputs: [self.cy.nodes(":selected")[0].data('id')]
+                    parameters: parameters
+                    results: {}
+                    status: "not started"
+                }
+                self.addEdge self.cy.nodes(":selected")[0].data('id'), added_node_id, {type: "final"}
+                $('#modal-add_output').modal('hide')
+                self.cy.$("##{added_node_id}").select()
+
+    send_experiment_pra: ->
+        @.cy.nodes().jsons().map(x => x.data)
 
     initGraph: ->
         self = @
@@ -80,6 +142,7 @@ class @ExperimentShow
                     $("#type_attr").html event.target.data('type')
                     $("#id_attr").html event.target.data('id')
                     $("#params_attr").html ""
+                    console.log event.target
                     params = event.target.data('parameters')
                     for param of params
                         $("#params_attr").append "<p class=\"collection_param\"><span style=\"color: #888888; font-weight: bold;\">#{param}: </span>#{params[param]}</p>"
@@ -87,7 +150,7 @@ class @ExperimentShow
 
                     # Task panel
 
-                else if event.target.data('type') == "text_collection" # or event.target.data('type') == "placeholder_collections"
+                else if event.target.data('type') == "dataset" # or event.target.data('type') == "placeholder_collections"
                     # Attributes panel
                     $("#type_attr").html event.target.data('type')
                     $("#id_attr").html event.target.data('id')
@@ -103,24 +166,18 @@ class @ExperimentShow
                             else if mapping[param] != undefined
                                 $("#params_attr").append "<p class=\"collection_param\" ><span style=\"color: #888888; font-weight: bold;\">#{mapping[param]}: </span>#{query[param]}</p>"
                     else if event.target.data('params').source == "dataset"
-                        $("#params_attr").append "<p class=\"collection_param\"><span style=\"color: #888888; font-weight: bold;\">Dataset: </span>#{event.target.data('params').source_name}</p>"
+                        $("#params_attr").append "<p class=\"collection_param\"><span style=\"color: #888888; font-weight: bold;\">Dataset: </span><a href=\"/datasets/#{event.target.data('params').source_id}\">#{event.target.data('params').source_name}</a></p>"
                     $("#outputs_attr").html ""
                     $("#inputs_attr").html ""
 
-                    $("#node_attrs a.add_output").remove()
-                    add_output = $("<a class=\"select_link add_output\">Add an analysis tool <span class=\"glyphicon glyphicon-plus-sign\"></span></a>")
-                    add_output.on "click", (e)->
-                        # Add output modal
-                        $("#modal-add_output").find(".modal-content").html self.create_add_output_modal()
-                        $("#modal-add_output").modal()
-                        $('#modal-add_output')[0].classList.remove('hide')
-                    $("#node_attrs").append add_output
-                    # Task panel
-
-            $(document).on "click", ".select_link", (event)->
-                if $(event.target).prop('tagName') == "A"  # To not catch glyphicon click (add output)
-                    node_id = $(event.target).text()
-                    self.cy.$("##{node_id}").select()
+                $("#add_output_button").off "click"
+                $("#add_output_button").on "click", (e)->
+                    $.ajax {
+                        url:  window.location.protocol+"//"+window.location.host+'/experiment/add_output_modal',
+                        method: 'POST',
+                        dataType: "script",
+                        data:{node_type: event.target.data('type')}
+                    }
 
     addNode: (data)->
         self = @
@@ -255,7 +312,7 @@ class @ExperimentShow
         return modal.html()
 
     createSVG: (node)->
-        if node.data('type') == "text_collection"
+        if node.data('type') == "dataset"
             return SVGUtils.text_collection node.data('params').source
         if node.data('type') == "SplitByFacet"
             return SVGUtils.split_by_facet node.data('task_status')
@@ -266,7 +323,7 @@ class @ExperimentShow
         self = @
         return [
             {
-                selector: 'node[type = "text_collection"]'
+                selector: 'node[type = "dataset"]'
                 style: {
                     "shape": "roundrectangle"
                     #"background-color": "#457B9D"
@@ -288,7 +345,7 @@ class @ExperimentShow
                 }
             }
             {
-                selector: 'node[type = "text_collection"]:selected'
+                selector: 'node[type = "dataset"]:selected'
                 style: {
                     "shape": "roundrectangle"
                     "background-color": "#457B9D"

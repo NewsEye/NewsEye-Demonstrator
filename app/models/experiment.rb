@@ -17,7 +17,8 @@ class Experiment < ActiveRecord::Base
     for collec in data['collections']
       node = {
           id: "collection_#{collec['collection_no']}",
-          type: "text_collection",
+          type: 'dataset',
+          output_type: "dataset",
           inputs: [],
           params: {
               source: collec['collection_type'],
@@ -56,7 +57,7 @@ class Experiment < ActiveRecord::Base
     end
 
     for node in nodes
-      next if node[:data][:type] != "text_collection"
+      next if node[:data][:type] != "dataset"
       for input in node[:data][:inputs]
         edge = {
             id: "edge_#{edges.size}",

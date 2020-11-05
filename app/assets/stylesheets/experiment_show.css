@@ -30,3 +30,11 @@ a.select_link {
 .collection_param {
     margin: 0;
 }
+
+#tools_grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-gap: 1rem;
+    grid-column-start: auto;
+    padding: 5px;
+}

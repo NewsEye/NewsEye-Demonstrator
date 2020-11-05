@@ -157,6 +157,15 @@ class @API
             success: (data)->
                 callback(data)
         }
+    @get_random_sample: (query_params, callback)->
+        $.ajax {
+            url:  window.location.protocol+"//"+window.location.host+'/get_random_sample',
+            method: 'POST',
+            data:{query_params: query_params},
+            success: (data)->
+                callback(data)
+        }
+
     @delete_compound_article: (compound_id, callback)->
         $.ajax {
             url:  window.location.protocol+"//"+window.location.host+'/delete_compound_article',

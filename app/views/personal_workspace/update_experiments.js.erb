@@ -1,2 +1,14 @@
-$("body").css("cursor", "default")
+$("body").css("cursor", "default");
+if ('<%= @status %>' == "error") {
+    $("div#main-flashes div:first-child").empty()
+    log = $('<div class="alert alert-danger" role="alert">Failed to create experiment.<a class="close" data-dismiss="alert" href="#">×</a></div>')
+    $("div#main-flashes div:first-child").append(log)
+}
+else if ('<%= @status %>' == "ok") {
+    $("div#main-flashes div:first-child").empty()
+    log = $('<div class="alert alert-success" role="alert">Experiment created !<a class="close" data-dismiss="alert" href="#">×</a></div>')
+    $("div#main-flashes div:first-child").append(log)
+}
+else {
+}
 $("#experiments_panel").replaceWith("<%= escape_javascript render partial: 'experiment/index' %>")

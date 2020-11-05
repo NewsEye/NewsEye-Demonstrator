@@ -46,6 +46,7 @@ class PersonalWorkspaceController < ApplicationController
   def update_experiments
     Experiment.where(user: current_user).where.not(task: nil).each do |experiment|
       data = PersonalResearchAssistantService.get_result experiment.task.uuid
+      puts data
       experiment.task.update(status: data['run_status'], uuid: data['uuid'],
                started: data['run_started'], finished: data['run_finished'],parameters: data['user_parameters'],
                results: data['result']) unless data.nil?
@@ -86,6 +87,12 @@ class PersonalWorkspaceController < ApplicationController
     respond_to do |format|
       format.js { render file: "personal_workspace/update_experiments", layout: false}
     end
+  end
+
+  def create_experiment
+      respond_to do |format|
+          format.js
+      end
   end
 
   def describe_search
@@ -147,11 +154,16 @@ class PersonalWorkspaceController < ApplicationController
       t = Task.create(user: current_user, status: data['run_status'], uuid: data['uuid'],
                   started: data['run_started'], dataset: dataset)
       Experiment.create(user: current_user, title: "Investigation of dataset \"#{dataset.title}\"", task: Task.where(uuid: data['uuid'])[0])
+      @status = 'ok'
+      respond_to do |format|
+          format.js { render file: "personal_workspace/update_experiments", layout: false}
+      end
     else
       puts data
-    end
-    respond_to do |format|
-      format.js { render file: "personal_workspace/update_experiments", layout: false}
+      @status = 'error'
+      respond_to do |format|
+          format.js { render file: "personal_workspace/update_experiments", layout: false}
+      end
     end
   end
 

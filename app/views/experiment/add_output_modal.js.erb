@@ -1,0 +1,3 @@
+$("#modal-add_output").find(".modal-content").html("<%= j(render partial: "experiment/add_output_modal", locals: {node_type: @node_type}) %>")
+$("#modal-add_output").modal()
+$('#modal-add_output')[0].classList.remove('hide')

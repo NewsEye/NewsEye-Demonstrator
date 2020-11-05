@@ -2,6 +2,7 @@ class ExperimentController < ApplicationController
 
   def show
     @experiment = Experiment.find params[:id]
+    @tools = PersonalResearchAssistantService.list_utilities
     if current_user != @experiment.user
       respond_to do |format|
         format.html { redirect_to "/#{I18n.locale}/personal_workspace", notice: 'You do not have the right to access this experiment.' }
@@ -19,10 +20,43 @@ class ExperimentController < ApplicationController
     end
   end
 
+  def explain_modal
+      @content = JSON.parse PersonalResearchAssistantService.explain params[:task_uuid]
+      respond_to do |format|
+          format.js
+      end
+  end
+
+  def report_modal
+      @content = PersonalResearchAssistantService.get_experiment_report params[:task_uuid]
+      puts @content
+      respond_to do |format|
+          format.js
+      end
+  end
+
   def add_data_source
     respond_to do |format|
       format.html { redirect_to "/#{I18n.locale}/experiment/#{params[:experiment_id]}", notice: 'Topic modelling query task was successfully created.' }
     end
+  end
+
+  def add_output_modal
+      @node_type = params[:node_type]
+      respond_to do |format|
+          format.js
+      end
+  end
+
+  def new_experiment
+      @experiment = Experiment.new
+      @experiment.title = params[:title]
+      @experiment.user = current_user
+      @experiment.description = []
+      @experiment.save
+      respond_to do |format|
+          format.js
+      end
   end
 
   def save

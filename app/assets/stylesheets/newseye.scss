@@ -142,6 +142,18 @@ span.code-style {
   font-family: 'Courier New', Courier, monospace;
   white-space: nowrap;
 }
+
+#search_menu_list li {
+  margin-right: 5px;
+}
+
+.sample_snippet {
+  text-size: medium;
+  text-align: justify;
+  text-justify: inter-character;
+  margin: 1em;
+}
+
 /*
  * Canvas Explore
  */

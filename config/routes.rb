@@ -125,12 +125,16 @@ Rails.application.routes.draw do
     post '/catalog/article_parts', to: 'catalog#article_parts'
     post '/catalog/linked_entity_search', to: 'catalog#linked_entity_search'
     post '/catalog/get_named_entities_kburl_label', to: 'catalog#get_named_entities_kburl_label'
+    get '/random_samples_modal', to: 'catalog#random_samples_modal'
     get '/wide_date_histogram', to: 'catalog#wide_date_histogram'
     get '/add_all_docs_to_dataset_modal', to: 'catalog#add_all_docs_to_dataset'
     post '/add_query_to_dataset', to: 'catalog#add_query_to_dataset'
     post "/confirm_compound_article", to: "catalog#confirm_compound_article"
     post "/create_compound_article", to: "catalog#create_compound_article"
     post "/delete_compound_article", to: "catalog#delete_compound_article"
+    post '/get_random_sample', to: 'catalog#get_random_sample'
+
+    match '/stance_evol' => 'stance_evol#index', via: [:get, :post, :put, :patch, :delete]
 
     post "/saved_searches/save", to: "saved_searches#save"
     post "/saved_searches/confirm_save", to: "saved_searches#confirm_save"
@@ -138,6 +142,7 @@ Rails.application.routes.draw do
     get "/saved_searches/get_ids/:id", to: "saved_searches#get_ids"
     get '/delete_search/:id', to: 'saved_searches#delete_search'
     get "/personal_workspace", to: "personal_workspace#index"
+    get "/personal_workspace/create_experiment", to: "personal_workspace#create_experiment"
 
     post "/list_datasets", to: "api_base#list_datasets"
     post "/get_dataset_content", to: "api_base#get_dataset_content"
@@ -157,6 +162,10 @@ Rails.application.routes.draw do
     post "/experiment/save", to: "experiment#save"
     post "/experiment/load", to: "experiment#load"
     post "/experiment/get_run_id", to: "experiment#get_run_id"
+    get "/experiment/new_experiment", to: "experiment#new_experiment"
+    post "/experiment/add_output_modal", to: "experiment#add_output_modal"
+    post "/experiment/explain", to: "experiment#explain_modal"
+    post "/experiment/report", to: "experiment#report_modal"
 
   end
 

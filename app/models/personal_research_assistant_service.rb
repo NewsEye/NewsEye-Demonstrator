@@ -20,14 +20,25 @@ class PersonalResearchAssistantService
   end
 
   def self.get_report(task_uuid)
-    url = "https://newseye-wp5.cs.helsinki.fi/api/report/#{task_uuid}"
-    query_api url, nil
+      url = "https://newseye-wp5.cs.helsinki.fi/api/report#{task_uuid}"
+      query_api url, nil
+  end
+
+  def self.get_experiment_report(task_uuid)
+      url = "https://newseye-wp5.cs.helsinki.fi/api/report/report?run=#{task_uuid}"
+      query_api url, nil
   end
 
   def self.list_utilities
-    url = "https://newseye-wp5.cs.helsinki.fi/api/analysis/processors/"
-    res = query_api url, nil, true, false
-    return res.nil? ? [] : res
+      url = "https://newseye-wp5.cs.helsinki.fi/api/analysis/processors/"
+      res = query_api url, nil, true, false
+      return res.nil? ? [] : res
+  end
+
+  def self.explain(task_uuid)
+      url = "https://newseye-wp5.cs.helsinki.fi/api/explainer/explain?run=#{task_uuid}"
+      res = query_api url, nil, true, false
+      return res.nil? ? [] : res
   end
 
   def self.api_search(query)
@@ -52,7 +63,7 @@ class PersonalResearchAssistantService
     when Hash
       body = {utility: utility_name, search_query: data_source, utility_parameters: utility_params, force_refresh: force_refresh}
       query_api url, body
-    when nil
+    when nil || self.cy.nodes(":selected").data("type")
       body = {utility: utility_name, utility_parameters: utility_params, force_refresh: force_refresh}
       query_api url, body
     else
@@ -98,7 +109,7 @@ class PersonalResearchAssistantService
 
   def self.investigate_dataset(dataset_title, username)
     url = "https://newseye-wp5.cs.helsinki.fi/api/investigator/"
-    body = {dataset: {name: dataset_title, user: username}}
+    body = {dataset: {name: dataset_title, user: username}, force_refresh: true}
     query_api url, body
   end
 

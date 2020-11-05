@@ -8,20 +8,20 @@
         <tr>
           <td><%= link_to dataset.title, dataset %></td>
           <td><%= dataset.nb_issues %> issues, <%= dataset.nb_articles %> articles and <%= dataset.nb_compound %> compound articles.</td>
+<!--          <td>-->
+            <%#= link_to "Describe", "/personal_workspace/describe_dataset/#{dataset.id}", remote: true %>
+<!--          </td>-->
           <td>
-            <%= link_to "Describe", "/personal_workspace/describe_dataset/#{dataset.id}", remote: true %>
-          </td>
-          <td>
-            <%= link_to "Experiment", "/personal_workspace/investigate_dataset/#{dataset.id}", remote: true %>
+            <%= link_to "Experiment", "/personal_workspace/investigate_dataset/#{dataset.id}", remote: true, class: "start_experiment_button" %>
           </td>
 <!--          <td>-->
             <%#= link_to "/personal_workspace/explore_dataset/#{dataset.id}", method: :delete, data: { confirm: 'Are you sure?' }, remote: true do %>
 <!--              <span class="glyphicon glyphicon-search" style="color: black"></span>-->
             <%# end %>
 <!--          </td>-->
-          <td>
-            <%= link_to "TM", "/topic_models/query_modal/dataset/#{dataset.id}", remote: true%>
-          </td>
+<!--          <td>-->
+            <%#= link_to "TM", "/topic_models/query_modal/dataset/#{dataset.id}", remote: true%>
+<!--          </td>-->
           <td>
             <%= link_to dataset, method: :delete, data: { confirm: 'Are you sure ? All associated tasks will also be deleted.' } do %>
               <span class="glyphicon glyphicon-remove" style="color: red"></span>

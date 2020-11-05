@@ -1,11 +1,15 @@
 <div class="panel panel-default" id="experiments_panel">
-  <div class="panel-heading">
-    Experiments
-    <form id="refresh_experiments_form" class="form-inline" style="float: right;" novalidate="novalidate" data-remote="true" action="/personal_workspace/update_experiments" accept-charset="UTF-8" method="get">
-      <%= csrf_meta_tags %>
-      <button type="submit" class="btn btn-link"><span class="glyphicon glyphicon-refresh"></span></button>
-    </form>
-  </div>
+    <div class="panel-heading" style="display: flex">
+        <div style="display: inline-block; padding-top:0.5em;">
+            <span style="font-weight: bold">Experiments</span> (<a id="new_experiment_link" href="#">Create a new experiment</a>)
+        </div>
+        <div style="display: inline-block; margin-left: auto;">
+            <form id="refresh_experiments_form" class="form-inline" novalidate="novalidate" data-remote="true" action="/personal_workspace/update_experiments" accept-charset="UTF-8" method="get">
+                <%= csrf_meta_tags %>
+                <button type="submit" class="btn btn-link"><span class="glyphicon glyphicon-refresh"></span></button>
+            </form>
+        </div>
+    </div>
   <div class="panel-body">
 
     <div class="list-group">

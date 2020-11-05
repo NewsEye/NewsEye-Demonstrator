@@ -1,14 +1,30 @@
+<div id="pra_tools" style="display:none" data-tools="<%= @tools %>"></div>
 <div class="row">
     <div class="col-md-2">
         <div class="row">
             <div class="panel panel-default">
                 <div class="panel-body">
                     <%= button_to "Add a data source",
-                        "/experiment/add_data_source_modal",
-                        method: "post",
-                        remote: true,
-                        params: {experiment_id: @experiment.id},
-                        class: "btn btn-primary" %>
+                                  "/experiment/add_data_source_modal",
+                                  method: "post",
+                                  remote: true,
+                                  params: {experiment_id: @experiment.id},
+                                  class: "btn btn-primary",
+                                  style: "margin-bottom: 5px;" %>
+                    <%= button_to "Explain",
+                                  "/experiment/explain",
+                                  method: "post",
+                                  remote: true,
+                                  params: {task_uuid: @experiment.task.uuid},
+                                  class: "btn btn-primary",
+                                  style: "margin-bottom: 5px;" %>
+                    <%= button_to "Report",
+                                  "/experiment/report",
+                                  method: "post",
+                                  remote: true,
+                                  params: {task_uuid: @experiment.task.uuid},
+                                  class: "btn btn-primary",
+                                  style: "margin-bottom: 5px;" %>
                 </div>
             </div>
         </div>
@@ -17,17 +33,28 @@
                 <div class="panel-body">
                     <div class="input-group">
                         <span class="input-group-btn">
-                            <button id="run_experiment_from_button" class="btn btn-success">
-                                <span class="glyphicon glyphicon-play"></span>
-                            </button>
+<!--                            <button id="run_experiment_from_button" class="btn btn-success">-->
+<!--                                <span class="glyphicon glyphicon-play"></span>-->
+<!--                            </button>-->
                             <button id="node_results_button" class="btn btn-info">
                                 <span class="glyphicon glyphicon-list-alt"></span>
+                                View results
                             </button>
-                            <button id="node_parameters_button" class="btn btn-secondary">
-                                <span class="glyphicon glyphicon-cog"></span>
+                            <button id="add_output_button" class="btn btn-info add_output">
+                                <span class="glyphicon glyphicon-plus-sign"></span>
+                                Add tool
                             </button>
+<!--                            <button id="node_parameters_button" class="btn btn-secondary">-->
+<!--                                <span class="glyphicon glyphicon-cog"></span>-->
+<!--                            </button>-->
+                        </span>
+                    </div>
+
+                    <div class="input-group">
+                        <span class="input-group-btn">
                             <button id="delete_node_button" class="btn btn-danger">
                                 <span class="glyphicon glyphicon-remove-sign"></span>
+                                Delete node
                             </button>
                         </span>
                     </div>
@@ -58,12 +85,22 @@
 </div>
 
 <div id="modal-add_data_source" class="modal hide fade" role="dialog" aria-labelledby="add_data_source" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content"></div>
-  </div>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content"></div>
+    </div>
+</div>
+<div id="modal-report" class="modal hide fade" role="dialog" aria-labelledby="explain" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content"></div>
+    </div>
+</div>
+<div id="modal-explain" class="modal hide fade" role="dialog" aria-labelledby="explain" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content"></div>
+    </div>
 </div>
 <div id="modal-add_output" class="modal hide fade" role="dialog" aria-labelledby="add_output" aria-hidden="true">
-  <div class="modal-dialog" role="document">
+  <div class="modal-dialog" role="document" style="width:100vh;">
     <div class="modal-content"></div>
   </div>
 </div>
