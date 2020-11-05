@@ -1,3 +1,23 @@
+<div id="metadata_panel" class="panel panel-default">
+    <div class="panel-heading">
+        Metadata
+    </div>
+    <div class="panel-body">
+        <dl class="dl-horizontal">
+            <% doc_presenter = index_presenter(@document) %>
+            <% index_fields(@document).each do |field_name, field| -%>
+                <% if should_render_index_field? @document, field %>
+                        <p>
+                            <span style="font-weight: bold"><%= render_index_field_label @document, field: field_name %></span>
+                            <span><%= doc_presenter.field_value field_name %></span>
+                        </p>
+       <!--             <dt class="blacklight-<%#= field_name.parameterize %>"><%#= render_index_field_label @document, field: field_name %></dt>
+                    <dd class="blacklight-<%#= field_name.parameterize %>"><%#= doc_presenter.field_value field_name %></dd>-->
+                <% end -%>
+            <% end -%>
+        </dl>
+    </div>
+</div>
 <div id="compound_article_panel" class="panel panel-default">
   <div class="panel-heading">
     <p style="display: inline;">Create a compound article</p>

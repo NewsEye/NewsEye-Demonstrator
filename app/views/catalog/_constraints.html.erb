@@ -21,12 +21,18 @@
                                                                 remote: true,
                                                                 'data-disable-with': 'Saving search...'}) %>
         </li>
-        <li>
-          <%= button_to("Add all documents to a dataset", "/add_all_docs_to_dataset_modal", {class: "btn btn-primary",
-                                                                id: "add_all_button",
-                                                                method: :get,
-                                                                remote: true}) %>
-        </li>
+          <li>
+              <%= button_to("Add all documents to a dataset", "/add_all_docs_to_dataset_modal", {class: "btn btn-primary",
+                                                                                                 id: "add_all_button",
+                                                                                                 method: :get,
+                                                                                                 remote: true}) %>
+          </li>
+          <li>
+              <%= button_to("Get a random sample", "/random_samples_modal", {class: "btn btn-primary",
+                                                                                     id: "random_sample_button",
+                                                                                     method: :get,
+                                                                                     remote: true}) %>
+          </li>
 <!--        <li>-->
           <%#=link_to t('blacklight.search.start_over'), start_over_path, :class => "catalog_startOverLink btn btn-sm btn-text", :id=>"startOverLink" %>
 <!--        </li>-->

@@ -258,6 +258,22 @@ class CatalogController < ApplicationController
     end
   end
 
+  def random_samples_modal
+      respond_to do |format|
+          format.js
+      end
+  end
+
+  def get_random_sample
+      query_params = params[:query_params].to_unsafe_h.slice(:q, :qf, :fq, :rows, :defType, :qt, :pf, :sort)
+      query_params[:fq] = query_params[:fq].select {|elt| !elt.start_with? "has_model_ssim:" }
+      query_params[:fq] << "has_model_ssim:Article"
+      query_params[:sort] = "rand#{(0...8).map { (65 + rand(26)).chr }.join} asc"
+      puts query_params
+      sample = NewseyeSolrService.query query_params
+      render json: sample
+  end
+
   def get_min_max_dates
     render json: {min: NewseyeVariables::DateSpan::MinDate, max: NewseyeVariables::DateSpan::MaxDate}
   end

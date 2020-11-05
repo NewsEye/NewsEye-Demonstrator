@@ -154,6 +154,7 @@ GEM
     dotenv-rails (2.7.2)
       dotenv (= 2.7.2)
       railties (>= 3.2, < 6.1)
+    dry-inflector (0.2.0)
     ebnf (1.1.3)
       rdf (~> 3.0)
       sxp (~> 1.0)
@@ -274,6 +275,11 @@ GEM
       rb-fsevent (~> 0.9, >= 0.9.4)
       rb-inotify (~> 0.9, >= 0.9.7)
       ruby_dep (~> 1.2)
+    lograge (0.11.2)
+      actionpack (>= 4)
+      activesupport (>= 4)
+      railties (>= 4)
+      request_store (~> 1.0)
     loofah (2.2.3)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
@@ -317,6 +323,8 @@ GEM
     puma (3.12.0)
     puma (3.12.0-java)
     rack (2.0.6)
+    rack-proxy (0.6.5)
+      rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
     rails (5.1.6.1)
@@ -336,6 +344,11 @@ GEM
       nokogiri (>= 1.6)
     rails-html-sanitizer (1.0.4)
       loofah (~> 2.2, >= 2.2.2)
+    rails-reverse-proxy (0.9.1)
+      addressable
+      rack
+      rack-proxy
+      rails
     railties (5.1.6.1)
       actionpack (= 5.1.6.1)
       activesupport (= 5.1.6.1)
@@ -370,6 +383,10 @@ GEM
       deprecation (>= 1.0.0)
       iiif-image-api (~> 0.1.0)
       railties (>= 4.2, < 6)
+    rodf (1.1.1)
+      builder (>= 3.0)
+      dry-inflector (~> 0.1)
+      rubyzip (>= 1.0)
     roo (2.8.2)
       nokogiri (~> 1)
       rubyzip (>= 1.2.1, < 2.0.0)
@@ -534,13 +551,16 @@ DEPENDENCIES
   jquery-rails
   jwt
   listen (>= 3.0.5, < 3.2)
+  lograge
   material_icons
   maxminddb
   pg
   popper_js (~> 1.14.5)
   puma (~> 3.7)
   rails (~> 5.1.6)
+  rails-reverse-proxy
   riiif
+  rodf
   roo
   roo-xls
   rsolr (>= 1.0)

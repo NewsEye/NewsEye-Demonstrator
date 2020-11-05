@@ -11,6 +11,7 @@ class @CatalogIndex
         @setup_date_histogram()
         @setup_wide_date_histogram()
         @setup_add_all_docs_to_dataset()
+        @setup_random_sample()
 
         $('#apply_global_dataset_changes').click ->
             working_dataset_id = $('#working_dataset_select').children('option:selected')[0].value
@@ -160,6 +161,25 @@ class @CatalogIndex
                 if @.value == "month"
                     data = $("#dates_histogram").data("years-months")
                     self.generate_chart(data)
+
+    setup_random_sample: ->
+        $("#modal-random_samples").on "shown.bs.modal", (e)->
+            query_params = JSON.parse $("#query_params").html()
+            API.get_random_sample query_params, (data)->
+                for item in data
+                    div = $("<div class=\"row\"></div>")
+                    text = ""
+                    for key of item
+                        if key.indexOf("all_text_t") == 0
+                            text = item[key]
+                    snippet = $("<div class=\"col-md-6\"><p class=\"sample_snippet\">#{text}</p></div>")
+                    thumb_url = item['thumbnail_url_ss'].replace("/!400,200/0", "/!800,500/0")
+                    thumbnail = $("<div class=\"col-md-6\"><a href=\"/catalog/#{item['id']}\"><img class=\"img-responsive\" src=\"#{thumb_url}\" alt=\"default\"/></a></div>")
+                    div.append snippet
+                    div.append thumbnail
+                    $("#sample").append div
+                    $("#sample").append $("<hr/>")
+
 
     generate_chart: (data)->
         CatalogIndex.big_chart.destroy() if CatalogIndex.big_chart?

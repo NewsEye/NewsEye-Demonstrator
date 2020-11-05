@@ -17,6 +17,8 @@ gem 'hydra-works'
 gem 'europeana-api'
 gem 'riiif'
 
+gem 'rails-reverse-proxy'
+
 gem 'chart-js-rails'
 gem 'popper_js', '~> 1.14.5'
 gem 'rubyzip', require: 'zip'

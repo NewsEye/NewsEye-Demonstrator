@@ -291,6 +291,8 @@ class @CatalogShow
             API.delete_compound_article compound_id, (data)->
                 if data['message'] == "ok"
                     e.currentTarget.parentElement.remove()
+                if $("#existing_compound_list li").length == 0
+                    $("#existing_compound_list").hide()
             e.stopPropagation()
 
         $("#existing_compound_list").on "click", "li", (e)->
