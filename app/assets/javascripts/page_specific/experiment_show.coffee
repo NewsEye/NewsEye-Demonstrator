@@ -28,12 +28,23 @@ class @ExperimentShow
             $("#modal-results").modal()
             $('#modal-results')[0].classList.remove('hide')
             API.get_run_id_from_experiment_id self.experiment_id, (run_id)->
-                API.query_task_results selected_node.data('id'), (data)->
-                    canvases = PRAUtils.create_canvases(data)
-                    $('#div_modal_results').html canvases
-                    PRAUtils.populate_canvases data
-            API.task_report selected_node.data('id'), (data)->
-                $('#div_modal_report').html data.body[0]
+                if run_id.length != 0
+                    API.query_task_results selected_node.data('id'), (data)->
+                        canvases = PRAUtils.create_canvases(data)
+                        $('#div_modal_results').html canvases
+                        PRAUtils.populate_canvases data
+                    API.task_report selected_node.data('id'), (data)->
+                        $('#div_modal_report').html data.body[0]
+                else
+                    API.query_task_results selected_node.data('task_uuid'), (data)->
+                        canvases = PRAUtils.create_canvases(data)
+                        $('#div_modal_results').html canvases
+                        PRAUtils.populate_canvases data
+                    API.task_report selected_node.data('task_uuid'), (data)->
+                        $('#div_modal_report').html data.body[0]
+
+        $("#fit_view_button").on "click", (e)->
+            self.cy.fit()
 
 
     modals: ->
@@ -58,15 +69,12 @@ class @ExperimentShow
         $("#modal-add_output").on "shown.bs.modal", (e)->
             tools = JSON.parse $("#pra_tools").data('tools')
             # in PRA: text_collection = dataset
-            console.log tools
             available_tools = tools.filter (tool)-> tool['input_type'] == self.cy.nodes(":selected").data("output_type")
-            console.log available_tools
             # HOTFIX because some analysis tool can be called directly on datasets (not indicated by API right now)
             other_tools = tools.filter (tool)-> tool['name'] == "SplitByFacet"
             if $("#node_type").text() == "dataset"
                 Array::push.apply available_tools, other_tools
             for tool in available_tools
-                console.log tool
                 tool_div = $("<div class=\"btn btn-primary\">#{tool['name']}</div>")
                 tool_div.attr("data-outputtype", tool['output_type'])
                 tool_div.attr("data-inputtype", tool['input_type'])
@@ -142,7 +150,6 @@ class @ExperimentShow
                     $("#type_attr").html event.target.data('type')
                     $("#id_attr").html event.target.data('id')
                     $("#params_attr").html ""
-                    console.log event.target
                     params = event.target.data('parameters')
                     for param of params
                         $("#params_attr").append "<p class=\"collection_param\"><span style=\"color: #888888; font-weight: bold;\">#{param}: </span>#{params[param]}</p>"
@@ -315,9 +322,9 @@ class @ExperimentShow
         if node.data('type') == "dataset"
             return SVGUtils.text_collection node.data('params').source
         if node.data('type') == "SplitByFacet"
-            return SVGUtils.split_by_facet node.data('task_status')
+            return SVGUtils.split_by_facet node.data('status')
         if node.data('class') == "analysis_tool"
-            return SVGUtils.analysis_tool node.data('task_status'), node.data("type")
+            return SVGUtils.analysis_tool node.data('status'), node.data("type")
 
     getStyles: ->
         self = @
@@ -372,10 +379,46 @@ class @ExperimentShow
                 }
             }
             {
-                selector: 'node[class = "analysis_tool" ]'
+                selector: 'node[class = "analysis_tool" ][status = "not started"]'
                 style: {
                     "shape": "roundrectangle"
-                    # "background-color": "#F1FAEE"
+# "background-color": "#F1FAEE"
+                    "background-image": (ele)->
+                        return self.createSVG(ele).svg
+                    "width": (ele)->
+                        return self.createSVG(ele).width
+                    "height": (ele)->
+                        return self.createSVG(ele).height
+                    "border-style": "solid"
+                    "border-width": 1
+                    "border-opacity": 0.5
+#                     "label": (ele)->
+#                         return ele.data('type')
+                }
+            }
+            {
+                selector: 'node[class = "analysis_tool" ][status = "running"]'
+                style: {
+                    "shape": "roundrectangle"
+# "background-color": "#F1FAEE"
+                    "background-image": (ele)->
+                        return self.createSVG(ele).svg
+                    "width": (ele)->
+                        return self.createSVG(ele).width
+                    "height": (ele)->
+                        return self.createSVG(ele).height
+                    "border-style": "solid"
+                    "border-width": 1
+                    "border-opacity": 0.5
+#                     "label": (ele)->
+#                         return ele.data('type')
+                }
+            }
+            {
+                selector: 'node[class = "analysis_tool" ][status = "finished"]'
+                style: {
+                    "shape": "roundrectangle"
+# "background-color": "#F1FAEE"
                     "background-image": (ele)->
                         return self.createSVG(ele).svg
                     "width": (ele)->
@@ -395,7 +438,7 @@ class @ExperimentShow
                     "shape": "roundrectangle"
                     "background-color": "#F1FAEE"
                     "border-style": "solid"
-                    "border-width": 2
+                    "border-width": 3
                     "border-opacity": 1
                     "border-color": "#1D3557"
 #                     "label": (ele)->

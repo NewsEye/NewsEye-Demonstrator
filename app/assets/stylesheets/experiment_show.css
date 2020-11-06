@@ -38,3 +38,23 @@ a.select_link {
     grid-column-start: auto;
     padding: 5px;
 }
+
+#fit_view_button {
+    position: absolute;
+    z-index: 1;
+    margin: 5px;
+    box-shadow:inset 0px 1px 0px 0px #54a3f7;
+    background: #007dc1 linear-gradient(to bottom, #007dc1 5%, #0061a7 100%);
+    border-radius:3px;
+    border:1px solid #124d77;
+    display:inline-block;
+    cursor:pointer;
+    color:#ffffff;
+    padding:6px 24px;
+    text-decoration:none;
+    text-shadow:0px 1px 0px #154682;
+}
+#fit_view_button:hover {
+    background: #0061a7 linear-gradient(to bottom, #0061a7 5%, #007dc1 100%);
+}
+

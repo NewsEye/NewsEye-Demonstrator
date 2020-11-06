@@ -1,0 +1,1 @@
+current_page_class.initGraph()

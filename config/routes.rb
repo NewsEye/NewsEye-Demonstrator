@@ -166,6 +166,7 @@ Rails.application.routes.draw do
     post "/experiment/add_output_modal", to: "experiment#add_output_modal"
     post "/experiment/explain", to: "experiment#explain_modal"
     post "/experiment/report", to: "experiment#report_modal"
+    post "/experiment/run", to: "experiment#run_experiment"
 
   end
 

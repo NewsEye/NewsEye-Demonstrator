@@ -3,10 +3,11 @@ class @SVGUtils
         svg_parts = []
         color = switch status
             when "finished" then "#32CD32"
-            when "running" then "#2E8B57"
+            when "running" then "#f2930f"
             when "waiting" then "#C0C0C0"
             when "ready" then "#F4A460"
-            else "#FF0000"
+            when "failed" then "#FF0000"
+            else "#555555"
         svg_parts.push '<rect x="0" y="0" fill="#457B9D" height="80" rx="5" ry="5" width="200" stroke-width="10" stroke="'+color+'"/>'
         if type == "dataset"
             svg_parts.push '<text x="50%" y="50%" dominant-baseline="middle" fill="#EEEEEE" font-weight="bold" font-family="Verdana" font-size="30" text-anchor="middle">Dataset</text>'
@@ -21,10 +22,11 @@ class @SVGUtils
         svg_parts = []
         color = switch status
             when "finished" then "#32CD32"
-            when "running" then "#2E8B57"
+            when "running" then "#f2930f"
             when "waiting" then "#C0C0C0"
             when "ready" then "#F4A460"
-            else "#FF0000"
+            when "failed" then "#FF0000"
+            else "#555555"
         svg_parts.push "<polygon x=\"0\" y=\"0\" width=\"#{width}\" height=\"#{height}\"
                                  points=\"#{width/2},0 #{width},#{height/2} #{width/2},#{height} 0,#{height/2}\"
                                  stroke=\"#{color}\" stroke-width=\"10\" fill=\"#F1FAEE\" />"
@@ -37,10 +39,11 @@ class @SVGUtils
         svg_parts = []
         color = switch status
             when "finished" then "#32CD32"
-            when "running" then "#2E8B57"
+            when "running" then "#f2930f"
             when "waiting" then "#C0C0C0"
             when "ready" then "#F4A460"
-            else "#FF0000"
+            when "failed" then "#FF0000"
+            else "#555555"
         svg_parts.push '<rect x="0" y="0" fill="#F1FAEE" height="'+height+'" rx="5" ry="5" width="'+width+'" stroke-width="10" stroke="'+color+'"/>'
 
 #         tool_name = "<tspan text-anchor=\"middle\" dy=\"0\">#{tool_name}</tspan><tspan text-anchor=\"middle\" dy=\"20\">#{tool_name}</tspan>"

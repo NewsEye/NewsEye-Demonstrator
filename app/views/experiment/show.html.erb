@@ -4,27 +4,37 @@
         <div class="row">
             <div class="panel panel-default">
                 <div class="panel-body">
-                    <%= button_to "Add a data source",
-                                  "/experiment/add_data_source_modal",
-                                  method: "post",
-                                  remote: true,
-                                  params: {experiment_id: @experiment.id},
-                                  class: "btn btn-primary",
-                                  style: "margin-bottom: 5px;" %>
-                    <%= button_to "Explain",
-                                  "/experiment/explain",
-                                  method: "post",
-                                  remote: true,
-                                  params: {task_uuid: @experiment.task.uuid},
-                                  class: "btn btn-primary",
-                                  style: "margin-bottom: 5px;" %>
-                    <%= button_to "Report",
-                                  "/experiment/report",
-                                  method: "post",
-                                  remote: true,
-                                  params: {task_uuid: @experiment.task.uuid},
-                                  class: "btn btn-primary",
-                                  style: "margin-bottom: 5px;" %>
+                    <% if @experiment.task %>
+                        <%= button_to "Explain",
+                                      "/experiment/explain",
+                                      method: "post",
+                                      remote: true,
+                                      params: {task_uuid: @experiment.task.uuid},
+                                      class: "btn btn-primary",
+                                      style: "margin-bottom: 5px;" %>
+                        <%= button_to "Report",
+                                      "/experiment/report",
+                                      method: "post",
+                                      remote: true,
+                                      params: {task_uuid: @experiment.task.uuid},
+                                      class: "btn btn-primary",
+                                      style: "margin-bottom: 5px;" %>
+                    <% else %>
+                        <%= button_to "Add a data source",
+                                      "/experiment/add_data_source_modal",
+                                      method: "post",
+                                      remote: true,
+                                      params: {experiment_id: @experiment.id},
+                                      class: "btn btn-primary",
+                                      style: "margin-bottom: 5px;" %>
+                        <%= button_to "Run experiment",
+                                      "/experiment/run",
+                                      method: "post",
+                                      remote: true,
+                                      params: {experiment_id: @experiment.id},
+                                      class: "btn btn-primary",
+                                      style: "margin-bottom: 5px;" %>
+                    <% end %>
                 </div>
             </div>
         </div>
@@ -80,6 +90,7 @@
     </div>
 
     <div class="col-md-10">
+        <button id="fit_view_button">Fit view</button>
         <div id="graph_container"></div>
     </div>
 </div>

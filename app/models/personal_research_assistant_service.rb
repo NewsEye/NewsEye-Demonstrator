@@ -113,6 +113,12 @@ class PersonalResearchAssistantService
     query_api url, body
   end
 
+  def self.run_tool(dataset_title, username, tool_name, tool_parameters)
+      url = "https://newseye-wp5.cs.helsinki.fi/api/analysis/"
+      body = {dataset: {name: dataset_title, user: username}, processor: tool_name, parameters: tool_parameters, force_refresh: true}
+      query_api url, body
+  end
+
   def self.get_result(run_uuid)
     url = "https://newseye-wp5.cs.helsinki.fi/api/investigator/result?run=#{run_uuid}"
     query_api url, nil
@@ -124,12 +130,12 @@ class PersonalResearchAssistantService
   end
 
   def self.get_run_report(task_uuid)
-    url = "https://newseye-wp5.cs.helsinki.fi/api/report/report?run=#{task_uuid}"
+    url = "https://newseye-wp5.cs.helsinki.fi/api/report/report?run=#{task_uuid}&nolinks=true"
     query_api url, nil, true, false
   end
 
   def self.get_task_report(task_uuid)
-    url = "https://newseye-wp5.cs.helsinki.fi/api/report/report?task=#{task_uuid}"
+    url = "https://newseye-wp5.cs.helsinki.fi/api/report/report?task=#{task_uuid}&nolinks=true"
     query_api url, nil, true, false
   end
 
