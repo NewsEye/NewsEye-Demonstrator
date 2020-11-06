@@ -121,7 +121,7 @@ class @ExperimentShow
                     inputs: [self.cy.nodes(":selected")[0].data('id')]
                     parameters: parameters
                     results: {}
-                    status: "not started"
+                    task_status: "not started"
                 }
                 self.addEdge self.cy.nodes(":selected")[0].data('id'), added_node_id, {type: "final"}
                 $('#modal-add_output').modal('hide')
@@ -327,9 +327,9 @@ class @ExperimentShow
         if node.data('type') == "dataset"
             return SVGUtils.text_collection node.data('params').source
         if node.data('type') == "SplitByFacet"
-            return SVGUtils.split_by_facet node.data('status')
+            return SVGUtils.split_by_facet node.data('task_status')
         if node.data('class') == "analysis_tool"
-            return SVGUtils.analysis_tool node.data('status'), node.data("type")
+            return SVGUtils.analysis_tool node.data('task_status'), node.data("type")
 
     getStyles: ->
         self = @
@@ -384,7 +384,7 @@ class @ExperimentShow
                 }
             }
             {
-                selector: 'node[class = "analysis_tool" ][status = "not started"]'
+                selector: 'node[class = "analysis_tool" ][task_status = "not started"]'
                 style: {
                     "shape": "roundrectangle"
 # "background-color": "#F1FAEE"
@@ -402,7 +402,7 @@ class @ExperimentShow
                 }
             }
             {
-                selector: 'node[class = "analysis_tool" ][status = "running"]'
+                selector: 'node[class = "analysis_tool" ][task_status = "running"]'
                 style: {
                     "shape": "roundrectangle"
 # "background-color": "#F1FAEE"
@@ -420,7 +420,7 @@ class @ExperimentShow
                 }
             }
             {
-                selector: 'node[class = "analysis_tool" ][status = "finished"]'
+                selector: 'node[class = "analysis_tool" ][task_status = "finished"]'
                 style: {
                     "shape": "roundrectangle"
 # "background-color": "#F1FAEE"

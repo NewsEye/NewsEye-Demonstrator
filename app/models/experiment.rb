@@ -12,7 +12,7 @@ class Experiment < ActiveRecord::Base
     end
 
     def run
-        tools_to_start = self.description.select { |e| e['group'] == 'nodes' and e['data']['class'] == 'analysis_tool' and e['data']['status'] == 'not started' }
+        tools_to_start = self.description.select { |e| e['group'] == 'nodes' and e['data']['class'] == 'analysis_tool' and e['data']['task_status'] == 'not started' }
         tools_to_start.each do |tool|
             tool_inputs = tool['data']['inputs']
             if tool_inputs.size == 1
@@ -30,7 +30,7 @@ class Experiment < ActiveRecord::Base
                             self.description.map! do |node|
                                 if node['data']['id'] == tool['data']['id']
                                     node['data']["task_uuid"] = api_response['uuid']
-                                    node['data']["status"] = api_response['task_status']
+                                    node['data']["task_status"] = api_response['task_status']
                                     node['data']["task_result"] = api_response['task_result']
                                     node
                                 else
@@ -44,7 +44,7 @@ class Experiment < ActiveRecord::Base
                 end
             end
         end
-        tools_to_update = self.description.select { |e| e['group'] == 'nodes' and e['data']['class'] == 'analysis_tool' and e['data']['status'] == 'running' }
+        tools_to_update = self.description.select { |e| e['group'] == 'nodes' and e['data']['class'] == 'analysis_tool' and e['data']['task_status'] == 'running' }
         tools_to_update.each do |tool|
             t = Task.where("uuid = '#{tool['data']['task_uuid']}'")[0]
             api_response = PersonalResearchAssistantService.get_analysis_task t.uuid
@@ -55,7 +55,7 @@ class Experiment < ActiveRecord::Base
             self.description.map! do |node|
                 if node['data']['id'] == tool['data']['id']
                     node['data']["task_uuid"] = api_response['uuid']
-                    node['data']["status"] = api_response['task_status']
+                    node['data']["task_status"] = api_response['task_status']
                     node['data']["task_result"] = api_response['task_result']
                     node
                 else
