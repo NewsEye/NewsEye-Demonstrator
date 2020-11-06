@@ -27,11 +27,12 @@
                                       params: {experiment_id: @experiment.id},
                                       class: "btn btn-primary",
                                       style: "margin-bottom: 5px;" %>
-                        <%= button_to "Run experiment",
+                        <%= button_to "Run/Update experiment",
                                       "/experiment/run",
                                       method: "post",
                                       remote: true,
                                       params: {experiment_id: @experiment.id},
+                                      id: "run_update_button",
                                       class: "btn btn-primary",
                                       style: "margin-bottom: 5px;" %>
                     <% end %>

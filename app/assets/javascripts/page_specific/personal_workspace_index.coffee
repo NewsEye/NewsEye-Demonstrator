@@ -25,7 +25,7 @@ class @PersonalWorkspaceIndex
 
         $("body").on "click", ".start_experiment_button", (e)->
             $("div#main-flashes div:first-child").empty()
-            log = $('<div class="alert alert-primary">Creating a new Experiment...<a class="close" data-dismiss="alert" href="#">×</a></div>')
+            log = $('<div class="alert alert-info">Creating a new Experiment...<a class="close" data-dismiss="alert" href="#">×</a></div>')
             $("div#main-flashes div:first-child").append(log)
 
         $("#new_experiment_link").on "click", (e)->

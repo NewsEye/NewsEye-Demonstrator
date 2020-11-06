@@ -22,6 +22,11 @@ class @ExperimentShow
             $("#modal-parameters").modal()
             $('#modal-parameters')[0].classList.remove('hide')
 
+        $("#run_update_button").on "click", (e)->
+            $("div#main-flashes div:first-child").empty()
+            log = $('<div class="alert alert-info">Running Experiment... (Can take some time)<a class="close" data-dismiss="alert" href="#">×</a></div>')
+            $("div#main-flashes div:first-child").append(log)
+
         $("#node_results_button").on "click", (event)->
             selected_node = self.cy.$(':selected')[0]
             $("#modal-results").find(".modal-content").html PRAUtils.generate_results_modal(selected_node)
