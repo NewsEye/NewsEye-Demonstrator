@@ -82,8 +82,11 @@ class ExperimentController < ApplicationController
 
     def get_run_id
         experiment = Experiment.find params[:experiment_id]
-        render json: [experiment.task.uuid] if experiment.task
-        render json: []
+        if experiment.task
+            render json: [experiment.task.uuid]
+        else
+            render json: []
+        end
         # render json: experiment.task.uuid
     end
 
