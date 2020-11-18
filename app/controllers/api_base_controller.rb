@@ -12,8 +12,20 @@ class ApiBaseController < ApplicationController
 
   def get_dataset_content
     dataset = Dataset.where("user_id=#{User.find_by_email(params[:email]).id} AND title='#{params[:dataset_name]}'").first
-    render json: {error: "Cannot find dataset."} if dataset.nil?
-    render json: dataset.documents
+    if dataset.nil?
+        render json: {error: "Cannot find dataset."}
+    else
+        docs = dataset.documents
+        docs.map! do |doc|
+            if doc['type'] = "compound"
+                doc['parts'] = CompoundArticle.find(doc['id']).parts
+                return doc
+            else
+                return doc
+            end
+        end
+        render json: dataset.documents
+    end
   end
 
   private
