@@ -17,14 +17,14 @@ class ApiBaseController < ApplicationController
     else
         docs = dataset.documents
         docs.map! do |doc|
-            if doc['type'] = "compound"
+            if doc['type'] == "compound"
                 doc['parts'] = CompoundArticle.find(doc['id']).parts
                 return doc
             else
                 return doc
             end
         end
-        render json: dataset.documents
+        render json: docs
     end
   end
 
