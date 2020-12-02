@@ -1,4 +1,4 @@
-<div class="panel panel-default">
+<div id="datasets_panel" class="panel panel-default">
   <div class="panel-heading">Datasets</div>
   <div class="panel-body flex-grow">
     <table class="table">
@@ -23,7 +23,7 @@
             <%#= link_to "TM", "/topic_models/query_modal/dataset/#{dataset.id}", remote: true%>
 <!--          </td>-->
           <td>
-            <%= link_to dataset, method: :delete, data: { confirm: 'Are you sure ? All associated tasks will also be deleted.' } do %>
+            <%= link_to dataset, method: :delete, remote: true, data: { confirm: 'Are you sure ? All associated tasks will also be deleted.' } do %>
               <span class="glyphicon glyphicon-remove" style="color: red"></span>
             <% end %>
           </td>

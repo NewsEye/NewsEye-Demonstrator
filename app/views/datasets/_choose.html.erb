@@ -23,7 +23,7 @@
           <% end %>
         <% end %>
       </select>
-      <form id="add_search_form" class="simple_form" action="/datasets/<%= current_user.datasets[0].id %>" accept-charset="UTF-8" method="post" remote="true">
+      <form id="add_search_form" class="simple_form" actioncreate="/datasets/<%= current_user.datasets[0].id %>" accept-charset="UTF-8" method="post" remote="true">
         <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
         <input name="_method" type="hidden" value="patch" />
         <input type="hidden" name="dataset[searches]" value="<%= request.original_url %>">
