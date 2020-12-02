@@ -8,7 +8,7 @@
         <% elsif document['from_issue_ssi'].nil? %><!-- Issue -->
             <%= link_to document['title_ssi'], controller: "catalog", action: "show", id: document['id'] %>
         <% else %> <!-- Compound -->
-            <%= link_to document['title_ssi'], controller: "catalog", action: "show", id: document['from_issue_ssi'] %>
+            <%= link_to document['title_ssi'], {controller: "catalog", action: "show", id: document['from_issue_ssi']}, 'data-compound-id': document['id'] %>
         <% end %>
     </h3>
   </div>

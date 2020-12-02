@@ -30,10 +30,12 @@ class @DatasetsShow
             $("#global_dataset_relevancy_form").append hidden
             for doc in $('div.document')
                 if typeof($(doc).find('input:checked')[0]) != "undefined"
-                    doc_id = $(doc).find('h3 a')[0]['href'].split('/').pop()
+                    if $($(doc).find('h3 a')[0]).data('compound-id') == "undefined"
+                        doc_id = $(doc).find('h3 a')[0]['href'].split('/').pop()
+                    else # compound article case
+                        doc_id = $($(doc).find('h3 a')[0]).data('compound-id')
                     relevancy = $($(doc).find("span.dataset-#{working_dataset_id}")[0]).data('relevancy')
                     relevancy = -1 if typeof relevancy == 'undefined'
-                    console.log relevancy
                     hidden = $("<input type=\"hidden\" name=\"relevancy[#{doc_id}]\" value=\"#{relevancy}\"></input>")
                     $("#global_dataset_relevancy_form").append hidden
 

@@ -358,6 +358,9 @@ class @CatalogShow
             $("#article_dataset_panel").show()
 
     set_compound_article_dataset_form: (compound_id, compound_title)->
+        $('#compound_article_dataset_panel form').off "submit"
+        $('#compound_article_dataset_panel form').submit ->
+            return confirm("This will remove parts of this compound article from your dataset and add the compound. Proceed ?")
         if compound_id == null
             $("#compound_article_dataset_panel").hide()
         else
