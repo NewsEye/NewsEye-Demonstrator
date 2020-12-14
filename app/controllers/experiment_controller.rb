@@ -29,7 +29,6 @@ class ExperimentController < ApplicationController
 
     def report_modal
         @content = PersonalResearchAssistantService.get_experiment_report params[:task_uuid]
-        puts @content
         respond_to do |format|
             format.js
         end
@@ -50,7 +49,8 @@ class ExperimentController < ApplicationController
 
     def run_experiment
         @experiment = Experiment.find params[:experiment_id]
-        @experiment.run
+        @to_add = @experiment.run.to_json
+        puts @to_add
         @experiment.save
         respond_to do |format|
             format.js
@@ -88,6 +88,11 @@ class ExperimentController < ApplicationController
             render json: []
         end
         # render json: experiment.task.uuid
+    end
+
+    def get_status
+        experiment = Experiment.find params[:experiment_id]
+        render json: {total: experiment.get_nb_processors, finished: experiment.get_nb_processors_finished}
     end
 
 end

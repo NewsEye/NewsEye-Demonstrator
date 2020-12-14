@@ -1,5 +1,5 @@
 <div class="panel panel-default">
-  <div class="panel-heading">Searches</div>
+    <div class="panel-heading"><span style="font-weight: bold">Searches</span></div>
   <div class="panel-body flex-grow">
     <table class="table">
       <tbody>
@@ -7,9 +7,9 @@
         <% search = Search.find(search_id) %>
         <tr>
           <td><%= link_to search.description, search.query_url %></td>
-          <td>
-            <%= link_to "Describe", "/personal_workspace/describe_search/#{search.id}", remote: true %>
-          </td>
+<!--          <td>-->
+            <%#= link_to "Describe", "/personal_workspace/describe_search/#{search.id}", remote: true %>
+<!--          </td>-->
           <td>
             <%= link_to "Experiment", "/personal_workspace/investigate_search/#{search.id}", remote: true %>
           </td>
@@ -18,9 +18,9 @@
 <!--              <span class="glyphicon glyphicon-search" style="color: black"></span>-->
             <%# end %>
 <!--          </td>-->
-          <td>
-            <%= link_to "TM", "/topic_models/query_modal/search/#{search.id}", remote: true%>
-          </td>
+<!--          <td>-->
+            <%#= link_to "TM", "/topic_models/query_modal/search/#{search.id}", remote: true%>
+<!--          </td>-->
           <td>
             <%= link_to "/delete_search/#{search.id}", data: { confirm: 'Are you sure ? All associated tasks will also be deleted.' } do %>
               <span class="glyphicon glyphicon-remove" style="color: red"></span>

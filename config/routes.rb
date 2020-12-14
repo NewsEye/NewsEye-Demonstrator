@@ -125,6 +125,7 @@ Rails.application.routes.draw do
     post '/catalog/article_parts', to: 'catalog#article_parts'
     post '/catalog/linked_entity_search', to: 'catalog#linked_entity_search'
     post '/catalog/get_named_entities_kburl_label', to: 'catalog#get_named_entities_kburl_label'
+    get '/get_locale', to: "catalog#get_locale"
     get '/random_samples_modal', to: 'catalog#random_samples_modal'
     get '/wide_date_histogram', to: 'catalog#wide_date_histogram'
     get '/add_all_docs_to_dataset_modal', to: 'catalog#add_all_docs_to_dataset'
@@ -167,6 +168,7 @@ Rails.application.routes.draw do
     post "/experiment/explain", to: "experiment#explain_modal"
     post "/experiment/report", to: "experiment#report_modal"
     post "/experiment/run", to: "experiment#run_experiment"
+    post "/experiment/get_status", to: "experiment#get_status"
 
   end
 

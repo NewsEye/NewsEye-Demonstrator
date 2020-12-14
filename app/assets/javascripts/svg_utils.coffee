@@ -11,7 +11,7 @@ class @SVGUtils
         svg_parts.push '<rect x="0" y="0" fill="#457B9D" height="80" rx="5" ry="5" width="200" stroke-width="10" stroke="'+color+'"/>'
         if type == "dataset"
             svg_parts.push '<text x="50%" y="50%" dominant-baseline="middle" fill="#EEEEEE" font-weight="bold" font-family="Verdana" font-size="30" text-anchor="middle">Dataset</text>'
-        else if type == "search_query"
+        else if type == "search"
             svg_parts.push '<text x="50%" y="50%" dominant-baseline="middle" fill="#EEEEEE" font-weight="bold" font-family="Verdana" font-size="30" text-anchor="middle">Search</text>'
         return {svg: SVGUtils.generate_data(svg_parts.join(''), 200, 80), width: 200, height: 80}
 

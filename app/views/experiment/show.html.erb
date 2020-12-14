@@ -2,40 +2,53 @@
 <div class="row">
     <div class="col-md-2">
         <div class="row">
-            <div class="panel panel-default">
+            <div class="panel panel-default" id="status_panel">
+                <div class="panel-heading">
+                    <span style="font-weight: bold">Status of the experiment</span>
+                </div>
                 <div class="panel-body">
-                    <% if @experiment.task %>
-                        <%= button_to "Explain",
-                                      "/experiment/explain",
-                                      method: "post",
-                                      remote: true,
-                                      params: {task_uuid: @experiment.task.uuid},
-                                      class: "btn btn-primary",
-                                      style: "margin-bottom: 5px;" %>
-                        <%= button_to "Report",
-                                      "/experiment/report",
-                                      method: "post",
-                                      remote: true,
-                                      params: {task_uuid: @experiment.task.uuid},
-                                      class: "btn btn-primary",
-                                      style: "margin-bottom: 5px;" %>
-                    <% else %>
-                        <%= button_to "Add a data source",
-                                      "/experiment/add_data_source_modal",
-                                      method: "post",
-                                      remote: true,
-                                      params: {experiment_id: @experiment.id},
-                                      class: "btn btn-primary",
-                                      style: "margin-bottom: 5px;" %>
-                        <%= button_to "Run/Update experiment",
-                                      "/experiment/run",
-                                      method: "post",
-                                      remote: true,
-                                      params: {experiment_id: @experiment.id},
-                                      id: "run_update_button",
-                                      class: "btn btn-primary",
-                                      style: "margin-bottom: 5px;" %>
-                    <% end %>
+                    <p>
+                        <span title="Experiments created by the Personal Research Assistant can't be edited directly." class="glyphicon glyphicon-question-sign"></span>
+                        <span style="font-weight: bold">Experiment owner:</span>
+                        <span><%= @experiment.get_owner %></span>
+                    </p>
+                    <p>
+                        <span style="font-weight: bold">Tasks finished:</span>
+                        <span id="expe_status_nb_tasks"><%= @experiment.get_nb_processors_finished %>/<%= @experiment.get_nb_processors %></span>
+                    </p>
+                    <hr/>
+                    <div style="width: 100%; text-align: center;">
+                        <% if @experiment.task %>
+                            <div id="expe_pra_buttons">
+                                <%= button_to "Explain",
+                                              "/experiment/explain",
+                                              method: "post",
+                                              remote: true,
+                                              params: {task_uuid: @experiment.task.uuid},
+                                              class: "btn btn-primary" %>
+                                <%= button_to "Report",
+                                              "/experiment/report",
+                                              method: "post",
+                                              remote: true,
+                                              params: {task_uuid: @experiment.task.uuid},
+                                              class: "btn btn-primary" %>
+                            </div>
+                        <% else %>
+                            <%= button_to "Add a data source",
+                                          "/experiment/add_data_source_modal",
+                                          method: "post",
+                                          remote: true,
+                                          params: {experiment_id: @experiment.id},
+                                          class: "btn btn-primary expe_user_button" %>
+                            <%= button_to "Run/Update experiment",
+                                          "/experiment/run",
+                                          method: "post",
+                                          remote: true,
+                                          params: {experiment_id: @experiment.id},
+                                          id: "run_update_button",
+                                          class: "btn btn-primary expe_user_button" %>
+                        <% end %>
+                    </div>
                 </div>
             </div>
         </div>
@@ -51,24 +64,25 @@
                                 <span class="glyphicon glyphicon-list-alt"></span>
                                 View results
                             </button>
-                            <button id="add_output_button" class="btn btn-info add_output">
-                                <span class="glyphicon glyphicon-plus-sign"></span>
-                                Add tool
-                            </button>
 <!--                            <button id="node_parameters_button" class="btn btn-secondary">-->
 <!--                                <span class="glyphicon glyphicon-cog"></span>-->
 <!--                            </button>-->
                         </span>
                     </div>
-
-                    <div class="input-group">
-                        <span class="input-group-btn">
-                            <button id="delete_node_button" class="btn btn-danger">
-                                <span class="glyphicon glyphicon-remove-sign"></span>
-                                Delete node
-                            </button>
-                        </span>
-                    </div>
+                    <% if @experiment.get_owner != "PRA" %>
+                        <div class="input-group">
+                            <span class="input-group-btn">
+                                <button id="add_output_button" class="btn btn-info add_output">
+                                    <span class="glyphicon glyphicon-plus-sign"></span>
+                                    Add tool
+                                </button>
+                                <button id="delete_node_button" class="btn btn-danger">
+                                    <span class="glyphicon glyphicon-remove-sign"></span>
+                                    Delete node
+                                </button>
+                            </span>
+                        </div>
+                    <% end %>
                     <hr/>
                     <div id="attributes_panel">
                         <p class="panel-subtitle">Attributes</p>

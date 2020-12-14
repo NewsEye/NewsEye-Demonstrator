@@ -182,3 +182,18 @@ class @API
             complete: (data)->
                 callback(data)
         }
+    @get_experiment_status: (experiment_id, callback)->
+        $.ajax {
+            url:  window.location.protocol+"//"+window.location.host+'/experiment/get_status',
+            method: 'POST',
+            data:{experiment_id: experiment_id},
+            complete: (data)->
+                callback(data)
+        }
+    @get_locale: (callback)->
+        $.ajax {
+            url:  window.location.protocol+"//"+window.location.host+'/get_locale',
+            method: 'GET',
+            complete: (data)->
+                callback(data)
+        }

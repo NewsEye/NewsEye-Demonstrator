@@ -15,20 +15,21 @@
           <% end %>
         </select>
         <input type="hidden" name="experiment_id" value="<%= experiment_id %>"/>
-        <button id="dataset_select_form_submit" class="btn btn-primary">Add data source</button>
+        <button id="dataset_select_form_submit" class="btn btn-primary">Add dataset</button>
       </form>
     </div>
 
     <div class="col-md-6">
-      <form novalidate="novalidate" data-remote="true" action="/experiment/add_data_source" accept-charset="UTF-8" method="post">
+      <form id="search_select_form">
         <label for="search_select">Select a search</label>
         <select id="search_select" name="search_select" class="form-control" autocomplete="off">
           <option value="" disabled selected>Select a search</option>
           <% current_user.searches.each do |search| %>
-            <option value="<%= search.id %>"><%= search.description %></option>
+            <option data-search_url="<%= search.query_url %>" data-query_params="<%= search.query %>" value="<%= search.id %>"><%= search.description %></option>
           <% end %>
         </select>
-        <button type="submit" class="btn btn-primary" name="submit" value="search">Add data source</button>
+          <input type="hidden" name="experiment_id" value="<%= experiment_id %>"/>
+        <button id="search_select_form_submit" class="btn btn-primary">Add search</button>
       </form>
     </div>
 

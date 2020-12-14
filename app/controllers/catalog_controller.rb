@@ -529,6 +529,10 @@ class CatalogController < ApplicationController
         render json: data
     end
 
+    def get_locale
+        render json: [I18n.locale]
+    end
+
     protected
 
     # Redirect to action: index if this action is a query (not a return to home) and if there is no f or q params

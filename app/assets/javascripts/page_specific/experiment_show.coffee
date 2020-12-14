@@ -15,6 +15,7 @@ class @ExperimentShow
             if selected_node != undefined and confirmed
                 self.cy.nodes(":selected").unselect()
                 self.removeNode selected_node
+                self.update_experiment_status()
 
         $("#node_parameters_button").on "click", (event)->
             selected_node = self.cy.$(':selected')[0]
@@ -71,13 +72,31 @@ class @ExperimentShow
                     }
                     $('#modal-add_data_source').modal('hide')
                 return false
+            $("#search_select_form_submit").on 'click', (event)->
+                event.preventDefault()
+                if $("#search_select option:selected").val() != ""
+                    self.addNode {
+                        id: "search_data_source_#{self.getNextId("search_data_source")}"
+                        type: "search"
+                        output_type: "dataset"
+                        params: {
+                            source: "search"
+                            source_id: $("#search_select option:selected").val()
+                            source_name: $("#search_select option:selected").text()
+                            query_params: $("#search_select option:selected").data("query_params")
+                            search_url: $("#search_select option:selected").data("search_url")
+                        }
+                        inputs: []
+                    }
+                    $('#modal-add_data_source').modal('hide')
+                return false
         $("#modal-add_output").on "shown.bs.modal", (e)->
             tools = JSON.parse $("#pra_tools").data('tools')
             # in PRA: text_collection = dataset
             available_tools = tools.filter (tool)-> tool['input_type'] == self.cy.nodes(":selected").data("output_type")
             # HOTFIX because some analysis tool can be called directly on datasets (not indicated by API right now)
             other_tools = tools.filter (tool)-> tool['name'] == "SplitByFacet"
-            if $("#node_type").text() == "dataset"
+            if $("#node_type").text() == "dataset" || $("#node_type").text() == "search"
                 Array::push.apply available_tools, other_tools
             for tool in available_tools
                 tool_div = $("<div class=\"btn btn-primary\">#{tool['name']}</div>")
@@ -97,7 +116,34 @@ class @ExperimentShow
                                 label = $('<span class="input-group-addon"></span>')
                                 label.attr "title", param['description']
                                 label.append document.createTextNode(param['name'])
-                                input = $('<input class="form-control" type="text" placeholder="' + param['default'] + '"/>')
+                                param_default = if param['default'] == null then "" else param['default']
+                                if param['values']
+                                    field = $('<select class="form-control"></select>')
+                                    for value in param['values']
+                                        field.append $("<option value=\"#{value}\">#{value}</option>")
+                                    field.val param_default
+                                else
+                                    field = $('<input class="form-control" type="text" placeholder="' + param_default + '"/>')
+                                container.append label
+                                container.append field
+                                $("#tool_parameters").append container
+                            when 'integer'
+                                container = $('<div class="input-group"></div>')
+                                label = $('<span class="input-group-addon"></span>')
+                                label.attr "title", param['description']
+                                label.append document.createTextNode(param['name'])
+                                param_default = if param['default'] == null then "" else param['default']
+                                input = $('<input class="form-control" type="number" min="1" max="999" value="' + param_default + '"/>')
+                                container.append label
+                                container.append input
+                                $("#tool_parameters").append container
+                            when 'float'
+                                container = $('<div class="input-group"></div>')
+                                label = $('<span class="input-group-addon"></span>')
+                                label.attr "title", param['description']
+                                label.append document.createTextNode(param['name'])
+                                param_default = if param['default'] == null then "" else param['default']
+                                input = $('<input class="form-control" type="number" min="0" max="1" step="0.01" value="' + param_default + '"/>')
                                 container.append label
                                 container.append input
                                 $("#tool_parameters").append container
@@ -111,8 +157,12 @@ class @ExperimentShow
                 parameters = {}
                 $("#tool_parameters > div").each (index)->
                     key = $(@).find("span").text()
-                    val = if $(@).find("input").val() == "" then $(@).find("input").attr("placeholder") else $(@).find("input").val()
-                    parameters[key] = val
+                    if $(@).find("input").size() != 0
+                        val = if $(@).find("input").val() == "" then $(@).find("input").attr("placeholder") else $(@).find("input").val()
+                        parameters[key] = val
+                    else if $(@).find("select").size() != 0
+                        parameters[key] = $(@).find("select").val()
+
                 self.addNode {
                     id: added_node_id
                     type: tool_type
@@ -126,11 +176,17 @@ class @ExperimentShow
                 self.addEdge self.cy.nodes(":selected")[0].data('id'), added_node_id, {type: "final"}
                 $('#modal-add_output').modal('hide')
                 self.cy.$("##{added_node_id}").select()
+                self.update_experiment_status()
+                self.cy.resize()
+
+    update_experiment_status: ->
+        API.get_experiment_status @experiment_id, (data)->
+            $("#expe_status_nb_tasks").html("#{data.responseJSON['finished']}/#{data.responseJSON['total']}")
 
     send_experiment_pra: ->
         @.cy.nodes().jsons().map(x => x.data)
 
-    initGraph: ->
+    initGraph: (callback)->
         self = @
         API.load_graph @experiment_id, (data)->
             self.cy = cytoscape({
@@ -144,6 +200,7 @@ class @ExperimentShow
             self.refreshLayout()
 
             self.cy.on "unselect", "node", (event)->
+                $("#node_results_button").prop("disabled", false)
                 if self.cy.nodes(":selected").length == 0
                     $("#selected_node_panel").hide()
 
@@ -151,6 +208,10 @@ class @ExperimentShow
                 $("#selected_node_panel").show()
                 self.cy.elements().not(event.target).unselect()
                 if event.target.data('type') == "SplitByFacet" or event.target.data('class') == "analysis_tool"
+                    if event.target.data('type') == "SplitByFacet"
+                        $("#node_results_button").prop("disabled", true)
+                    else
+                        $("#node_results_button").prop("disabled", false)
                     # Attributes panel
                     $("#type_attr").html event.target.data('type')
                     $("#id_attr").html event.target.data('id')
@@ -162,12 +223,17 @@ class @ExperimentShow
 
                     # Task panel
 
-                else if event.target.data('type') == "dataset" # or event.target.data('type') == "placeholder_collections"
+                else if event.target.data('type') == "dataset" || event.target.data('type') == "search"
+                    $("#node_results_button").prop("disabled", true)
                     # Attributes panel
                     $("#type_attr").html event.target.data('type')
                     $("#id_attr").html event.target.data('id')
                     $("#params_attr").html ""
-                    if event.target.data('params').source == "search_query"
+                    if event.target.data('type') == "search"
+                        search_url = event.target.data('params').search_url
+                        param_url = $("<p class=\"collection_param\"><span style=\"color: #888888; font-weight: bold;\">Search URL: </span></p>")
+                        param_url.append $("<a href=\"#{search_url}\">Visit</a>")
+                        $("#params_attr").append param_url
                         query = event.target.data('params').search_query
                         mapping = {'q': 'Query', 'fq': "Filter"}
                         for param of query
@@ -177,7 +243,7 @@ class @ExperimentShow
                                         $("#params_attr").append "<p class=\"collection_param\"><span style=\"color: #888888; font-weight: bold;\">#{mapping[param]}: </span>#{p}</p>"
                             else if mapping[param] != undefined
                                 $("#params_attr").append "<p class=\"collection_param\" ><span style=\"color: #888888; font-weight: bold;\">#{mapping[param]}: </span>#{query[param]}</p>"
-                    else if event.target.data('params').source == "dataset"
+                    else if event.target.data('type') == "dataset"
                         $("#params_attr").append "<p class=\"collection_param\"><span style=\"color: #888888; font-weight: bold;\">Dataset: </span><a href=\"/datasets/#{event.target.data('params').source_id}\">#{event.target.data('params').source_name}</a></p>"
                     $("#outputs_attr").html ""
                     $("#inputs_attr").html ""
@@ -190,6 +256,8 @@ class @ExperimentShow
                         dataType: "script",
                         data:{node_type: event.target.data('type')}
                     }
+            if callback != undefined
+                callback()
 
     addNode: (data)->
         self = @
@@ -229,6 +297,7 @@ class @ExperimentShow
         self.cy.nodes('[type = "placeholder_collection" ]').unselect()
         self.cy.nodes('[type = "placeholder_collection" ]').unselectify()
         self.cy.elements().layout(self.getLayout()).run()
+        self.cy.resize()
 
     getNextId: (prefix)->
         self = @
@@ -325,7 +394,9 @@ class @ExperimentShow
 
     createSVG: (node)->
         if node.data('type') == "dataset"
-            return SVGUtils.text_collection node.data('params').source
+            return SVGUtils.text_collection node.data('type')
+        if node.data('type') == "search"
+            return SVGUtils.text_collection node.data('type')
         if node.data('type') == "SplitByFacet"
             return SVGUtils.split_by_facet node.data('task_status')
         if node.data('class') == "analysis_tool"
@@ -335,7 +406,7 @@ class @ExperimentShow
         self = @
         return [
             {
-                selector: 'node[type = "dataset"]'
+                selector: 'node[type = "dataset"],node[type = "search"]'
                 style: {
                     "shape": "roundrectangle"
                     #"background-color": "#457B9D"
@@ -357,7 +428,7 @@ class @ExperimentShow
                 }
             }
             {
-                selector: 'node[type = "dataset"]:selected'
+                selector: 'node[type = "dataset"]:selected,node[type = "search"]:selected'
                 style: {
                     "shape": "roundrectangle"
                     "background-color": "#457B9D"
@@ -384,43 +455,7 @@ class @ExperimentShow
                 }
             }
             {
-                selector: 'node[class = "analysis_tool" ][task_status = "not started"]'
-                style: {
-                    "shape": "roundrectangle"
-# "background-color": "#F1FAEE"
-                    "background-image": (ele)->
-                        return self.createSVG(ele).svg
-                    "width": (ele)->
-                        return self.createSVG(ele).width
-                    "height": (ele)->
-                        return self.createSVG(ele).height
-                    "border-style": "solid"
-                    "border-width": 1
-                    "border-opacity": 0.5
-#                     "label": (ele)->
-#                         return ele.data('type')
-                }
-            }
-            {
-                selector: 'node[class = "analysis_tool" ][task_status = "running"]'
-                style: {
-                    "shape": "roundrectangle"
-# "background-color": "#F1FAEE"
-                    "background-image": (ele)->
-                        return self.createSVG(ele).svg
-                    "width": (ele)->
-                        return self.createSVG(ele).width
-                    "height": (ele)->
-                        return self.createSVG(ele).height
-                    "border-style": "solid"
-                    "border-width": 1
-                    "border-opacity": 0.5
-#                     "label": (ele)->
-#                         return ele.data('type')
-                }
-            }
-            {
-                selector: 'node[class = "analysis_tool" ][task_status = "finished"]'
+                selector: 'node[class = "analysis_tool" ]'
                 style: {
                     "shape": "roundrectangle"
 # "background-color": "#F1FAEE"

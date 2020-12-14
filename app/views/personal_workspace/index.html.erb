@@ -14,8 +14,11 @@
                 <li  class="list-group-item" data-div="tab_experiments">
                     Experiments
                 </li>
-                <li  class="list-group-item" data-div="tab_tasks">
-                    Tasks
+<!--                <li  class="list-group-item" data-div="tab_tasks">-->
+<!--                    Tasks-->
+<!--                </li>-->
+                <li  class="list-group-item" data-div="tab_about">
+                    About the collection
                 </li>
             </ul>
         </nav>
@@ -23,10 +26,7 @@
     <div class="col-md-10">
         <div class="tab-content">
             <div class="menu_tab" id="tab_home">
-                <ul>
-                    <li><h4><%= link_to 'Topic Models', "/#{I18n.locale}/topic_models" %></h4></li>
-                    <li><h4><%= link_to 'Statistics', "/#{I18n.locale}/explore" %></h4></li>
-                </ul>
+                <%= render 'personal_workspace/home' %>
             </div>
             <div class="menu_tab" id="tab_datasets" style="display:none">
                 <%= render 'datasets/datasets' %>
@@ -37,8 +37,11 @@
             <div class="menu_tab" id="tab_experiments" style="display:none">
                 <%= render 'experiment/index' %>
             </div>
-            <div class="menu_tab" id="tab_tasks" style="display:none">
-                <%= render 'personal_research_assistant/tasks' %>
+<!--            <div class="menu_tab" id="tab_tasks" style="display:none">-->
+                <%#= render 'personal_research_assistant/tasks' %>
+<!--            </div>-->
+            <div class="menu_tab" id="tab_about" style="display:none">
+                <%= render 'personal_workspace/about' %>
             </div>
         </div>
     </div>

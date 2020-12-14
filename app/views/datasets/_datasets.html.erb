@@ -1,5 +1,9 @@
 <div id="datasets_panel" class="panel panel-default">
-  <div class="panel-heading">Datasets</div>
+    <div class="panel-heading" style="display: flex; padding: 3px 15px;">
+        <div style="display: inline-block; padding-top:0.5em; padding-bottom:0.5em;">
+            <span style="font-weight: bold">Datasets</span> (<%= link_to 'Create a new dataset', new_dataset_path %>)
+        </div>
+    </div>
   <div class="panel-body flex-grow">
     <table class="table">
       <tbody>
@@ -32,6 +36,6 @@
       </tbody>
     </table>
 
-    <%= link_to 'New Dataset', new_dataset_path %>
+
   </div>
 </div>

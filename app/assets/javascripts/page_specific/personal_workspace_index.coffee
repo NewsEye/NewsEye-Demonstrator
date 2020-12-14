@@ -2,8 +2,11 @@ class @PersonalWorkspaceIndex
     constructor: ->
         self = @
         console.log 'index'
-        $($("#refresh_tasks_form button")[0]).click ()->
+        $($("#refresh_experiments_form button")[0]).click ()->
             $("body").css("cursor", "wait")
+            $("div#main-flashes div:first-child").empty()
+            log = $('<div class="alert alert-info" role="alert">Updating experiments...<a class="close" data-dismiss="alert" href="#">×</a></div>')
+            $("div#main-flashes div:first-child").append(log)
 
         $('#menu_list li').click (e)->
             tab_id = $(e.currentTarget).data('div')
