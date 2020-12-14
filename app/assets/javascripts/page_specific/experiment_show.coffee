@@ -25,7 +25,7 @@ class @ExperimentShow
 
         $("#run_update_button").on "click", (e)->
             $("div#main-flashes div:first-child").empty()
-            log = $('<div class="alert alert-info">Running Experiment... (Can take some time)<a class="close" data-dismiss="alert" href="#">×</a></div>')
+            log = $('<div class="alert alert-info">Running Experiment... <div id="spinner_small"></div><a class="close" data-dismiss="alert" href="#">×</a></div>')
             $("div#main-flashes div:first-child").append(log)
 
         $("#node_results_button").on "click", (event)->
@@ -198,6 +198,8 @@ class @ExperimentShow
                 style: self.getStyles()
             })
             self.refreshLayout()
+
+            #self.populate_results()
 
             self.cy.on "unselect", "node", (event)->
                 $("#node_results_button").prop("disabled", false)

@@ -69,24 +69,33 @@ class @PRAUtils
             PRAUtils.extract_tracknamesentiment_results data
 
     @extract_tracknamesentiment_results: (data)->
-        content = $("<div></div>")
-        select = $("<select id=\"stance_ne_selector\"></select>")
-        select.append $("<option selected disabled value=\"default\">Choose an entry...</option>")
-        for name of data.task_result.images
-            select.append $("<option value=\"#{name}\">#{name}</option>")
-        content.append select
-        content.append $("<div id=\"bar_chart\"></div>")
-        content.append $("<div id=\"line_chart\"></div>")
+        API.get_locale (l)->
+            locale = l.responseJSON[0]
+            names_map = {}
+            for name of data.task_result.result
+                if data.task_result.result[name]["names"]
+                    names_map[name] = data.task_result.result[name]["names"][locale]
+            content = $("<div></div>")
+            select = $("<select id=\"stance_ne_selector\"></select>")
+            select.append $("<option selected disabled value=\"default\">Choose an entry...</option>")
+            for name of data.task_result.images
+                if names_map[name]
+                    select.append $("<option value=\"#{name}\">#{names_map[name]}</option>")
+                else
+                    select.append $("<option value=\"#{name}\">#{name}</option>")
+            content.append select
+            content.append $("<div id=\"bar_chart\"></div>")
+            content.append $("<div id=\"line_chart\"></div>")
 
-        $("#div_modal_results").on "change", "#stance_ne_selector", {imgs: data.task_result.images}, (e)->
-            console.log e
-            name = e.currentTarget.value
-            bar_base64 = e.data.imgs[name]['bar']
-            $("#bar_chart").html $("<img src=\"data:image/png;base64, #{bar_base64}\"/>")[0].outerHTML
-            line_base64 = e.data.imgs[name]['line']
-            $("#line_chart").html $("<img src=\"data:image/png;base64, #{line_base64}\"/>")[0].outerHTML
+            $("#div_modal_results").on "change", "#stance_ne_selector", {imgs: data.task_result.images}, (e)->
+                console.log e
+                name = e.currentTarget.value
+                bar_base64 = e.data.imgs[name]['bar']
+                $("#bar_chart").html $("<img src=\"data:image/png;base64, #{bar_base64}\"/>")[0].outerHTML
+                line_base64 = e.data.imgs[name]['line']
+                $("#line_chart").html $("<img src=\"data:image/png;base64, #{line_base64}\"/>")[0].outerHTML
 
-        $("#div_modal_results").html content.html()
+            $("#div_modal_results").html content.html()
 
     @extract_names_results: (data)->
         API.get_locale (l)->
