@@ -54,7 +54,7 @@ class Experiment < ActiveRecord::Base
             end
         end
 
-        tools_to_start = self.description.select { |e| e['group'] == 'nodes' and e['data']['class'] == 'analysis_tool' and e['data']['task_status'] != 'running' and e['data']['task_status'] != 'finished' }
+        tools_to_start = self.description.select { |e| e['group'] == 'nodes' and e['data']['class'] == 'analysis_tool' and e['data']['task_status'] != 'failed' and e['data']['task_status'] != 'running' and e['data']['task_status'] != 'finished' }
         tools_to_start.each do |tool|
             tool_inputs = tool['data']['inputs']
             if tool_inputs.size == 1 # only one input, another case for comparison
