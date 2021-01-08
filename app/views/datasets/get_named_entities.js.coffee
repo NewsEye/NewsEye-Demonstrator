@@ -1,0 +1,1 @@
+$("#named_entities").html("<%= j(render partial: "catalog/named_entities_panel") %>")

@@ -151,11 +151,13 @@ Rails.application.routes.draw do
     post "/export_dataset/csv", to: "export#csv_export"
     post "/export_dataset/excel", to: "export#excel_export"
     post "/export_dataset/json", to: "export#json_export"
-    post "/datasets/merge", to: "datasets#merge_dataset_modal"
+    get "/datasets_merge", to: "datasets#merge_dataset_modal"
     post "/datasets/apply_merge_dataset", to: "datasets#apply_merge_dataset"
-    post "/datasets/subdataset", to: "datasets#subdataset_modal"
+    get "/create_subdataset", to: "datasets#subdataset_modal"
     post "/datasets/apply_subdataset", to: "datasets#apply_subdataset"
     post "/datasets/get_datasets_with_doc", to: "datasets#get_datasets_with_doc"
+    post "/datasets/paginate", to: "datasets#paginate"
+    post "/datasets/get_named_entities", to: "datasets#get_named_entities"
 
     get "/experiment/show/:id", to: "experiment#show"
     post "/experiment/add_data_source_modal", to: "experiment#add_data_source_modal"
@@ -169,6 +171,8 @@ Rails.application.routes.draw do
     post "/experiment/report", to: "experiment#report_modal"
     post "/experiment/run", to: "experiment#run_experiment"
     post "/experiment/get_status", to: "experiment#get_status"
+    post "/save_dataset_from_experiment_modal", to: "experiment#convert_dataset_modal"
+    post "/save_dataset_from_experiment", to: "experiment#convert_dataset"
 
   end
 

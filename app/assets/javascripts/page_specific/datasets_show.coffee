@@ -2,6 +2,10 @@ class @DatasetsShow
     constructor: ->
         self = @
         console.log "datasets show specific"
+        @default_per_page = 10
+        @setup_controls()
+        @load_documents 1, @default_per_page, @default_sort, @default_sort_order, ["article"], (data)->
+            API.get_dataset_named_entities $('#div_dataset_id').text(), (data)->
 
         $("#export_zip_button").click (e)->
             DatasetsShow.post("/export_dataset/zipped", {id: $("#div_dataset_id").text() } )
@@ -52,6 +56,48 @@ class @DatasetsShow
 #         The next thing is handled in the modal _merge_datasets.html.erb
 #         $('#relevancy_radios input').change ()->
 #             console.log("ok")
+
+    setup_controls: ()->
+        self = @
+        $("#doctype_selectors button").on "click", (e)->
+            unless $(e.currentTarget).hasClass "active"
+                $(e.currentTarget).addClass "active"
+                sort = $("#dataset_sort_select select option:selected").data("sort")
+                sort_order = $("#dataset_sort_select select option:selected").data("order")
+                $("#doctype_selectors button[id!='#{e.currentTarget.id}']").removeClass "active"
+                $("#dataset_documents_list").html("<div id=\"spinner\" style=\"margin: auto;\"></div>")
+                self.load_documents 1, self.default_per_page, sort, sort_order, [$(e.currentTarget).data("doctype")], undefined
+
+        $("#dataset_pagination").on "click", "button", (e)->
+            doctype = $($("#doctype_selectors button.active")[0]).data("doctype")
+            current_page = parseInt($("#dataset_pagination button.active").text())
+            sort = $("#dataset_sort_select select option:selected").data("sort")
+            sort_order = $("#dataset_sort_select select option:selected").data("order")
+            if $(e.target).data("action") == "prev"
+                $("#dataset_documents_list").html("<div id=\"spinner\" style=\"margin: auto;\"></div>")
+                self.load_documents current_page-1, self.default_per_page, sort, sort_order, [doctype], undefined
+            else if $(e.target).data("action") == "next"
+                $("#dataset_documents_list").html("<div id=\"spinner\" style=\"margin: auto;\"></div>")
+                self.load_documents current_page+1, self.default_per_page, sort, sort_order, [doctype], undefined
+            else if $(e.target).data("action") == "page"
+                target_page = parseInt($(e.target).text())
+                $("#dataset_documents_list").html("<div id=\"spinner\" style=\"margin: auto;\"></div>")
+                self.load_documents target_page, self.default_per_page, sort, sort_order, [doctype], undefined
+            return false
+        $("#dataset_sort_select select").on "change", (e)->
+            doctype = $($("#doctype_selectors button.active")[0]).data("doctype")
+            current_page = parseInt($("#dataset_pagination button.active").text())
+            $("#dataset_documents_list").html("<div id=\"spinner\" style=\"margin: auto;\"></div>")
+            sort = $(e.target.selectedOptions[0]).data("sort")
+            sort_order = $(e.target.selectedOptions[0]).data("order")
+            self.load_documents current_page, self.default_per_page, sort, sort_order, [doctype], undefined
+
+
+    load_documents: (page, per_page, sort, sort_order, type, callback)->
+        API.paginate_dataset $("#div_dataset_id").text(), page, per_page, sort, sort_order, type, (data)->
+            if callback
+                callback(data)
+
 
     urlParam: (name)->
         results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href)

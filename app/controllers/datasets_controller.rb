@@ -13,17 +13,36 @@ class DatasetsController < ApplicationController
     # GET /datasets/1.json
     def show
         session['working_dataset'] = @dataset.id
-        @documents_list = @dataset.fetch_documents
-        @named_entities = @dataset.get_entities
-        @documents_list.sort_by! do |doc|
-            case params[:sort]
-            when "date"
-                Date.parse(doc['date_created_dtsi'])
-            when "relevancy"
-                doc['relevancy']
-            end
-        end
-        @documents_list.reverse! if params[:sort_order] == "desc"
+        # @documents_list = @dataset.fetch_documents
+        # @named_entities = @dataset.get_entities
+        # @documents_list.sort_by! do |doc|
+        #     case params[:sort]
+        #     when "date"
+        #         Date.parse(doc['date_created_dtsi'])
+        #     when "relevancy"
+        #         doc['relevancy']
+        #     end
+        # end
+        # @documents_list.reverse! if params[:sort_order] == "desc"
+    end
+
+    def get_named_entities
+        d = Dataset.find params[:dataset_id]
+        @named_entities = d.get_entities
+    end
+
+    def paginate
+        d = Dataset.find params[:dataset_id]
+        # out = ""
+        res = d.fetch_paginated_documents(params[:page].to_i, params[:per_page].to_i, params[:sort], params[:sort_order], params[:doctypes])
+        @docs = res[:docs]
+        @nb_pages = res[:nb_pages]
+        @pagenum = params[:page].to_i
+        @counter = (params[:page].to_i - 1) * params[:per_page].to_i
+        # docs.each_with_index do |doc, idx|
+        #     out += render partial: 'datasets/document', locals: {document: SolrDocument.new(doc), idx: idx+1}
+        # end
+        # render json: [out]
     end
 
     # GET /datasets/new
@@ -153,7 +172,15 @@ class DatasetsController < ApplicationController
                 Experiment.where(task: t).map(&:destroy)
                 t.destroy
             end
+            dataset_id = @dataset.id
             @dataset.destroy
+            if session[:working_dataset] == dataset_id
+                if current_user.datasets.first
+                    session[:working_dataset] = current_user.datasets.first.id
+                else
+                    session[:working_dataset] = nil
+                end
+            end
             message = "Dataset and associated tasks successfully removed."
             status = "success"
         rescue => e

@@ -1,105 +1,136 @@
 <% if current_user.id == @dataset.user_id %>
-  <div class="row">
-    <div style="display: none" id="div_dataset_id"><%= @dataset.id %></div>
-    <div class="col-md-3">
-      <p>
-        <strong>Title:</strong>
-        <%= @dataset.title %>
-        <%= link_to "/datasets/rename_dataset_modal/#{@dataset.id}",  {:remote => true, 'data-toggle' =>  "modal", 'data-target' => '#modal-rename-dataset', class: 'btn btn-link'} do %>
-          <span class="glyphicon glyphicon-cog"></span>
-        <% end %>
-      </p>
-      <p>
-            <%= @dataset.nb_issues %> issues.
-          <%= @dataset.nb_articles %> articles.
-          <%= @dataset.nb_compound %> compound articles.
-      </p>
-      <hr/>
-      <div class="search-widgets">
-        <div id="sort-dropdown" class="btn-group">
-          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-            Sort by... <span class="caret"></span>
-          </button>
-          <ul class="dropdown-menu" role="menu">
-            <li><%= link_to "date (⬇)", url_for(sort: "date") %></li>
-            <li><%= link_to "date (⬆)", url_for(sort: "date", sort_order: "desc") %></li>
-            <li><%= link_to "relevancy (⬇)", url_for(sort: "relevancy") %></li>
-            <li><%= link_to "relevancy (⬆)", url_for(sort: "relevancy", sort_order: "desc") %></li>
-          </ul>
+    <div class="row">
+        <div style="display: none" id="div_dataset_id"><%= @dataset.id %></div>
+        <div class="col-md-3">
+            <div id="dataset_info_panel" class="panel panel-default">
+                <div class="panel-heading">
+                    <div id="dataset_heading">
+                        <div id="title">
+                            <%= @dataset.title %>
+                        </div>
+                        <div id="metadata">
+                            <%= @dataset.nb_issues %> issues.
+                            <%= @dataset.nb_articles %> articles.
+                            <%= @dataset.nb_compound %> compound articles.
+                        </div>
+                    </div>
+                    <div id="rename">
+                        <%= link_to "/datasets/rename_dataset_modal/#{@dataset.id}", {:remote => true, 'data-toggle' => "modal", 'data-target' => '#modal-rename-dataset', class: 'btn btn-link'} do %>
+                            <span class="glyphicon glyphicon-cog"></span>
+                        <% end %>
+                    </div>
+                    </h2>
+                </div>
+                <div class="panel-body">
+
+                    <div id="dataset_manipulation">
+                        <span title="Only the JSON export allows you to download named entities for the moment." class="glyphicon glyphicon-question-sign"></span>
+                        <div id="export" class="input-group">
+                            <span class="input-group-addon">Export as: </span>
+                            <span class="input-group-btn">
+                            <button id="export_zip_button" class="btn btn-default">
+                                ZIP
+                            </button>
+                            <button id="export_csv_button" class="btn btn-default">
+                                CSV
+                            </button>
+                            <button id="export_excel_button" class="btn btn-default">
+                                Excel
+                            </button>
+                            <button id="export_json_button" class="btn btn-default">
+                                JSON
+                            </button>
+                        </span>
+                        </div>
+                        <div>
+                            <a data-remote="true" href="/create_subdataset?dataset_id=<%= @dataset.id %>" class="btn btn-primary">Create a sub-dataset</a>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Import from dataset &#9660;</button>
+                            <ul class="dropdown-menu">
+                                <% get_datasets_for_user(current_user).map { |d| d.reverse }.select { |d| d[1] != @dataset.id }.each do |d| %>
+                                    <li><a data-remote="true" href="/datasets_merge?dataset_id=<%= @dataset.id %>&merge_datasets_select=<%= d[1] %>"><%= d[0] %></a></li>
+                                <% end %>
+                            </ul>
+                        </div>
+
+<!--                        <form id="merge_datasets_form" class="form-inline" novalidate="novalidate" data-remote="true" method='post' action="/datasets/merge">-->
+<!--                            <div class="form-group">-->
+<!--                                <label for="merge_datasets_select">Import documents from another dataset:</label>-->
+<!--                                <select name="merge_datasets_select" class="form-control form-control-sm">-->
+                                    <%#= options_for_select get_datasets_for_user(current_user).map { |d| d.reverse }.select { |d| d[1] != @dataset.id } %>
+<!--                                </select>-->
+<!--                            </div>-->
+<!--                            <input type="hidden" name="dataset_id" value="<%#= @dataset.id %>"/>-->
+                            <%# @dataset.documents.each do |document| %>
+<!--                                <input type="hidden" name="relevancy[<%#= document['id'] %>]" value="<%#= document['relevancy'] %>"></input>-->
+                            <%# end %>
+<!--                            <div class="form-group">-->
+<!--                                <button class="btn btn-default" type="submit" href="#" id="apply_datasets_merge">-->
+<!--                                    Import-->
+<!--                                </button>-->
+<!--                            </div>-->
+<!--                        </form>-->
+<!--                        <div>-->
+                            <%#= button_to "Create a sub-dataset",
+                                          "/datasets/subdataset",
+                                          method: "post",
+                                          remote: true,
+                                          params: {dataset_id: @dataset.id} %>
+<!--                        </div>-->
+                    </div>
+
+                    <hr/>
+
+                    <div>
+                        <%= render partial: "datasets/datasets_handling" %>
+                    </div>
+                </div>
+            </div>
+            <div id="named_entities">
+                <div id="spinner"></div>
+            </div>
         </div>
-      </div>
 
-      <div class="input-group">
-        <span class="input-group-addon">Export as: </span>
-        <span class="input-group-btn">
-            <button id="export_zip_button" class="btn btn-default">
-                ZIP
-            </button>
-            <button id="export_csv_button" class="btn btn-default">
-                CSV
-            </button>
-            <button id="export_excel_button" class="btn btn-default">
-                Excel
-            </button>
-            <button id="export_json_button" class="btn btn-default">
-                JSON
-            </button>
-        </span>
-      </div>
+        <div class="col-md-9 documents-list">
+            <div class="row">
+                <div id="dataset_header_panel" class="panel panel-default">
+                    <div class="panel-body">
+                        <div>
+                            <div id="doctype_selectors" class="btn-group" role="group" aria-label="...">
+                                <button id="articles_button" data-doctype="article" type="button" class="active btn btn-default">Articles</button>
+                                <button id="issues_button" data-doctype="issue" type="button" class="btn btn-default">Issues</button>
+                                <button id="compounds_button" data-doctype="compound" type="button" class="btn btn-default">Compound articles</button>
+                            </div>
+                        </div>
 
-      <hr/>
+                        <div>
+                            <div id="dataset_pagination" class="btn-group"></div>
+                        </div>
 
-      <div>
-        <form id="merge_datasets_form" class="form-inline" novalidate="novalidate" data-remote="true" method='post' action="/datasets/merge">
-          <div class="form-group">
-            <label for="merge_datasets_select">Import documents from another dataset:</label>
-            <select name="merge_datasets_select" class="form-control form-control-sm">
-              <%= options_for_select get_datasets_for_user(current_user).map{|d| d.reverse}.select{|d| d[1] != @dataset.id} %>
-            </select>
-          </div>
-            <input type="hidden" name="dataset_id" value="<%= @dataset.id %>"/>
-            <% @dataset.documents.each do |document| %>
-              <input type="hidden" name="relevancy[<%= document['id'] %>]" value="<%= document['relevancy'] %>"></input>
-            <% end %>
-          <div class="form-group">
-            <button class="btn btn-default" type="submit" href="#" id="apply_datasets_merge">
-              Import
-            </button>
-          </div>
-        </form>
-        <%#= button_to "Merge another dataset into this one",
-                      "/datasets/merge",
-                      method: "post",
-                      remote: true,
-                      params: {dataset_id: @dataset.id} %>
-      </div>
-      <hr/>
-      <div>
-        <%= button_to "Create a sub-dataset",
-                      "/datasets/subdataset",
-                      method: "post",
-                      remote: true,
-                      params: {dataset_id: @dataset.id} %>
-      </div>
+                        <div>
+                            <div id="dataset_sort_select">
+                                <label>Sort options:</label>
+                                <select>
+                                    <option data-sort="default" data-order="asc" selected>Default (Asc)</option>
+                                    <option data-sort="default" data-order="desc">Default (Desc)</option>
+                                    <option data-sort="date" data-order="asc">Date (Asc)</option>
+                                    <option data-sort="date" data-order="desc">Date (Desc)</option>
+                                    <option data-sort="relevancy" data-order="asc">Relevancy (Asc)</option>
+                                    <option data-sort="relevancy" data-order="desc">Relevancy (Desc</option>
+                                </select>
+                            </div>
+                        </div>
 
-      <hr/>
-
-        <div>
-            <%= render partial: "datasets/datasets_handling" %>
-        </div>
-        <hr/>
-        <div>
-            <%= render partial: "catalog/named_entities_panel" %>
+                    </div>
+                </div>
+            </div>
+            <div id="dataset_documents_list" class="row">
+                <div id="spinner" style="margin: auto;"></div>
+            </div>
         </div>
     </div>
-
-    <div class="col-md-9 documents-list">
-      <% @documents_list.each_with_index do |doc, doc_idx| %>
-        <%= render partial: 'datasets/document', locals: {document: SolrDocument.new(doc), idx: doc_idx} %>
-      <% end %>
-    </div>
-  </div>
 <% else %>
-  <p>Access forbidden.</p>
+    <p>Access forbidden.</p>
 <% end %>
 

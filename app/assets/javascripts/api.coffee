@@ -197,3 +197,19 @@ class @API
             complete: (data)->
                 callback(data)
         }
+    @paginate_dataset: (dataset_id, page, per_page, sort, sort_order, doctypes, callback)->
+        $.ajax {
+            url:  window.location.protocol+"//"+window.location.host+"/datasets/paginate",
+            method: 'POST',
+            data:{dataset_id: dataset_id, page: page, per_page: per_page, sort: sort, sort_order: sort_order, doctypes: doctypes},
+            complete: (data)->
+                callback(data)
+        }
+    @get_dataset_named_entities: (dataset_id, callback)->
+        $.ajax {
+            url:  window.location.protocol+"//"+window.location.host+"/datasets/get_named_entities",
+            method: 'POST',
+            data:{dataset_id: dataset_id},
+            complete: (data)->
+                callback(data)
+        }

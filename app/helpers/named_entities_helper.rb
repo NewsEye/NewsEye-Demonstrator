@@ -27,20 +27,50 @@ module NamedEntitiesHelper
   end
 
   def get_kb_urls entities
-    ids = entities.select{ |label| label != "" }
-    return {} if ids.empty?
-    NewseyeSolrService.query({q: "*:*", fq: "id:(#{ids.join(' ')})", fl: "id,kb_url_ssi", rows: 99999}).map do |res|
-      [res['id'], res['kb_url_ssi']]
-    end.to_h
+      ids = entities.select{ |label| label != "" }
+      return {} if ids.empty?
+      NewseyeSolrService.query({q: "*:*", fq: "id:(#{ids.join(' ')})", fl: "id,kb_url_ssi", rows: 99999}).map do |res|
+          [res['id'], res['kb_url_ssi']]
+      end.to_h
+  end
+
+  def get_linked_entities entities
+      priority_language = [I18n.locale, 'en', 'de', 'fr', 'fi', 'sv']
+      ids = entities.select{ |label| label != "" }
+      return {} if ids.empty?
+      out = {}
+      NewseyeSolrService.query({q: "*:*", fq: "id:(#{ids.join(' ')})", fl: "*", rows: 99999}).map do |res|
+          priority_language.each do |lang|
+              unless res["label_#{lang}_ssi"].nil?
+                  out[res['id']] = {kb_url: res['kb_url_ssi'], label: res["label_#{lang}_ssi"]}
+                  break
+              end
+          end
+      end
+      out
   end
 
   def get_entity_label(options={})
     priority_language = [I18n.locale, 'en', 'de', 'fr', 'fi', 'sv']
-    doc = NewseyeSolrService.get_by_id options
-    unless doc.nil?
-      priority_language.each do |lang|
-        return doc["label_#{lang}_ssi"] unless doc["label_#{lang}_ssi"].nil?
-      end
+    if options.class == Array
+        out = {}
+        docs = NewseyeSolrService.query({q: "*:*", fq: "id:(#{options.join(' ')})", fl: "*", rows: 99999})
+        docs.map do |doc|
+            priority_language.each do |lang|
+                if doc["label_#{lang}_ssi"].nil?
+                    out[doc['id']] = doc["label_#{lang}_ssi"]
+                    break
+                end
+            end
+        end
+        return out
+    else
+        doc = NewseyeSolrService.get_by_id options
+        unless doc.nil?
+            priority_language.each do |lang|
+                return doc["label_#{lang}_ssi"] unless doc["label_#{lang}_ssi"].nil?
+            end
+        end
     end
   end
 
