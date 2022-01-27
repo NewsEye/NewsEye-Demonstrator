@@ -25,7 +25,7 @@ gem 'jbuilder', '~> 2.7'
 # gem 'bcrypt', '~> 3.1.7'
 
 gem 'rsolr'
-gem 'sidekiq', '~> 6.0'
+gem 'sidekiq', '~> 6.4'
 gem 'pragmatic_tokenizer'
 gem 'activerecord-session_store'
 
